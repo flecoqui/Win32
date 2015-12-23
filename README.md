@@ -1,2 +1,2 @@
 # Win32
-Win32 projects
+This repository contains Win32 projects 
