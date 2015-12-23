@@ -28,15 +28,15 @@ How to use TSRoute
 
 **Using TSRoute to get help:** On your machine running Windows, press WINDOWS+R, the dialog box Run appears enter "cmd" in the Open edit field and click on the "OK" button. Enter command "cd <Installation Directory>" to change directory. Then enter command "tsrooute. exe -help"
 
-**Using TSRoute to parse a TS file:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -parse -file <TS file path>"
+**Using TSRoute to parse a TS file:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -parse -file \<TS file path\>"
  
-**Using TSRoute to stream a TS file:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -stream -address <IPAddress>:<UDPPort> -interfaceaddress <NICCardIPAddress> -loop -updatetimestamps -file <TS file path>"
+**Using TSRoute to stream a TS file:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -stream -address \<IPAddress\>:\<UDPPort\> -interfaceaddress \<NICCardIPAddress\> -loop -updatetimestamps -file \<TS file path\>"
 
-**Using TSRoute to capture a TS file:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -receive -address <IPAddress>:<UDPPort> -file <TS file path>"
+**Using TSRoute to capture a TS file:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -receive -address \<IPAddress\>:\<UDPPort\> -file \<TS file path\>"
 
-**Using TSRoute to route a TS Stream:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -stream  -inputaddress <InputIPAddress>:<UDPPort> -address <IPAddress>:<UDPPort> -interfaceaddress <NICCardIPAddress> "
+**Using TSRoute to route a TS Stream:** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -stream  -inputaddress \<InputIPAddress\>:\<UDPPort\> -address \<IPAddress\>:\<UDPPort\> -interfaceaddress \<NICCardIPAddress\> "
 
-**Using TSRoute to install the TSRoute Service :** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -install -xmlfile <XML configuration file>"
+**Using TSRoute to install the TSRoute Service :** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -install -xmlfile \<XML configuration file\>"
 
 **Using TSRoute to start the TSRoute Service :** On your machine running Windows, in the command shell in the folder where TSRoute is installed enter command "tsroute.exe -start"
 
