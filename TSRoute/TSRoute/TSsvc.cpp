@@ -1,3 +1,13 @@
+//*********************************************************
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+//*********************************************************
 // TSRoute.cpp : Defines the entry point for the console application.
 //
 
@@ -32,9 +42,11 @@ bool InstallService(const char* xmlfile)
 
     schSCManager = OpenSCManager(NULL,NULL,SC_MANAGER_ALL_ACCESS); 
   
-    if (schSCManager == NULL) 
-        return false; 
-  
+	if (schSCManager == NULL)
+	{		
+		DWORD dwError = GetLastError();
+		return false;
+	}
     
   
     schService = CreateService(schSCManager,SZSERVICENAME,"MPEG2-TS Streamer", 
@@ -50,8 +62,11 @@ bool InstallService(const char* xmlfile)
         NULL); // Mot de passe : null si demarrer en tant que system 
   
     if (schService == NULL) 
-        return false; 
-  
+	{
+		DWORD dwError =  GetLastError() ;
+		return false;
+	}
+
 	SERVICE_DESCRIPTION sd;
 	sd.lpDescription = "This service streams Single Program (SPTS) or Multiple Program (MPTS) MPEG2-TS files towards the AServer";
 	ChangeServiceConfig2(schService,SERVICE_CONFIG_DESCRIPTION,&sd);

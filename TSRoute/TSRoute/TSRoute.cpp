@@ -1,3 +1,13 @@
+//*********************************************************
+//
+// Copyright (c) Microsoft. All rights reserved.
+// This code is licensed under the MIT License (MIT).
+// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
+// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
+// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
+// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
+//
+//*********************************************************
 // TSRoute.cpp : Defines the entry point for the console application.
 //
 
@@ -4177,7 +4187,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				if(InstallService(gStreamParam[0].xml_file.c_str())==true)
 					oss << " Result: MPEG2-TS Streamer service installed" ;
 				else
-					oss << " Result: Error when installing MPEG2-TS Streamer service";
+					oss << " Result: Error when installing MPEG2-TS Streamer service, are you running TSRoute.exe as Administrator? It's required for the installation";
 				if(gStreamParam[0].xml_file.length()>0)
 					oss << " Xml file (" << gStreamParam[0].xml_file.c_str() << " )";
 				TraceOut(&gGlobalParam,Information,oss.str().c_str());
