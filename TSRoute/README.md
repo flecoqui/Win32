@@ -18,8 +18,8 @@ System requirements
 Latest Build
 ------------
 
-The latest build is available there in the [releases section] : (https://github.com/flecoqui/Win32/tree/master/TSRoute/Releases/LatestRelease.zip)
-The latest build with TS Files is available there in the [releases section] : (https://github.com/flecoqui/Win32/tree/master/TSRoute/Releases/LatestReleaseWithTSFiles.zip)
+The latest build is available there in the [releases section] : (https://github.com/flecoqui/Win32/tree/master/TSRoute/Releases/Release.zip)
+The latest build with TS Files is available there in the [releases section] : (https://github.com/flecoqui/Win32/tree/master/TSRoute/Releases/ReleaseWithTSFiles.zip)
 
 How to use TSRoute
 ------------------
