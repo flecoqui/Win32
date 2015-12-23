@@ -49,7 +49,7 @@ bool InstallService(const char* xmlfile)
 	}
     
   
-    schService = CreateService(schSCManager,SZSERVICENAME,"MPEG2-TS Streamer", 
+    schService = CreateService(schSCManager,SZSERVICENAME,"MPEG2-TS Router", 
             SERVICE_ALL_ACCESS,         // desired access
             SERVICE_WIN32_OWN_PROCESS,  // service type
             SERVICE_AUTO_START,       // start type
@@ -68,7 +68,7 @@ bool InstallService(const char* xmlfile)
 	}
 
 	SERVICE_DESCRIPTION sd;
-	sd.lpDescription = "This service streams Single Program (SPTS) or Multiple Program (MPTS) MPEG2-TS files towards the AServer";
+	sd.lpDescription = "This service streams Single Program (SPTS) or Multiple Program (MPTS) MPEG2-TS files and routes MPEG2-TS streams over UDP";
 	ChangeServiceConfig2(schService,SERVICE_CONFIG_DESCRIPTION,&sd);
 
     CloseServiceHandle(schService); 
