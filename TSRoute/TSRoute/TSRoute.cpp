@@ -3324,6 +3324,52 @@ bool GetTraceLevel(LPCTSTR lp, VerboseLevel& vb)
 	return false;
 }
 
+int GetIpAddressFromName(string name, PSTR str, size_t len)
+{
+	struct addrinfo *result = NULL;
+	struct addrinfo *ptr = NULL;
+	struct addrinfo hints;
+	struct sockaddr_in  *sockaddr_ipv4;
+	WSADATA wsaData;
+	int iResult;
+	string s;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		return  1;
+	}
+
+	DWORD dwRetval = getaddrinfo(name.c_str(), NULL, &hints, &result);
+	if (dwRetval == 0)
+	{
+		for (ptr = result; ptr != NULL;ptr = ptr->ai_next) {
+
+			switch (ptr->ai_family) {
+			case AF_UNSPEC:
+				break;
+			case AF_INET:
+				sockaddr_ipv4 = (struct sockaddr_in *) ptr->ai_addr;
+				if (inet_ntop(AF_INET, &(sockaddr_ipv4->sin_addr), str, len) != NULL)
+				{
+					WSACleanup();
+					return 0;
+				}
+			case AF_INET6:
+				break;
+			case AF_NETBIOS:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	WSACleanup();
+	return 1;
+}
+
 int ParseCommandLine(int argc, _TCHAR* argv[], GLOBAL_PARAMETER* pGParam, STREAM_PARAMETER* pParam, LPDWORD lpdwParamLen, string& error_string)
 {
 	bool error = false; 
@@ -3564,8 +3610,15 @@ int ParseCommandLine(int argc, _TCHAR* argv[], GLOBAL_PARAMETER* pGParam, STREAM
 								size_t pos = s.find(':');
 								if((pos>0) && (pos < (s.length()-1)))
 								{
+									char str[INET_ADDRSTRLEN];
 									string s_ip_address = s.substr(0,pos);
-									pParam[i].udp_ip_address = s_ip_address.c_str();
+									if ((s_ip_address.length() > 0) && (isalpha(s_ip_address[0])))
+									{
+										if(GetIpAddressFromName(s_ip_address,str, INET_ADDRSTRLEN)==0)
+											pParam[i].udp_ip_address = str;
+									}
+									if(pParam[i].udp_ip_address.length()==0)
+										pParam[i].udp_ip_address = s_ip_address.c_str();
 									pParam[i].udp_port = atoi(s.substr(pos+1,s.length()-1).c_str());
 									error = false;
 								}
