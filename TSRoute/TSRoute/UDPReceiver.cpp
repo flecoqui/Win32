@@ -26,6 +26,28 @@
 
 #define IsMulticastAddress(__MCastIP)		(((__MCastIP & 0xFF) >= 0xE0) && ((__MCastIP & 0xFF) <= 0xEF))
 
+bool UDPMulticastReceiver::RegisterWinSock()
+{
+	WORD wVersionRequested;
+	WSADATA wsaData;
+
+	wVersionRequested = MAKEWORD(2, 2);
+	if (WSAStartup(wVersionRequested, &wsaData))
+	{
+		return false;
+	}
+	RegistrationCounter++;
+	return true;
+}
+int UDPMulticastReceiver::RegistrationCounter = 0;
+
+bool UDPMulticastReceiver::UnregisterWinSock()
+{
+	if (--RegistrationCounter == 0)
+		WSACleanup();
+	return true;
+}
+
 
 UDPMulticastReceiver::UDPMulticastReceiver(void)
 {
@@ -39,12 +61,10 @@ UDPMulticastReceiver::~UDPMulticastReceiver(void)
 int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBufferSize,const char* ip_address_out_bound)
 {
 	ErrorCode = 0;
-	// Check Network
-	WSADATA wsaData;
 
 	int cr;
 	
-	if (WSAStartup(MAKEWORD(2,2), &wsaData ))
+	if (RegisterWinSock()==false)
 	{
 		return 0;
 	}
@@ -54,7 +74,7 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 	if(m_sock ==  0)
 	{
 		ErrorCode = WSAGetLastError();
-		WSACleanup( );
+		UnregisterWinSock();
 		return 0;
 	}
 	/* bind the socket to the internet address */
@@ -70,7 +90,7 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 	{
 		ErrorCode = WSAGetLastError();
 		closesocket(m_sock);
-		WSACleanup( );
+		UnregisterWinSock();
 		return 0;
 	}
 	struct in_addr addr;
@@ -99,7 +119,7 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 				{
 					ErrorCode = WSAGetLastError();
 					closesocket(m_sock);
-					WSACleanup();
+					UnregisterWinSock();
 					return 0;
 				}
 				//m_imr.imr_interface.s_addr = inet_addr(ip_address_out_bound);
@@ -111,7 +131,7 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 			{
 				ErrorCode = WSAGetLastError();
 				closesocket(m_sock);
-				WSACleanup();
+				UnregisterWinSock();
 				return 0;
 			}
 		}
@@ -121,7 +141,7 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 	{
 		ErrorCode = WSAGetLastError();
 		closesocket(m_sock);
-		WSACleanup( );
+		UnregisterWinSock();
 		return 0;
 	}
 	return 1;
@@ -129,12 +149,16 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 int UDPMulticastReceiver::Unload(void)
 {
 	int cr;
-	if(IsMulticastAddress(m_address))
+	if (m_sock != NULL)
 	{
-		cr = setsockopt(m_sock, IPPROTO_IP, IP_DROP_MEMBERSHIP,(char *)&m_imr, sizeof(m_imr));
+		if (IsMulticastAddress(m_address))
+		{
+			cr = setsockopt(m_sock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&m_imr, sizeof(m_imr));
+		}
+		closesocket(m_sock);
+		UnregisterWinSock();
+		m_sock = NULL;
 	}
-	closesocket(m_sock );
-	WSACleanup( );
 	return 1;
 }
 int UDPMulticastReceiver::Recv(char *p,int* lplen)
@@ -163,8 +187,8 @@ int UDPMulticastReceiver::RecvNonBlocking(char *p,int* lplen,DWORD TimeOut)
     Overlapped.hEvent = WSACreateEvent();
     if (Overlapped.hEvent == NULL) {
 		ErrorCode = WSAGetLastError();
-        WSACleanup();
-        return 0;
+		UnregisterWinSock();
+		return 0;
     }
 
 

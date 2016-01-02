@@ -7,6 +7,7 @@ public:
 	TSStreamer(void);
 	~TSStreamer(void);
 	int SendPacket(char *p);
+	int FlushBuffer();
 private:
 	char buffer[PACKET_SIZE*MAX_PACKET];
 	int index;

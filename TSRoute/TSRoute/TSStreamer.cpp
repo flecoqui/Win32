@@ -19,7 +19,7 @@ TSStreamer::~TSStreamer(void)
 {
 	Unload();
 }
-long gindex = 0;
+
 int TSStreamer::SendPacket(char *p)
 {
 	memcpy(&buffer[index++*PACKET_SIZE],p,PACKET_SIZE);
@@ -28,6 +28,17 @@ int TSStreamer::SendPacket(char *p)
 	{
 		index = 0;
 		return Send((char *)buffer,MAX_PACKET*PACKET_SIZE);
+	}
+
+	return 1;
+}
+int TSStreamer::FlushBuffer()
+{
+	if (index != 0)
+	{	
+		int i = index;
+		index = 0;
+		return Send((char *)buffer, i*PACKET_SIZE);
 	}
 
 	return 1;

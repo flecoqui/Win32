@@ -11,4 +11,8 @@ private:
 	SOCKADDR_IN  m_addrDest;
 	struct in_addr m_if_addr;
 	bool m_if;
+	static bool RegisterWinSock();
+	static bool UnregisterWinSock();
+	static int RegistrationCounter;
+
 };

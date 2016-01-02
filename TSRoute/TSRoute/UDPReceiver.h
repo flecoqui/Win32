@@ -16,4 +16,8 @@ private:
 	WSAOVERLAPPED Overlapped;
 	unsigned long m_address;
 	struct ip_mreq m_imr;
+	static bool RegisterWinSock();
+	static bool UnregisterWinSock();
+	static int RegistrationCounter;
+
 };

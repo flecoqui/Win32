@@ -16,6 +16,29 @@
 
 #define IsMulticastAddress(__MCastIP)		(((__MCastIP & 0xFF) >= 0xE0) && ((__MCastIP & 0xFF) <= 0xEF))
 
+bool UDPMulticastStreamer::RegisterWinSock()
+{
+	WORD wVersionRequested;
+	WSADATA wsaData;
+
+	wVersionRequested = MAKEWORD(2, 2);
+	if (WSAStartup(wVersionRequested, &wsaData))
+	{
+		return false;
+	}
+	RegistrationCounter++;
+	return true;
+}
+int UDPMulticastStreamer::RegistrationCounter = 0;
+
+bool UDPMulticastStreamer::UnregisterWinSock()
+{
+	if(--RegistrationCounter==0)
+		WSACleanup();
+	return true;
+}
+
+
 UDPMulticastStreamer::UDPMulticastStreamer(void)
 {
 	m_sock = NULL;
@@ -28,14 +51,11 @@ UDPMulticastStreamer::~UDPMulticastStreamer(void)
 int UDPMulticastStreamer::Load(const char* ip_address, WORD upd_port, char ttl, int SendBufferSize,const char* ip_address_out_bound)
 {
 	// Check Network
-	WORD wVersionRequested;
-	WSADATA wsaData;
 	char loop = 0;
 	int cr;
 	m_if = false;
 
-	wVersionRequested = MAKEWORD( 2, 2 );
-	if (WSAStartup(wVersionRequested, &wsaData ))
+	if (RegisterWinSock()==false)
 	{
 		return 0;
 	}
@@ -81,8 +101,12 @@ int UDPMulticastStreamer::Load(const char* ip_address, WORD upd_port, char ttl, 
 }
 int UDPMulticastStreamer::Unload(void)
 {
-	closesocket(m_sock );
-	WSACleanup( );
+	if (m_sock != NULL)
+	{
+		closesocket(m_sock);
+		UnregisterWinSock();
+		m_sock = NULL;
+	}
 	return 1;
 }
 int UDPMulticastStreamer::Send(char *p,int len)

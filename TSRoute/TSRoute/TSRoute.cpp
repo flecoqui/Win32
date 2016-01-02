@@ -436,8 +436,11 @@ DWORD FAR PASCAL SendProc( LPSTR lpData )
 											PacketCounter++;
 											MonitorCounter++;
 											PCRCounter++;
-											if((p = (char*)file.GetNextPacket((PACKET*)p)) == NULL)
+											if ((p = (char*)file.GetNextPacket((PACKET*)p)) == NULL)
+											{
+												Streamer.FlushBuffer();
 												break;
+											}
 										}
 										TMonitor.End(MonitorPeriod);
 										if(MonitorPeriod>pc->refresh_period)
@@ -1064,8 +1067,54 @@ int DisplayFileStreamerOrRouterCounters(GLOBAL_PARAMETER* gParam,STREAM_PARAMETE
 	}
 	return 1;
 }
+
 int CheckStreamFileErrors(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Param, DWORD dwParamLen,Timer& T)
 {
+	bool bShouldStop;
+	if (gParam->bSyncTransmission == true)
+	{
+		bShouldStop = false;
+		for (DWORD i = 0; i < dwParamLen; i++)
+		{
+			if ((Param[i].ts_file.length()> 0) && (Param[i].Maindata.bStopped == true))
+			{
+				bShouldStop = true;
+				break;
+			}
+			if ((Param[i].pip_ts_file.length()> 0) && (Param[i].PIPdata.bStopped == true))
+			{
+				bShouldStop = true;
+				break;
+			}
+		}
+	}
+	else
+	{
+		bShouldStop = true;
+		for (DWORD i = 0; i < dwParamLen; i++)
+		{
+			if (Param[i].ts_file.length()> 0)
+			{
+				if(Param[i].Maindata.bStopped == false)
+				{
+					bShouldStop = false;
+					break;
+				}
+			}
+			else
+			{
+				bShouldStop = false;
+				break;
+			}
+			if ((Param[i].pip_ts_file.length()> 0) && (Param[i].PIPdata.bStopped == false))
+			{
+				bShouldStop = false;
+				break;
+			}
+		}
+	}
+	if (bShouldStop == false)
+		return 0;
 	for(DWORD i = 0; i < dwParamLen; i++)
 	{
 		if(Param[i].ts_file.length()> 0)
@@ -1079,35 +1128,33 @@ int CheckStreamFileErrors(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Param, DWOR
 
 					ostringstream oss;
 					if(Param[i].Maindata.bError==true)
-						oss << endl <<"Main Streaming thread stopped" << endl <<"Error message: " << Param[i].Maindata.ErrorMessage <<endl;
+						oss << endl <<"Main Streaming thread stopped for file: " << Param[i].ts_file << " towards: " << Param[i].udp_ip_address << endl <<"Error message: " << Param[i].Maindata.ErrorMessage <<endl;
 					else
-						oss << "End of broadcast, duration: " << duration << " seconds" << endl;
+						oss << "End of broadcast for file: " << Param[i].ts_file << " towards: " << Param[i].udp_ip_address << " , duration: " << duration << " seconds" << endl;
 					TraceOut(gParam, Information, oss.str().c_str());
 				}
-				return 1;
 			}
-			if(Param[i].ts_file.length()> 0)
+			if (Param[i].pip_ts_file.length() > 0)
 			{
-				if(Param[i].PIPdata.bStopped==true)
+				if (Param[i].PIPdata.bStopped == true)
 				{
-					if(IsTrace(gParam,Information))
+					if (IsTrace(gParam, Information))
 					{
 						double duration;
 						T.End(duration);
 
 						ostringstream oss;
-						if(Param[i].PIPdata.bError==true)
-							oss << endl <<"PIP Streaming thread stopped" << endl <<"Error message: " << Param[i].PIPdata.ErrorMessage <<endl;
+						if (Param[i].PIPdata.bError == true)
+							oss << endl << "PIP Streaming thread stopped for file: " << Param[i].pip_ts_file << " towards: " << Param[i].pip_udp_ip_address << endl << "Error message: " << Param[i].PIPdata.ErrorMessage << endl;
 						else
-							oss << "End of broadcast, duration: " << duration << " seconds" << endl;
+							oss << "End of broadcast for file: " << Param[i].pip_ts_file << " towards: " << Param[i].pip_udp_ip_address << " , duration: " << duration << " seconds" << endl;
 						TraceOut(gParam, Information, oss.str().c_str());
 					}
-					return 1;
 				}
 			}
 		}
 	}
-	return 0;
+	return 1;
 }
 int GetRouteStreamInformation(string& msg,const char* input_udp_ip_address, int input_udp_port, const char *input_udp_ip_address_interface, const char* udp_ip_address, int udp_port,const char *udp_ip_address_interface,  int ttl)
 {
@@ -3610,15 +3657,8 @@ int ParseCommandLine(int argc, _TCHAR* argv[], GLOBAL_PARAMETER* pGParam, STREAM
 								size_t pos = s.find(':');
 								if((pos>0) && (pos < (s.length()-1)))
 								{
-									char str[INET_ADDRSTRLEN];
 									string s_ip_address = s.substr(0,pos);
-									if ((s_ip_address.length() > 0) && (isalpha(s_ip_address[0])))
-									{
-										if(GetIpAddressFromName(s_ip_address,str, INET_ADDRSTRLEN)==0)
-											pParam[i].udp_ip_address = str;
-									}
-									if(pParam[i].udp_ip_address.length()==0)
-										pParam[i].udp_ip_address = s_ip_address.c_str();
+									pParam[i].udp_ip_address = s_ip_address.c_str();
 									pParam[i].udp_port = atoi(s.substr(pos+1,s.length()-1).c_str());
 									error = false;
 								}
@@ -4187,6 +4227,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	if(gGlobalParam.trace_file.length()>0)
 		gGlobalParam.pLog = new TSTrace(gGlobalParam.trace_file.c_str(),gGlobalParam.trace_max_size);
+
+	for (DWORD k = 0; k < gdwParamLen; k++)
+	{
+		if ((gStreamParam[k].udp_ip_address.length()>0) && (isalpha(gStreamParam[k].udp_ip_address[0])))
+		{
+			char str[INET_ADDRSTRLEN];
+			if (GetIpAddressFromName(gStreamParam[k].udp_ip_address, str, INET_ADDRSTRLEN) == 0)
+				gStreamParam[k].udp_ip_address = str;
+		}
+		if ((gStreamParam[k].pip_udp_ip_address.length() > 0) && (isalpha(gStreamParam[k].pip_udp_ip_address[0])))
+		{
+			char str[INET_ADDRSTRLEN];
+			if (GetIpAddressFromName(gStreamParam[k].pip_udp_ip_address, str, INET_ADDRSTRLEN) == 0)
+				gStreamParam[k].pip_udp_ip_address = str;
+		}
+	}
 
 	if(gGlobalParam.mode == Service)
 	{		 
