@@ -626,10 +626,9 @@ DWORD FAR PASCAL RouteProc( LPSTR lpData )
 			p->LastGlobalCounter=0;
 
 			len = sizeof(buffer);
-//			while( (Receiver.Recv(buffer,&len)) && (p->bStop == false))
-			while( (Receiver.RecvNonBlocking(buffer,&len,1000)) && (p->bStop == false))
+			while( (Receiver.Recv(buffer,&len)) && (p->bStop == false))
 			{
-				if(len != 0)
+				if(len > 0)
 				{
 					Streamer.Send(buffer,len);
 					MonitorCounter += len;
@@ -651,14 +650,13 @@ DWORD FAR PASCAL RouteProc( LPSTR lpData )
 					MonitorCounter=0;
 				}
 			}
-			if(Receiver.GetLastError()!=0)
+			if (Receiver.GetLastError() != 0)
 			{
 				p->bError = true;
 				ostringstream oss;
-				oss <<  "Socket Error:" << Receiver.GetLastError() << endl;
+				oss << "Socket Error:" << Receiver.GetLastError() << endl;
 				p->ErrorMessage = oss.str().c_str();
 			}
-
 			Receiver.Unload();
 		}
 		else
@@ -1022,9 +1020,10 @@ int DisplayFileStreamerOrRouterCounters(GLOBAL_PARAMETER* gParam,STREAM_PARAMETE
 		}
 		else if(Param[i].input_udp_ip_address.length()> 0)
 		{
-
-			if((Param[i].Maindata.lastduration != Param[i].Maindata.duration)&& (Param[i].Maindata.duration != 0))
+			ULONGLONG currentTick = GetTickCount64();
+			if(((Param[i].Maindata.lastduration != Param[i].Maindata.duration) && (Param[i].Maindata.duration != 0))  || ((currentTick - Param[i].Maindata.refreshtickcount) > Param[i].refresh_period*1000))
 			{
+				Param[i].Maindata.refreshtickcount = currentTick;
 				if(Param[i].output_file.length()>0)
 				{
 					string error_string;
@@ -1259,6 +1258,7 @@ int InitFileStreamerOrRouterData(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Para
 			Param[i].Maindata.duration = 0;
 			Param[i].Maindata.buffersize = Param[i].buffersize;
 			Param[i].Maindata.lastduration = 0;
+			Param[i].Maindata.refreshtickcount = 0;
 			Param[i].Maindata.hThread = 0;
 			Param[i].Maindata.dwThreadID = 0;
 			Param[i].Maindata.refresh_period = Param[i].refresh_period;
@@ -1293,6 +1293,7 @@ int InitFileStreamerOrRouterData(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Para
 			Param[i].PIPdata.duration = 0;
 			Param[i].PIPdata.buffersize = Param[i].pip_buffersize;
 			Param[i].PIPdata.lastduration = 0;
+			Param[i].PIPdata.refreshtickcount = 0;
 			Param[i].PIPdata.hThread = 0;
 			Param[i].PIPdata.dwThreadID = 0;
 			Param[i].PIPdata.refresh_period = Param[i].refresh_period;
@@ -1364,6 +1365,7 @@ int InitFileStreamerOrRouterData(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Para
 			Param[i].Maindata.duration = 0;
 			Param[i].Maindata.buffersize = Param[i].buffersize;
 			Param[i].Maindata.lastduration = 0;
+			Param[i].Maindata.refreshtickcount = 0;
 			Param[i].Maindata.hThread = 0;
 			Param[i].Maindata.dwThreadID = 0;
 			Param[i].Maindata.refresh_period = Param[i].refresh_period;
@@ -1398,6 +1400,7 @@ int InitFileStreamerOrRouterData(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Para
 			Param[i].PIPdata.duration = 0;
 			Param[i].PIPdata.buffersize = Param[i].pip_buffersize;
 			Param[i].PIPdata.lastduration = 0;
+			Param[i].PIPdata.refreshtickcount = 0;
 			Param[i].PIPdata.hThread = 0;
 			Param[i].PIPdata.dwThreadID = 0;
 			Param[i].PIPdata.refresh_period = Param[i].refresh_period;
@@ -1463,6 +1466,7 @@ int InitStreamFileData(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Param, DWORD d
 			Param[i].Maindata.duration = 0;
 			Param[i].Maindata.buffersize = Param[i].buffersize;
 			Param[i].Maindata.lastduration = 0;
+			Param[i].Maindata.refreshtickcount = 0;
 			Param[i].Maindata.hThread = 0;
 			Param[i].Maindata.dwThreadID = 0;
 			Param[i].Maindata.refresh_period = Param[i].refresh_period;
@@ -1497,6 +1501,7 @@ int InitStreamFileData(GLOBAL_PARAMETER* gParam,STREAM_PARAMETER* Param, DWORD d
 			Param[i].PIPdata.duration = 0;
 			Param[i].PIPdata.buffersize = Param[i].pip_buffersize;
 			Param[i].PIPdata.lastduration = 0;
+			Param[i].PIPdata.refreshtickcount = 0;
 			Param[i].PIPdata.hThread = 0;
 			Param[i].PIPdata.dwThreadID = 0;
 			Param[i].PIPdata.refresh_period = Param[i].refresh_period;
@@ -2245,7 +2250,7 @@ int MRouteStream(GLOBAL_PARAMETER* gParam,
     string titre = "Information about Transport Stream Multicast Router"; 
     const char *c_titre = titre.c_str ( ); 	
 
-	ROUTE_STR data;
+	SEND_STR data;
 	data.GlobalCounter = 0;
 	data.bStop = false;
 	data.bStopped = false;

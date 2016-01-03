@@ -217,6 +217,7 @@ HANDLE hThread;
 DWORD dwThreadID;
 double lastduration;
 unsigned long  refresh_period;
+ULONGLONG refreshtickcount;
 } SEND_STR;
 
 typedef struct GlobalParameterStruct{

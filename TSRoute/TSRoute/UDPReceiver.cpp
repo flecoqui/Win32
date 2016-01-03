@@ -144,6 +144,7 @@ int UDPMulticastReceiver::Load(const char* ip_address, WORD upd_port, int RecvBu
 		UnregisterWinSock();
 		return 0;
 	}
+
 	return 1;
 }
 int UDPMulticastReceiver::Unload(void)
@@ -151,6 +152,7 @@ int UDPMulticastReceiver::Unload(void)
 	int cr;
 	if (m_sock != NULL)
 	{
+
 		if (IsMulticastAddress(m_address))
 		{
 			cr = setsockopt(m_sock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (char *)&m_imr, sizeof(m_imr));
@@ -174,7 +176,7 @@ int UDPMulticastReceiver::Recv(char *p,int* lplen)
 	return 1;
 }
 
-
+/*
 int UDPMulticastReceiver::RecvNonBlocking(char *p,int* lplen,DWORD TimeOut)
 {
 	WSABUF DataBuf;
@@ -247,7 +249,71 @@ int UDPMulticastReceiver::RecvNonBlocking(char *p,int* lplen,DWORD TimeOut)
     WSACloseEvent(Overlapped.hEvent);
 	return 0;
 }
-	
+*/
+int UDPMulticastReceiver::RecvNonBlocking(char *p, int* lplen, DWORD TimeOut)
+{
+
+	DWORD BytesRecv = 0;
+	DWORD Flags = 0;
+	int l = sizeof(m_addrRecv);
+
+
+	SecureZeroMemory((PVOID)&Overlapped, sizeof(WSAOVERLAPPED));
+	// Create an event handle and setup the overlapped structure.
+	Overlapped.hEvent = WSACreateEvent();
+	if (Overlapped.hEvent == NULL) {
+		ErrorCode = WSAGetLastError();
+		UnregisterWinSock();
+		return 0;
+	}
+
+	if ((p == NULL) || (lplen == NULL))
+		return 0;
+	DataBuffer.len = (ULONG)*lplen;
+	DataBuffer.buf = (CHAR*)p;
+	int status = WSARecvFrom(m_sock,
+		&DataBuffer,
+		1,
+		&BytesRecv,
+		&Flags,
+		(struct sockaddr*)&m_addrRecv, &l, &Overlapped, NULL);
+	if (status != 0) {
+		ErrorCode = WSAGetLastError();
+		if (ErrorCode != WSA_IO_PENDING) {
+			*lplen = 0;
+			return 1;
+		}
+		else {
+			status = WSAWaitForMultipleEvents(1, &Overlapped.hEvent, TRUE, TimeOut, TRUE);
+			if (status == WSA_WAIT_FAILED) {
+				ErrorCode = WSAGetLastError();
+				return -1;
+			}
+			if (status == WSA_WAIT_TIMEOUT) {
+				WSACloseEvent(Overlapped.hEvent);
+				*lplen = 0;
+				return 1;
+			}
+
+			status = WSAGetOverlappedResult(m_sock, &Overlapped, &BytesRecv,
+				FALSE, &Flags);
+			if (status == FALSE) {
+				ErrorCode = WSAGetLastError();
+				return -1;
+			}
+			else
+			{
+				*lplen = BytesRecv;
+				return 1;
+			}
+		}
+
+	}
+
+	*lplen = 0;
+	return 1;
+}
+
 int UDPMulticastReceiver::GetLastError()
 {
 	return ErrorCode;
