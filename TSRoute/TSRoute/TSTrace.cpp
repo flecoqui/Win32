@@ -16,7 +16,7 @@
 #include "tstrace.h"
 
 
-#define BUFFER_TRACE_LENGTH 4096
+#define BUFFER_TRACE_LENGTH   16384
 #define MAX_LINE_LENGTH    	    300
 
 TSTrace::TSTrace(LPCTSTR pFile, DWORD dwMaxSize)
@@ -45,7 +45,7 @@ DWORD TSTrace::TraceWrite(LPCTSTR pTrace)
 
 	int lastlineFeed = 0;                                     
 	int i = 0;
-	while ((BufferTrace[i]!='\0') && (i <BUFFER_TRACE_LENGTH))
+	while ((BufferTrace[i]!='\0') && ((i + 2) <BUFFER_TRACE_LENGTH))
 	{       
 		switch (BufferTrace[i])
 		{
