@@ -1,9 +1,12 @@
+
+
 #define MAX_TIME_STAMP 4
 #define TIME_STAMP_PCR  0
 #define TIME_STAMP_OPCR 1
 #define TIME_STAMP_DTS  2
 #define TIME_STAMP_PTS  3
 #define PACKET_SIZE 188
+#define MAX_PID 64
 
 typedef BYTE PACKET[PACKET_SIZE];
 
@@ -112,8 +115,8 @@ public:
 
 	TSFile(void);
 	~TSFile(void);
-	int Open(const char* ts_file);
-	int Create(const char* ts_file);
+	int Open(const TCHAR* ts_file);
+	int Create(const TCHAR* ts_file);
 	int Write(char* p, long len);
 	int Close();
 	__int64 Load(unsigned long buffersize=0);
@@ -138,7 +141,7 @@ public:
 	int GetPacketRange(WORD PCR_PID,  __int64& PacketStart,  __int64& PacketEnd);
 
 	int GetPID(PACKET* pPacket, WORD& PID);
-	int GetPacketInformation(Parse_Mask Mask,PACKET* pPacket,string& s);
+//	int GetPacketInformation(Parse_Mask Mask,PACKET* pPacket,string& s);
 
 
 
@@ -170,7 +173,7 @@ public:
 	int DiscontinuityIndicator(LPBYTE Packet);
 	int SetDiscontinuityIndicator(LPBYTE Packet);
 
-	bool CheckContinuityCounter(LPBYTE Packet,__int64 count,string& s);
+//	bool CheckContinuityCounter(LPBYTE Packet,__int64 count,string& s);
 	int InitPIDInformation();
 	BYTE GetLastContinuityCounter(WORD Pid);
 	bool SetLastContinuityCounter(WORD Pid,BYTE Counter);
@@ -204,7 +207,7 @@ protected:
 private:
 
 	HANDLE  m_file_handle;
-	string  m_file;
+	TCHAR  m_file[MAX_PATH];
 	// update type to support 4 GB files
 	__int64   m_file_length;
 

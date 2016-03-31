@@ -1,0 +1,19681 @@
+﻿#include "vfwmsgs.h"
+typedef struct _AMMediaType
+{
+	GUID majortype;
+	GUID subtype;
+	BOOL bFixedSizeSamples;
+	BOOL bTemporalCompression;
+	ULONG lSampleSize;
+	GUID formattype;
+	IUnknown *pUnk;
+	ULONG cbFormat;
+	/* [size_is] */ BYTE *pbFormat;
+} 	AM_MEDIA_TYPE;
+
+typedef
+enum _PinDirection
+{
+	PINDIR_INPUT = 0,
+	PINDIR_OUTPUT = (PINDIR_INPUT + 1)
+} 	PIN_DIRECTION;
+
+#define MAX_PIN_NAME     128
+#define MAX_FILTER_NAME  128
+typedef LONGLONG REFERENCE_TIME;
+
+typedef double REFTIME;
+
+typedef DWORD_PTR HSEMAPHORE;
+
+typedef DWORD_PTR HEVENT;
+
+typedef struct _AllocatorProperties
+{
+	long cBuffers;
+	long cbBuffer;
+	long cbAlign;
+	long cbPrefix;
+} 	ALLOCATOR_PROPERTIES;
+
+
+/*************************************bdamedia.h**************************************/
+
+/*************************************ksuuids.h**************************************/
+
+#pragma region Desktop Family
+#ifndef OUR_GUID_ENTRY
+#define OUR_GUID_ENTRY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
+#endif
+//
+// --- MPEG 2 definitions ---
+//
+
+// 36523B13-8EE5-11d1-8CA3-0060B057664A
+OUR_GUID_ENTRY(MEDIATYPE_MPEG2_PACK,
+	0x36523B13, 0x8EE5, 0x11d1, 0x8C, 0xA3, 0x00, 0x60, 0xB0, 0x57, 0x66, 0x4A)
+
+	// e06d8020-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIATYPE_MPEG2_PES,
+		0xe06d8020, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x5f, 0x6c, 0xbb, 0xea)
+
+
+#if 0
+	DEFINE_GUID(MEDIATYPE_CONTROL,
+		0xe06d8021, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea);
+#endif // #if 0
+
+#if ( (NTDDI_VERSION >= NTDDI_WINXPSP2) && (NTDDI_VERSION < NTDDI_WS03) ) || (NTDDI_VERSION >= NTDDI_WS03SP1)
+
+OUR_GUID_ENTRY(MEDIATYPE_MPEG2_SECTIONS,
+	0x455f176c, 0x4b06, 0x47ce, 0x9a, 0xef, 0x8c, 0xae, 0xf7, 0x3d, 0xf7, 0xb5)
+
+	// {1ED988B0-3FFC-4523-8725-347BEEC1A8A0}
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_VERSIONED_TABLES,
+		0x1ed988b0, 0x3ffc, 0x4523, 0x87, 0x25, 0x34, 0x7b, 0xee, 0xc1, 0xa8, 0xa0)
+
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ATSC_SI,
+		0xb3c7397c, 0xd303, 0x414d, 0xb3, 0x3c, 0x4e, 0xd2, 0xc9, 0xd2, 0x97, 0x33)
+
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVB_SI,
+		0xe9dd31a3, 0x221d, 0x4adb, 0x85, 0x32, 0x9a, 0xf3, 0x9, 0xc1, 0xa4, 0x8)
+
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ISDB_SI,
+		0xe89ad298, 0x3601, 0x4b06, 0xaa, 0xec, 0x9d, 0xde, 0xed, 0xcc, 0x5b, 0xd0)
+
+	// {EC232EB2-CB96-4191-B226-0EA129F38250}
+	OUR_GUID_ENTRY(MEDIASUBTYPE_TIF_SI,
+		0xec232eb2, 0xcb96, 0x4191, 0xb2, 0x26, 0xe, 0xa1, 0x29, 0xf3, 0x82, 0x50)
+
+	// {C892E55B-252D-42b5-A316-D997E7A5D995}
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2DATA,
+		0xc892e55b, 0x252d, 0x42b5, 0xa3, 0x16, 0xd9, 0x97, 0xe7, 0xa5, 0xd9, 0x95)
+
+#endif
+
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_WMDRM_TRANSPORT,
+		0x18BEC4EA, 0x4676, 0x450e, 0xB4, 0x78, 0x0C, 0xD8, 0x4C, 0x54, 0xB3, 0x27)
+
+	// e06d8026-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_VIDEO,
+		0xe06d8026, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x5f, 0x6c, 0xbb, 0xea)
+
+	// use MPEG2VIDEOINFO (defined below) with FORMAT_MPEG2_VIDEO
+	// e06d80e3-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(FORMAT_MPEG2_VIDEO,
+		0xe06d80e3, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x5f, 0x6c, 0xbb, 0xea)
+
+	// F72A76A0-EB0A-11d0-ACE4-0000C0CC16BA       (FORMAT_VideoInfo2)
+	OUR_GUID_ENTRY(FORMAT_VIDEOINFO2,
+		0xf72a76A0L, 0xeb0a, 0x11d0, 0xac, 0xe4, 0x0, 0x0, 0xc0, 0xcc, 0x16, 0xba)
+
+	// MPEG2 Other subtypes
+	// e06d8022-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_PROGRAM,
+		0xe06d8022, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d8023-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_TRANSPORT,
+		0xe06d8023, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+	// 138AA9A4-1EE2-4c5b-988E-19ABFDBC8A11
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_TRANSPORT_STRIDE,
+		0x138aa9a4, 0x1ee2, 0x4c5b, 0x98, 0x8e, 0x19, 0xab, 0xfd, 0xbc, 0x8a, 0x11)
+
+	// {18BEC4EA-4676-450e-B478-0CD84C54B327}
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_UDCR_TRANSPORT,
+		0x18BEC4EA, 0x4676, 0x450e, 0xB4, 0x78, 0x0C, 0xD8, 0x4C, 0x54, 0xB3, 0x27)
+
+	// {0d7aed42-cb9a-11db-9705-005056c00008}
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_PBDA_TRANSPORT_RAW,
+		0x0d7aed42, 0xcb9a, 0x11db, 0x97, 0x5, 0x0, 0x50, 0x56, 0xc0, 0x0, 0x8)
+
+	// {af748dd4-d800-11db-9705-005056c00008}
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_PBDA_TRANSPORT_PROCESSED,
+		0xaf748dd4, 0xd80, 0x11db, 0x97, 0x5, 0x0, 0x50, 0x56, 0xc0, 0x0, 0x8)
+
+#endif
+
+	// e06d802b-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG2_AUDIO,
+		0xe06d802b, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d802c-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DOLBY_AC3,
+		0xe06d802c, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d802d-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVD_SUBPICTURE,
+		0xe06d802d, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d8032-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVD_LPCM_AUDIO,
+		0xe06d8032, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+	// e06d8033-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DTS,
+		0xe06d8033, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d8034-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_SDDS,
+		0xe06d8034, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+#endif
+
+	// DVD-related mediatypes
+	// ED0B916A-044D-11d1-AA78-00C04FC31D60
+	OUR_GUID_ENTRY(MEDIATYPE_DVD_ENCRYPTED_PACK,
+		0xed0b916a, 0x044d, 0x11d1, 0xaa, 0x78, 0x00, 0xc0, 0x04f, 0xc3, 0x1d, 0x60)
+
+	// e06d802e-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIATYPE_DVD_NAVIGATION,
+		0xe06d802e, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d802f-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVD_NAVIGATION_PCI,
+		0xe06d802f, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d8030-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVD_NAVIGATION_DSI,
+		0xe06d8030, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d8031-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVD_NAVIGATION_PROVIDER,
+		0xe06d8031, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	//
+	// DVD - MPEG2/AC3-related Formats
+	//
+	// e06d80e3-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(FORMAT_MPEG2Video,
+		0xe06d80e3, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d80e4-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(FORMAT_DolbyAC3,
+		0xe06d80e4, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d80e5-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(FORMAT_MPEG2Audio,
+		0xe06d80e5, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	// e06d80e6-db46-11cf-b4d1-00805f6cbbea
+	OUR_GUID_ENTRY(FORMAT_DVD_LPCMAudio,
+		0xe06d80e6, 0xdb46, 0x11cf, 0xb4, 0xd1, 0x00, 0x80, 0x05f, 0x6c, 0xbb, 0xea)
+
+	//
+	// UVC 1.2 H.264 Video Format
+	//
+	// 2017be05-6629-4248-aaed-7e1a47bc9b9c
+	OUR_GUID_ENTRY(FORMAT_UVCH264Video,
+		0x2017be05, 0x6629, 0x4248, 0xaa, 0xed, 0x7e, 0x1a, 0x47, 0xbc, 0x9b, 0x9c)
+
+	//
+	// JPEG Image Format
+	//
+	// 692fa379-d3e8-4651-b5b4-0b94b013eeaf
+	OUR_GUID_ENTRY(FORMAT_JPEGImage,
+		0x692fa379, 0xd3e8, 0x4651, 0xb5, 0xb4, 0xb, 0x94, 0xb0, 0x13, 0xee, 0xaf)
+
+	//
+	// Image Format
+	//
+	// 692fa379-d3e8-4651-b5b4-0b94b013eeaf
+	OUR_GUID_ENTRY(FORMAT_Image,
+		0x692fa379, 0xd3e8, 0x4651, 0xb5, 0xb4, 0xb, 0x94, 0xb0, 0x13, 0xee, 0xaf)
+
+	//
+	// KS Property Set Id (to communicate with the WDM Proxy filter) -- from
+	// ksmedia.h of WDM DDK.
+	//
+
+	// BFABE720-6E1F-11D0-BCF2-444553540000
+	OUR_GUID_ENTRY(AM_KSPROPSETID_AC3,
+		0xBFABE720, 0x6E1F, 0x11D0, 0xBC, 0xF2, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00)
+
+	// ac390460-43af-11d0-bd6a-003505c103a9
+	OUR_GUID_ENTRY(AM_KSPROPSETID_DvdSubPic,
+		0xac390460, 0x43af, 0x11d0, 0xbd, 0x6a, 0x00, 0x35, 0x05, 0xc1, 0x03, 0xa9)
+
+	// 0E8A0A40L-6AEF-11D0-9ED0-00A024CA19B3
+	OUR_GUID_ENTRY(AM_KSPROPSETID_CopyProt,
+		0x0E8A0A40, 0x6AEF, 0x11D0, 0x9E, 0xD0, 0x00, 0xA0, 0x24, 0xCA, 0x19, 0xB3)
+
+	// A503C5C0-1D1D-11d1-AD80-444553540000
+	OUR_GUID_ENTRY(AM_KSPROPSETID_TSRateChange,
+		0xa503c5c0, 0x1d1d, 0x11d1, 0xad, 0x80, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0)
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+	// 3577EB09-9582-477f-B29C-B0C452A4FF9A
+	OUR_GUID_ENTRY(AM_KSPROPSETID_DVD_RateChange,
+		0x3577eb09, 0x9582, 0x477f, 0xb2, 0x9c, 0xb0, 0xc4, 0x52, 0xa4, 0xff, 0x9a)
+
+	// ae4720ae-aa71-42d8-b82a-fffdf58b76fd
+	OUR_GUID_ENTRY(AM_KSPROPSETID_DvdKaraoke,
+		0xae4720ae, 0xaa71, 0x42d8, 0xb8, 0x2a, 0xff, 0xfd, 0xf5, 0x8b, 0x76, 0xfd)
+
+	// c830acbd-ab07-492f-8852-45b6987c2979
+	OUR_GUID_ENTRY(AM_KSPROPSETID_FrameStep,
+		0xc830acbd, 0xab07, 0x492f, 0x88, 0x52, 0x45, 0xb6, 0x98, 0x7c, 0x29, 0x79)
+
+#endif
+
+	// -----------------------------------------------
+	// MPEG4 related KSPROPSETIDs from ksmedia.h of WDK
+	// -----------------------------------------------
+
+	// FF6C4BFA-07A9-4c7b-A237-672F9D68065F
+	OUR_GUID_ENTRY(AM_KSPROPSETID_MPEG4_MediaType_Attributes,
+		0xff6c4bfa, 0x7a9, 0x4c7b, 0xa2, 0x37, 0x67, 0x2f, 0x9d, 0x68, 0x6, 0x5f)
+
+	//
+	// KS categories from ks.h and ksmedia.h
+	//
+	//
+
+	// 65E8773D-8F56-11D0-A3B9-00A0C9223196
+	OUR_GUID_ENTRY(AM_KSCATEGORY_CAPTURE,
+		0x65E8773DL, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// 65E8773E-8F56-11D0-A3B9-00A0C9223196
+	OUR_GUID_ENTRY(AM_KSCATEGORY_RENDER,
+		0x65E8773EL, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// 1E84C900-7E70-11D0-A5D6-28DB04C10000
+	OUR_GUID_ENTRY(AM_KSCATEGORY_DATACOMPRESSOR,
+		0x1E84C900L, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00)
+
+	// 6994AD04-93EF-11D0-A3CC-00A0C9223196
+	OUR_GUID_ENTRY(AM_KSCATEGORY_AUDIO,
+		0x6994AD04L, 0x93EF, 0x11D0, 0xA3, 0xCC, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// 6994AD05-93EF-11D0-A3CC-00A0C9223196
+	OUR_GUID_ENTRY(AM_KSCATEGORY_VIDEO,
+		0x6994AD05L, 0x93EF, 0x11D0, 0xA3, 0xCC, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// a799a800-a46d-11d0-a18c-00a02401dcd4
+	OUR_GUID_ENTRY(AM_KSCATEGORY_TVTUNER,
+		0xa799a800L, 0xa46d, 0x11d0, 0xa1, 0x8c, 0x00, 0xa0, 0x24, 0x01, 0xdc, 0xd4)
+
+	// a799a801-a46d-11d0-a18c-00a02401dcd4
+	OUR_GUID_ENTRY(AM_KSCATEGORY_CROSSBAR,
+		0xa799a801L, 0xa46d, 0x11d0, 0xa1, 0x8c, 0x00, 0xa0, 0x24, 0x01, 0xdc, 0xd4)
+
+	// a799a802-a46d-11d0-a18c-00a02401dcd4
+	OUR_GUID_ENTRY(AM_KSCATEGORY_TVAUDIO,
+		0xa799a802L, 0xa46d, 0x11d0, 0xa1, 0x8c, 0x00, 0xa0, 0x24, 0x01, 0xdc, 0xd4)
+
+
+	// 07dad660L-22f1-11d1-a9f4-00c04fbbde8f
+	OUR_GUID_ENTRY(AM_KSCATEGORY_VBICODEC,
+		0x07dad660L, 0x22f1, 0x11d1, 0xa9, 0xf4, 0x00, 0xc0, 0x4f, 0xbb, 0xde, 0x8f)
+
+#if (NTDDI_VERSION >= NTDDI_WS03SP1)
+	// multi-instance safe codec categories(kernel or user mode)
+	// {9C24A977-0951-451a-8006-0E49BD28CD5F}
+	OUR_GUID_ENTRY(AM_KSCATEGORY_VBICODEC_MI,
+		0x9c24a977, 0x951, 0x451a, 0x80, 0x6, 0xe, 0x49, 0xbd, 0x28, 0xcd, 0x5f)
+#endif
+
+	// 0A4252A0L-7E70-11D0-A5D6-28DB04C10000
+	OUR_GUID_ENTRY(AM_KSCATEGORY_SPLITTER,
+		0x0A4252A0L, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00)
+
+
+	//
+	// GUIDs needed to support IKsPin interface
+	//
+
+	// d3abc7e0l-9a61-11d0-a40d00a0c9223196
+	OUR_GUID_ENTRY(IID_IKsInterfaceHandler,
+		0xD3ABC7E0L, 0x9A61, 0x11D0, 0xA4, 0x0D, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// 5ffbaa02l-49a3-11d0-9f3600aa00a216a1
+	OUR_GUID_ENTRY(IID_IKsDataTypeHandler,
+		0x5FFBAA02L, 0x49A3, 0x11D0, 0x9F, 0x36, 0x00, 0xAA, 0x00, 0xA2, 0x16, 0xA1)
+
+	// b61178d1-a2d9-11cf-9e53-00aa00a216a1
+	OUR_GUID_ENTRY(IID_IKsPin,
+		0xb61178d1L, 0xa2d9, 0x11cf, 0x9e, 0x53, 0x00, 0xaa, 0x00, 0xa2, 0x16, 0xa1)
+
+	// 28F54685-06FD-11D2-B27A-00A0C9223196
+	OUR_GUID_ENTRY(IID_IKsControl,
+		0x28F54685L, 0x06FD, 0x11D2, 0xB2, 0x7A, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// CD5EBE6B-8B6E-11D1-8AE0-00A0C9223196
+	OUR_GUID_ENTRY(IID_IKsPinFactory,
+		0xCD5EBE6BL, 0x8B6E, 0x11D1, 0x8A, 0xE0, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96)
+
+	// 1A8766A0-62CE-11CF-A5D6-28DB04C10000
+	OUR_GUID_ENTRY(AM_INTERFACESETID_Standard,
+		0x1A8766A0L, 0x62CE, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00)
+
+#pragma endregion
+
+
+/*************************************ksuuids.h**************************************/
+
+
+
+#pragma warning(disable:4201) // nameless struct/union
+#pragma warning(disable:4214) // bit field types other than int
+
+#if defined(__TCS__)
+#define _KS_NO_ANONYMOUS_STRUCTURES_ 1
+#endif
+
+
+#if !defined(_NTRTL_)
+#ifndef DEFINE_GUIDEX
+#define DEFINE_GUIDEX(name) EXTERN_C const CDECL GUID name
+#endif // !defined(DEFINE_GUIDEX)
+
+#ifndef STATICGUIDOF
+#define STATICGUIDOF(guid) STATIC_##guid
+#endif // !defined(STATICGUIDOF)
+#endif // !defined(_NTRTL_)
+
+#ifndef SIZEOF_ARRAY
+#define SIZEOF_ARRAY(ar)        (sizeof(ar)/sizeof((ar)[0]))
+#endif // !defined(SIZEOF_ARRAY)
+
+#if defined(__cplusplus) && _MSC_VER >= 1100
+#define DEFINE_GUIDSTRUCT(g, n) struct __declspec(uuid(g)) n
+#define DEFINE_GUIDNAMED(n) __uuidof(struct n)
+#else // !defined(__cplusplus)
+#define DEFINE_GUIDSTRUCT(g, n) DEFINE_GUIDEX(n)
+#define DEFINE_GUIDNAMED(n) n
+#endif // !defined(__cplusplus)
+
+//===========================================================================
+
+#define STATIC_GUID_NULL \
+    0x00000000L, 0x0000, 0x0000, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+
+#pragma prefast(suppress: 6244, "duplicate definition is harmless in this case")
+// FLECOQUI
+//DEFINE_GUIDSTRUCT("00000000-0000-0000-0000-000000000000", GUID_NULL);
+#define GUID_NULL DEFINE_GUIDNAMED(GUID_NULL)
+
+
+
+//===========================================================================
+
+#define IOCTL_KS_PROPERTY              CTL_CODE(FILE_DEVICE_KS, 0x000, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define IOCTL_KS_ENABLE_EVENT          CTL_CODE(FILE_DEVICE_KS, 0x001, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define IOCTL_KS_DISABLE_EVENT         CTL_CODE(FILE_DEVICE_KS, 0x002, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define IOCTL_KS_METHOD                CTL_CODE(FILE_DEVICE_KS, 0x003, METHOD_NEITHER, FILE_ANY_ACCESS)
+#define IOCTL_KS_WRITE_STREAM          CTL_CODE(FILE_DEVICE_KS, 0x004, METHOD_NEITHER, FILE_WRITE_ACCESS)
+#define IOCTL_KS_READ_STREAM           CTL_CODE(FILE_DEVICE_KS, 0x005, METHOD_NEITHER, FILE_READ_ACCESS)
+#define IOCTL_KS_RESET_STATE           CTL_CODE(FILE_DEVICE_KS, 0x006, METHOD_NEITHER, FILE_ANY_ACCESS)
+
+//===========================================================================
+
+typedef enum {
+	KSRESET_BEGIN,
+	KSRESET_END
+} KSRESET;
+
+typedef enum {
+	KSSTATE_STOP,
+	KSSTATE_ACQUIRE,
+	KSSTATE_PAUSE,
+	KSSTATE_RUN
+} KSSTATE, *PKSSTATE;
+
+#define KSPRIORITY_LOW        0x00000001
+#define KSPRIORITY_NORMAL     0x40000000
+#define KSPRIORITY_HIGH       0x80000000
+#define KSPRIORITY_EXCLUSIVE  0xFFFFFFFF
+
+typedef struct {
+	ULONG   PriorityClass;
+	ULONG   PrioritySubClass;
+} KSPRIORITY, *PKSPRIORITY;
+
+typedef struct {
+	union {
+#if defined( _KS_NO_ANONYMOUS_STRUCTURES_ )
+		struct _IDENTIFIER {
+#else        
+		struct {
+#endif        
+			GUID    Set;
+			ULONG   Id;
+			ULONG   Flags;
+		};
+		LONGLONG    Alignment;
+		};
+	} KSIDENTIFIER, *PKSIDENTIFIER;
+
+typedef KSIDENTIFIER KSPROPERTY, *PKSPROPERTY, KSMETHOD, *PKSMETHOD, KSEVENT, *PKSEVENT;
+
+#define KSMETHOD_TYPE_NONE                  0x00000000
+#define KSMETHOD_TYPE_READ                  0x00000001
+#define KSMETHOD_TYPE_WRITE                 0x00000002
+#define KSMETHOD_TYPE_MODIFY                0x00000003
+#define KSMETHOD_TYPE_SOURCE                0x00000004
+
+#define KSMETHOD_TYPE_SEND                  0x00000001
+#define KSMETHOD_TYPE_SETSUPPORT            0x00000100
+#define KSMETHOD_TYPE_BASICSUPPORT          0x00000200
+
+#define KSMETHOD_TYPE_TOPOLOGY 0x10000000
+
+#define KSPROPERTY_TYPE_GET                 0x00000001
+#define KSPROPERTY_TYPE_SET                 0x00000002
+#define KSPROPERTY_TYPE_SETSUPPORT          0x00000100
+#define KSPROPERTY_TYPE_BASICSUPPORT        0x00000200
+#define KSPROPERTY_TYPE_RELATIONS           0x00000400
+#define KSPROPERTY_TYPE_SERIALIZESET        0x00000800
+#define KSPROPERTY_TYPE_UNSERIALIZESET      0x00001000
+#define KSPROPERTY_TYPE_SERIALIZERAW        0x00002000
+#define KSPROPERTY_TYPE_UNSERIALIZERAW      0x00004000
+#define KSPROPERTY_TYPE_SERIALIZESIZE       0x00008000
+#define KSPROPERTY_TYPE_DEFAULTVALUES       0x00010000
+
+#define KSPROPERTY_TYPE_TOPOLOGY            0x10000000
+#define KSPROPERTY_TYPE_HIGHPRIORITY        0x08000000
+#define KSPROPERTY_TYPE_COPYPAYLOAD         0x80000000
+
+typedef struct {
+	KSPROPERTY      Property;
+	ULONG           NodeId;
+	ULONG           Reserved;
+} KSP_NODE, *PKSP_NODE;
+
+typedef struct {
+	KSMETHOD        Method;
+	ULONG           NodeId;
+	ULONG           Reserved;
+} KSM_NODE, *PKSM_NODE;
+
+typedef struct {
+	KSEVENT         Event;
+	ULONG           NodeId;
+	ULONG           Reserved;
+} KSE_NODE, *PKSE_NODE;
+
+#define STATIC_KSPROPTYPESETID_General \
+    0x97E99BA0L, 0xBDEA, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("97E99BA0-BDEA-11CF-A5D6-28DB04C10000", KSPROPTYPESETID_General);
+#define KSPROPTYPESETID_General DEFINE_GUIDNAMED(KSPROPTYPESETID_General)
+
+#if defined(_NTDDK_) && !defined(__wtypes_h__)
+enum VARENUM {
+	VT_EMPTY = 0,
+	VT_NULL = 1,
+	VT_I2 = 2,
+	VT_I4 = 3,
+	VT_R4 = 4,
+	VT_R8 = 5,
+	VT_CY = 6,
+	VT_DATE = 7,
+	VT_BSTR = 8,
+	VT_DISPATCH = 9,
+	VT_ERROR = 10,
+	VT_BOOL = 11,
+	VT_VARIANT = 12,
+	VT_UNKNOWN = 13,
+	VT_DECIMAL = 14,
+	VT_I1 = 16,
+	VT_UI1 = 17,
+	VT_UI2 = 18,
+	VT_UI4 = 19,
+	VT_I8 = 20,
+	VT_UI8 = 21,
+	VT_INT = 22,
+	VT_UINT = 23,
+	VT_VOID = 24,
+	VT_HRESULT = 25,
+	VT_PTR = 26,
+	VT_SAFEARRAY = 27,
+	VT_CARRAY = 28,
+	VT_USERDEFINED = 29,
+	VT_LPSTR = 30,
+	VT_LPWSTR = 31,
+	VT_FILETIME = 64,
+	VT_BLOB = 65,
+	VT_STREAM = 66,
+	VT_STORAGE = 67,
+	VT_STREAMED_OBJECT = 68,
+	VT_STORED_OBJECT = 69,
+	VT_BLOB_OBJECT = 70,
+	VT_CF = 71,
+	VT_CLSID = 72,
+	VT_VECTOR = 0x1000,
+	VT_ARRAY = 0x2000,
+	VT_BYREF = 0x4000,
+	VT_RESERVED = 0x8000,
+	VT_ILLEGAL = 0xffff,
+	VT_ILLEGALMASKED = 0xfff,
+	VT_TYPEMASK = 0xfff
+};
+#endif // _NTDDK_ && !__wtypes_h__
+
+typedef struct {
+	ULONG    Size;
+	ULONG    Count;
+} KSMULTIPLE_ITEM, *PKSMULTIPLE_ITEM;
+
+typedef struct {
+	ULONG           AccessFlags;
+	ULONG           DescriptionSize;
+	KSIDENTIFIER    PropTypeSet;
+	ULONG           MembersListCount;
+	ULONG           Reserved;
+} KSPROPERTY_DESCRIPTION, *PKSPROPERTY_DESCRIPTION;
+
+#define KSPROPERTY_MEMBER_RANGES            0x00000001
+#define KSPROPERTY_MEMBER_STEPPEDRANGES     0x00000002
+#define KSPROPERTY_MEMBER_VALUES            0x00000003
+
+#define KSPROPERTY_MEMBER_FLAG_DEFAULT                      0x00000001
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+#define KSPROPERTY_MEMBER_FLAG_BASICSUPPORT_MULTICHANNEL    0x00000002
+#define KSPROPERTY_MEMBER_FLAG_BASICSUPPORT_UNIFORM         0x00000004
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+typedef struct {
+	ULONG   MembersFlags;
+	ULONG   MembersSize;
+	ULONG   MembersCount;
+	ULONG   Flags;
+} KSPROPERTY_MEMBERSHEADER, *PKSPROPERTY_MEMBERSHEADER;
+
+typedef union {
+#if defined( _KS_NO_ANONYMOUS_STRUCTURES_ )
+	struct _SIGNED {
+#else
+	struct {
+#endif    
+		LONG    SignedMinimum;
+		LONG    SignedMaximum;
+	};
+#if defined( _KS_NO_ANONYMOUS_STRUCTURES_ )
+	struct _UNSIGNED {
+#else
+	struct {
+#endif    
+		ULONG   UnsignedMinimum;
+		ULONG   UnsignedMaximum;
+	};
+	} KSPROPERTY_BOUNDS_LONG, *PKSPROPERTY_BOUNDS_LONG;
+
+typedef union {
+#if defined( _KS_NO_ANONYMOUS_STRUCTURES_ )
+	struct _SIGNED64 {
+#else
+	struct {
+#endif    
+		LONGLONG    SignedMinimum;
+		LONGLONG    SignedMaximum;
+	};
+#if defined( _KS_NO_ANONYMOUS_STRUCTURES_ )
+	struct _UNSIGNED64 {
+#else
+	struct {
+#endif    
+#if defined(_NTDDK_)
+		ULONGLONG   UnsignedMinimum;
+		ULONGLONG   UnsignedMaximum;
+#else // !_NTDDK_
+		DWORDLONG   UnsignedMinimum;
+		DWORDLONG   UnsignedMaximum;
+#endif // !_NTDDK_
+	};
+	} KSPROPERTY_BOUNDS_LONGLONG, *PKSPROPERTY_BOUNDS_LONGLONG;
+
+typedef struct {
+	ULONG                       SteppingDelta;
+	ULONG                       Reserved;
+	KSPROPERTY_BOUNDS_LONG      Bounds;
+} KSPROPERTY_STEPPING_LONG, *PKSPROPERTY_STEPPING_LONG;
+
+typedef struct {
+#if defined(_NTDDK_)
+	ULONGLONG                   SteppingDelta;
+#else // !_NTDDK_
+	DWORDLONG                   SteppingDelta;
+#endif // !_NTDDK_
+	KSPROPERTY_BOUNDS_LONGLONG  Bounds;
+} KSPROPERTY_STEPPING_LONGLONG, *PKSPROPERTY_STEPPING_LONGLONG;
+
+//===========================================================================
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+#if defined(_NTDDK_)
+//
+// Structure forward declarations.
+//
+typedef struct _KSDEVICE_DESCRIPTOR
+KSDEVICE_DESCRIPTOR, *PKSDEVICE_DESCRIPTOR;
+typedef struct _KSDEVICE_DISPATCH
+KSDEVICE_DISPATCH, *PKSDEVICE_DISPATCH;
+typedef struct _KSDEVICE
+KSDEVICE, *PKSDEVICE;
+typedef struct _KSFILTERFACTORY
+KSFILTERFACTORY, *PKSFILTERFACTORY;
+typedef struct _KSFILTER_DESCRIPTOR
+KSFILTER_DESCRIPTOR, *PKSFILTER_DESCRIPTOR;
+typedef struct _KSFILTER_DISPATCH
+KSFILTER_DISPATCH, *PKSFILTER_DISPATCH;
+typedef struct _KSFILTER
+KSFILTER, *PKSFILTER;
+typedef struct _KSPIN_DESCRIPTOR_EX
+KSPIN_DESCRIPTOR_EX, *PKSPIN_DESCRIPTOR_EX;
+typedef struct _KSPIN_DISPATCH
+KSPIN_DISPATCH, *PKSPIN_DISPATCH;
+typedef struct _KSCLOCK_DISPATCH
+KSCLOCK_DISPATCH, *PKSCLOCK_DISPATCH;
+typedef struct _KSALLOCATOR_DISPATCH
+KSALLOCATOR_DISPATCH, *PKSALLOCATOR_DISPATCH;
+typedef struct _KSPIN
+KSPIN, *PKSPIN;
+typedef struct _KSNODE_DESCRIPTOR
+KSNODE_DESCRIPTOR, *PKSNODE_DESCRIPTOR;
+typedef struct _KSSTREAM_POINTER_OFFSET
+KSSTREAM_POINTER_OFFSET, *PKSSTREAM_POINTER_OFFSET;
+typedef struct _KSSTREAM_POINTER
+KSSTREAM_POINTER, *PKSSTREAM_POINTER;
+typedef struct _KSMAPPING
+KSMAPPING, *PKSMAPPING;
+typedef struct _KSPROCESSPIN
+KSPROCESSPIN, *PKSPROCESSPIN;
+typedef struct _KSPROCESSPIN_INDEXENTRY
+KSPROCESSPIN_INDEXENTRY, *PKSPROCESSPIN_INDEXENTRY;
+#endif // _NTDDK_
+
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+typedef PVOID PKSWORKER;
+
+typedef struct {
+	ULONG       NotificationType;
+	union {
+		struct {
+			HANDLE              Event;
+			ULONG_PTR           Reserved[2];
+		} EventHandle;
+		struct {
+			HANDLE              Semaphore;
+			ULONG               Reserved;
+			LONG                Adjustment;
+		} SemaphoreHandle;
+#if defined(_NTDDK_)
+		struct {
+			PVOID               Event;
+			KPRIORITY           Increment;
+			ULONG_PTR           Reserved;
+		} EventObject;
+		struct {
+			PVOID               Semaphore;
+			KPRIORITY           Increment;
+			LONG                Adjustment;
+		} SemaphoreObject;
+		struct {
+			PKDPC               Dpc;
+			ULONG               ReferenceCount;
+			ULONG_PTR           Reserved;
+		} Dpc;
+		struct {
+			PWORK_QUEUE_ITEM    WorkQueueItem;
+			WORK_QUEUE_TYPE     WorkQueueType;
+			ULONG_PTR           Reserved;
+		} WorkItem;
+		struct {
+			PWORK_QUEUE_ITEM    WorkQueueItem;
+			PKSWORKER           KsWorkerObject;
+			ULONG_PTR           Reserved;
+		} KsWorkItem;
+#endif // defined(_NTDDK_)
+		struct {
+			PVOID               Unused;
+			LONG_PTR            Alignment[2];
+		} Alignment;
+	};
+} KSEVENTDATA, *PKSEVENTDATA;
+
+#define KSEVENTF_EVENT_HANDLE       0x00000001
+#define KSEVENTF_SEMAPHORE_HANDLE   0x00000002
+#if defined(_NTDDK_)
+#define KSEVENTF_EVENT_OBJECT       0x00000004
+#define KSEVENTF_SEMAPHORE_OBJECT   0x00000008
+#define KSEVENTF_DPC                0x00000010
+#define KSEVENTF_WORKITEM           0x00000020
+#define KSEVENTF_KSWORKITEM         0x00000080
+#endif // defined(_NTDDK_)
+
+#define KSEVENT_TYPE_ENABLE         0x00000001
+#define KSEVENT_TYPE_ONESHOT        0x00000002
+#define KSEVENT_TYPE_ENABLEBUFFERED 0x00000004
+#define KSEVENT_TYPE_SETSUPPORT     0x00000100
+#define KSEVENT_TYPE_BASICSUPPORT   0x00000200
+#define KSEVENT_TYPE_QUERYBUFFER    0x00000400
+
+#define KSEVENT_TYPE_TOPOLOGY 0x10000000
+
+typedef struct {
+	KSEVENT         Event;
+	PKSEVENTDATA    EventData;
+	PVOID           Reserved;
+} KSQUERYBUFFER, *PKSQUERYBUFFER;
+
+typedef struct {
+	ULONG Size;
+	ULONG Flags;
+	union {
+		HANDLE ObjectHandle;
+		PVOID ObjectPointer;
+	};
+	PVOID Reserved;
+	KSEVENT Event;
+	KSEVENTDATA EventData;
+} KSRELATIVEEVENT;
+
+#define KSRELATIVEEVENT_FLAG_HANDLE 0x00000001
+#define KSRELATIVEEVENT_FLAG_POINTER 0x00000002
+
+//===========================================================================
+
+typedef struct {
+	KSEVENTDATA     EventData;
+	LONGLONG        MarkTime;
+} KSEVENT_TIME_MARK, *PKSEVENT_TIME_MARK;
+
+typedef struct {
+	KSEVENTDATA     EventData;
+	LONGLONG        TimeBase;
+	LONGLONG        Interval;
+} KSEVENT_TIME_INTERVAL, *PKSEVENT_TIME_INTERVAL;
+
+typedef struct {
+	LONGLONG        TimeBase;
+	LONGLONG        Interval;
+} KSINTERVAL, *PKSINTERVAL;
+
+//===========================================================================
+
+#define STATIC_KSPROPSETID_General\
+    0x1464EDA5L, 0x6A8F, 0x11D1, 0x9A, 0xA7, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("1464EDA5-6A8F-11D1-9AA7-00A0C9223196", KSPROPSETID_General);
+#define KSPROPSETID_General DEFINE_GUIDNAMED(KSPROPSETID_General)
+
+typedef enum {
+	KSPROPERTY_GENERAL_COMPONENTID
+} KSPROPERTY_GENERAL;
+
+typedef struct {
+	GUID    Manufacturer;
+	GUID    Product;
+	GUID    Component;
+	GUID    Name;
+	ULONG   Version;
+	ULONG   Revision;
+} KSCOMPONENTID, *PKSCOMPONENTID;
+
+#define DEFINE_KSPROPERTY_ITEM_GENERAL_COMPONENTID(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_GENERAL_COMPONENTID,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSCOMPONENTID),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define STATIC_KSMETHODSETID_StreamIo\
+    0x65D003CAL, 0x1523, 0x11D2, 0xB2, 0x7A, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("65D003CA-1523-11D2-B27A-00A0C9223196", KSMETHODSETID_StreamIo);
+#define KSMETHODSETID_StreamIo DEFINE_GUIDNAMED(KSMETHODSETID_StreamIo)
+
+typedef enum {
+	KSMETHOD_STREAMIO_READ,
+	KSMETHOD_STREAMIO_WRITE
+} KSMETHOD_STREAMIO;
+
+#define DEFINE_KSMETHOD_ITEM_STREAMIO_READ(Handler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_STREAMIO_READ,\
+        KSMETHOD_TYPE_WRITE,\
+        (Handler),\
+        sizeof(KSMETHOD),\
+        0,\
+        NULL)
+
+#define DEFINE_KSMETHOD_ITEM_STREAMIO_WRITE(Handler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_STREAMIO_WRITE,\
+        KSMETHOD_TYPE_READ,\
+        (Handler),\
+        sizeof(KSMETHOD),\
+        0,\
+        NULL)
+
+#define STATIC_KSPROPSETID_MediaSeeking\
+    0xEE904F0CL, 0xD09B, 0x11D0, 0xAB, 0xE9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("EE904F0C-D09B-11D0-ABE9-00A0C9223196", KSPROPSETID_MediaSeeking);
+#define KSPROPSETID_MediaSeeking DEFINE_GUIDNAMED(KSPROPSETID_MediaSeeking)
+
+typedef enum {
+	KSPROPERTY_MEDIASEEKING_CAPABILITIES,
+	KSPROPERTY_MEDIASEEKING_FORMATS,
+	KSPROPERTY_MEDIASEEKING_TIMEFORMAT,
+	KSPROPERTY_MEDIASEEKING_POSITION,
+	KSPROPERTY_MEDIASEEKING_STOPPOSITION,
+	KSPROPERTY_MEDIASEEKING_POSITIONS,
+	KSPROPERTY_MEDIASEEKING_DURATION,
+	KSPROPERTY_MEDIASEEKING_AVAILABLE,
+	KSPROPERTY_MEDIASEEKING_PREROLL,
+	KSPROPERTY_MEDIASEEKING_CONVERTTIMEFORMAT
+} KSPROPERTY_MEDIASEEKING;
+
+typedef enum {
+	KS_SEEKING_NoPositioning,
+	KS_SEEKING_AbsolutePositioning,
+	KS_SEEKING_RelativePositioning,
+	KS_SEEKING_IncrementalPositioning,
+	KS_SEEKING_PositioningBitsMask = 0x3,
+	KS_SEEKING_SeekToKeyFrame,
+	KS_SEEKING_ReturnTime = 0x8
+} KS_SEEKING_FLAGS;
+
+typedef enum {
+	KS_SEEKING_CanSeekAbsolute = 0x1,
+	KS_SEEKING_CanSeekForwards = 0x2,
+	KS_SEEKING_CanSeekBackwards = 0x4,
+	KS_SEEKING_CanGetCurrentPos = 0x8,
+	KS_SEEKING_CanGetStopPos = 0x10,
+	KS_SEEKING_CanGetDuration = 0x20,
+	KS_SEEKING_CanPlayBackwards = 0x40
+} KS_SEEKING_CAPABILITIES;
+
+typedef struct {
+	LONGLONG            Current;
+	LONGLONG            Stop;
+	KS_SEEKING_FLAGS    CurrentFlags;
+	KS_SEEKING_FLAGS    StopFlags;
+} KSPROPERTY_POSITIONS, *PKSPROPERTY_POSITIONS;
+
+typedef struct {
+	LONGLONG    Earliest;
+	LONGLONG    Latest;
+} KSPROPERTY_MEDIAAVAILABLE, *PKSPROPERTY_MEDIAAVAILABLE;
+
+typedef struct {
+	KSPROPERTY  Property;
+	GUID        SourceFormat;
+	GUID        TargetFormat;
+	LONGLONG    Time;
+} KSP_TIMEFORMAT, *PKSP_TIMEFORMAT;
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_CAPABILITIES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_CAPABILITIES,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KS_SEEKING_CAPABILITIES),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_FORMATS(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_FORMATS,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_TIMEFORMAT(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_TIMEFORMAT,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(GUID),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_POSITION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_POSITION,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_STOPPOSITION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_STOPPOSITION,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_POSITIONS(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_POSITIONS,\
+        NULL,\
+        sizeof(KSPROPERTY),\
+        sizeof(KSPROPERTY_POSITIONS),\
+        (Handler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_DURATION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_DURATION,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_AVAILABLE(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_AVAILABLE,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSPROPERTY_MEDIAAVAILABLE),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_PREROLL(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_PREROLL,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_MEDIASEEKING_CONVERTTIMEFORMAT(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEDIASEEKING_CONVERTTIMEFORMAT,\
+        (Handler),\
+        sizeof(KSP_TIMEFORMAT),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+//===========================================================================
+
+#define STATIC_KSPROPSETID_Topology\
+    0x720D4AC0L, 0x7533, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("720D4AC0-7533-11D0-A5D6-28DB04C10000", KSPROPSETID_Topology);
+#define KSPROPSETID_Topology DEFINE_GUIDNAMED(KSPROPSETID_Topology)
+
+typedef enum {
+	KSPROPERTY_TOPOLOGY_CATEGORIES,
+	KSPROPERTY_TOPOLOGY_NODES,
+	KSPROPERTY_TOPOLOGY_CONNECTIONS,
+	KSPROPERTY_TOPOLOGY_NAME
+} KSPROPERTY_TOPOLOGY;
+
+#define DEFINE_KSPROPERTY_ITEM_TOPOLOGY_CATEGORIES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_TOPOLOGY_CATEGORIES,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_TOPOLOGY_NODES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_TOPOLOGY_NODES,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_TOPOLOGY_CONNECTIONS(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_TOPOLOGY_CONNECTIONS,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_TOPOLOGY_NAME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_TOPOLOGY_NAME,\
+        (Handler),\
+        sizeof(KSP_NODE),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_TOPOLOGYSET(TopologySet, Handler)\
+DEFINE_KSPROPERTY_TABLE(TopologySet) {\
+    DEFINE_KSPROPERTY_ITEM_TOPOLOGY_CATEGORIES(Handler),\
+    DEFINE_KSPROPERTY_ITEM_TOPOLOGY_NODES(Handler),\
+    DEFINE_KSPROPERTY_ITEM_TOPOLOGY_CONNECTIONS(Handler),\
+    DEFINE_KSPROPERTY_ITEM_TOPOLOGY_NAME(Handler)\
+}
+
+//=============================================================================
+
+//
+// properties used by graph manager to talk to particular filters
+//
+#if defined(_NTDDK_)
+
+#define STATIC_KSPROPSETID_GM \
+    0xAF627536L, 0xE719, 0x11D2, 0x8A, 0x1D, 0x00, 0x60, 0x97, 0xD2, 0xDF, 0x5D    
+DEFINE_GUIDSTRUCT("AF627536-E719-11D2-8A1D-006097D2DF5D", KSPROPSETID_GM);
+#define KSPROPSETID_GM DEFINE_GUIDNAMED(KSPROPSETID_GM)
+
+typedef VOID(*PFNKSGRAPHMANAGER_NOTIFY)(_In_ PFILE_OBJECT GraphManager,
+	_In_ ULONG EventId,
+	_In_ PVOID Filter,
+	_In_ PVOID Pin,
+	_In_ PVOID Frame,
+	_In_ ULONG Duration);
+
+typedef struct KSGRAPHMANAGER_FUNCTIONTABLE {
+	PFNKSGRAPHMANAGER_NOTIFY NotifyEvent;
+} KSGRAPHMANAGER_FUNCTIONTABLE, PKSGRAPHMANAGER_FUNCTIONTABLE;
+
+typedef struct _KSPROPERTY_GRAPHMANAGER_INTERFACE {
+	PFILE_OBJECT                 GraphManager;
+	KSGRAPHMANAGER_FUNCTIONTABLE FunctionTable;
+} KSPROPERTY_GRAPHMANAGER_INTERFACE, *PKSPROPERTY_GRAPHMANAGER_INTERFACE;
+
+
+//
+// Commands
+//
+typedef enum {
+	KSPROPERTY_GM_GRAPHMANAGER,
+	KSPROPERTY_GM_TIMESTAMP_CLOCK,
+	KSPROPERTY_GM_RATEMATCH,
+	KSPROPERTY_GM_RENDER_CLOCK,
+} KSPROPERTY_GM;
+
+#endif
+
+//===========================================================================
+
+
+#define STATIC_KSCATEGORY_BRIDGE \
+    0x085AFF00L, 0x62CE, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("085AFF00-62CE-11CF-A5D6-28DB04C10000", KSCATEGORY_BRIDGE);
+#define KSCATEGORY_BRIDGE DEFINE_GUIDNAMED(KSCATEGORY_BRIDGE)
+
+#define STATIC_KSCATEGORY_CAPTURE \
+    0x65E8773DL, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("65E8773D-8F56-11D0-A3B9-00A0C9223196", KSCATEGORY_CAPTURE);
+#define KSCATEGORY_CAPTURE DEFINE_GUIDNAMED(KSCATEGORY_CAPTURE)
+
+#define STATIC_KSCATEGORY_VIDEO_CAMERA \
+    0xe5323777, 0xf976, 0x4f5b, 0x9b, 0x55, 0xb9, 0x46, 0x99, 0xc4, 0x6e, 0x44
+DEFINE_GUIDSTRUCT("E5323777-F976-4f5b-9B55-B94699C46E44", KSCATEGORY_VIDEO_CAMERA);
+#define KSCATEGORY_VIDEO_CAMERA DEFINE_GUIDNAMED(KSCATEGORY_VIDEO_CAMERA)
+
+#define STATIC_KSCATEGORY_SENSOR_CAMERA \
+    0x24e552d7, 0x6523, 0x47f7, 0xa6, 0x47, 0xd3, 0x46, 0x5b, 0xf1, 0xf5, 0xca
+DEFINE_GUIDSTRUCT("24E552D7-6523-47F7-A647-D3465BF1F5CA", KSCATEGORY_SENSOR_CAMERA);
+#define KSCATEGORY_SENSOR_CAMERA DEFINE_GUIDNAMED(KSCATEGORY_SENSOR_CAMERA)
+
+#define STATIC_KSCATEGORY_RENDER \
+    0x65E8773EL, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("65E8773E-8F56-11D0-A3B9-00A0C9223196", KSCATEGORY_RENDER);
+#define KSCATEGORY_RENDER DEFINE_GUIDNAMED(KSCATEGORY_RENDER)
+
+#define STATIC_KSCATEGORY_MIXER \
+    0xAD809C00L, 0x7B88, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("AD809C00-7B88-11D0-A5D6-28DB04C10000", KSCATEGORY_MIXER);
+#define KSCATEGORY_MIXER DEFINE_GUIDNAMED(KSCATEGORY_MIXER)
+
+#define STATIC_KSCATEGORY_SPLITTER \
+    0x0A4252A0L, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("0A4252A0-7E70-11D0-A5D6-28DB04C10000", KSCATEGORY_SPLITTER);
+#define KSCATEGORY_SPLITTER DEFINE_GUIDNAMED(KSCATEGORY_SPLITTER)
+
+#define STATIC_KSCATEGORY_DATACOMPRESSOR \
+    0x1E84C900L, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("1E84C900-7E70-11D0-A5D6-28DB04C10000", KSCATEGORY_DATACOMPRESSOR);
+#define KSCATEGORY_DATACOMPRESSOR DEFINE_GUIDNAMED(KSCATEGORY_DATACOMPRESSOR)
+
+#define STATIC_KSCATEGORY_DATADECOMPRESSOR \
+    0x2721AE20L, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("2721AE20-7E70-11D0-A5D6-28DB04C10000", KSCATEGORY_DATADECOMPRESSOR);
+#define KSCATEGORY_DATADECOMPRESSOR DEFINE_GUIDNAMED(KSCATEGORY_DATADECOMPRESSOR)
+
+#define STATIC_KSCATEGORY_DATATRANSFORM \
+    0x2EB07EA0L, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("2EB07EA0-7E70-11D0-A5D6-28DB04C10000", KSCATEGORY_DATATRANSFORM);
+#define KSCATEGORY_DATATRANSFORM DEFINE_GUIDNAMED(KSCATEGORY_DATATRANSFORM)
+
+//
+// KSMFT_CATEGORY_XXX are MF Transform category guids redefined in ks.h 
+// to facilitate KS Mini drivers to register KS Filters under MF Transform categories. 
+//
+#define STATIC_KSMFT_CATEGORY_VIDEO_DECODER \
+	0xd6c02d4b, 0x6833, 0x45b4, 0x97, 0x1a, 0x05, 0xa4, 0xb0, 0x4b, 0xab, 0x91
+DEFINE_GUIDSTRUCT("d6c02d4b-6833-45b4-971a-05a4b04bab91", KSMFT_CATEGORY_VIDEO_DECODER);
+#define KSMFT_CATEGORY_VIDEO_DECODER DEFINE_GUIDNAMED(KSMFT_CATEGORY_VIDEO_DECODER)
+
+#define STATIC_KSMFT_CATEGORY_VIDEO_ENCODER \
+	0xf79eac7d, 0xe545, 0x4387, 0xbd, 0xee, 0xd6, 0x47, 0xd7, 0xbd, 0xe4, 0x2a
+DEFINE_GUIDSTRUCT("f79eac7d-e545-4387-bdee-d647d7bde42a", KSMFT_CATEGORY_VIDEO_ENCODER);
+#define KSMFT_CATEGORY_VIDEO_ENCODER DEFINE_GUIDNAMED(KSMFT_CATEGORY_VIDEO_ENCODER)
+
+#define STATIC_KSMFT_CATEGORY_VIDEO_EFFECT \
+	0x12e17c21, 0x532c, 0x4a6e, 0x8a, 0x1c, 0x40, 0x82, 0x5a, 0x73, 0x63, 0x97
+DEFINE_GUIDSTRUCT("12e17c21-532c-4a6e-8a1c-40825a736397", KSMFT_CATEGORY_VIDEO_EFFECT);
+#define KSMFT_CATEGORY_VIDEO_EFFECT DEFINE_GUIDNAMED(KSMFT_CATEGORY_VIDEO_EFFECT)
+
+#define STATIC_KSMFT_CATEGORY_MULTIPLEXER \
+	0x059c561e, 0x05ae, 0x4b61, 0xb6, 0x9d, 0x55, 0xb6, 0x1e, 0xe5, 0x4a, 0x7b
+DEFINE_GUIDSTRUCT("059c561e-05ae-4b61-b69d-55b61ee54a7b", KSMFT_CATEGORY_MULTIPLEXER);
+#define KSMFT_CATEGORY_MULTIPLEXER DEFINE_GUIDNAMED(KSMFT_CATEGORY_MULTIPLEXER)
+
+#define STATIC_KSMFT_CATEGORY_DEMULTIPLEXER \
+	0xa8700a7a, 0x939b, 0x44c5, 0x99, 0xd7, 0x76, 0x22, 0x6b, 0x23, 0xb3, 0xf1
+DEFINE_GUIDSTRUCT("a8700a7a-939b-44c5-99d7-76226b23b3f1", KSMFT_CATEGORY_DEMULTIPLEXER);
+#define KSMFT_CATEGORY_DEMULTIPLEXER DEFINE_GUIDNAMED(KSMFT_CATEGORY_DEMULTIPLEXER)
+
+#define STATIC_KSMFT_CATEGORY_AUDIO_DECODER \
+	0x9ea73fb4, 0xef7a, 0x4559, 0x8d, 0x5d, 0x71, 0x9d, 0x8f, 0x04, 0x26, 0xc7
+DEFINE_GUIDSTRUCT("9ea73fb4-ef7a-4559-8d5d-719d8f0426c7", KSMFT_CATEGORY_AUDIO_DECODER);
+#define KSMFT_CATEGORY_AUDIO_DECODER DEFINE_GUIDNAMED(KSMFT_CATEGORY_AUDIO_DECODER)
+
+#define STATIC_KSMFT_CATEGORY_AUDIO_ENCODER \
+	0x91c64bd0, 0xf91e, 0x4d8c, 0x92, 0x76, 0xdb, 0x24, 0x82, 0x79, 0xd9, 0x75
+DEFINE_GUIDSTRUCT("91c64bd0-f91e-4d8c-9276-db248279d975", KSMFT_CATEGORY_AUDIO_ENCODER);
+#define KSMFT_CATEGORY_AUDIO_ENCODER DEFINE_GUIDNAMED(KSMFT_CATEGORY_AUDIO_ENCODER)
+
+#define STATIC_KSMFT_CATEGORY_AUDIO_EFFECT \
+	0x11064c48, 0x3648, 0x4ed0, 0x93, 0x2e, 0x05, 0xce, 0x8a, 0xc8, 0x11, 0xb7
+DEFINE_GUIDSTRUCT("11064c48-3648-4ed0-932e-05ce8ac811b7", KSMFT_CATEGORY_AUDIO_EFFECT);
+#define KSMFT_CATEGORY_AUDIO_EFFECT DEFINE_GUIDNAMED(KSMFT_CATEGORY_AUDIO_EFFECT)
+
+#define STATIC_KSMFT_CATEGORY_VIDEO_PROCESSOR \
+	0x302ea3fc, 0xaa5f, 0x47f9, 0x9f, 0x7a, 0xc2, 0x18, 0x8b, 0xb1, 0x63, 0x2
+DEFINE_GUIDSTRUCT("302ea3fc-aa5f-47f9-9f7a-c2188bb16302", KSMFT_CATEGORY_VIDEO_PROCESSOR);
+#define KSMFT_CATEGORY_VIDEO_PROCESSOR DEFINE_GUIDNAMED(KSMFT_CATEGORY_VIDEO_PROCESSOR)
+
+#define STATIC_KSMFT_CATEGORY_OTHER \
+	0x90175d57, 0xb7ea, 0x4901, 0xae, 0xb3, 0x93, 0x3a, 0x87, 0x47, 0x75, 0x6f
+DEFINE_GUIDSTRUCT("90175d57-b7ea-4901-aeb3-933a8747756f", KSMFT_CATEGORY_OTHER);
+#define KSMFT_CATEGORY_OTHER DEFINE_GUIDNAMED(KSMFT_CATEGORY_OTHER)
+
+#define STATIC_KSCATEGORY_COMMUNICATIONSTRANSFORM \
+    0xCF1DDA2CL, 0x9743, 0x11D0, 0xA3, 0xEE, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("CF1DDA2C-9743-11D0-A3EE-00A0C9223196", KSCATEGORY_COMMUNICATIONSTRANSFORM);
+#define KSCATEGORY_COMMUNICATIONSTRANSFORM DEFINE_GUIDNAMED(KSCATEGORY_COMMUNICATIONSTRANSFORM)
+
+#define STATIC_KSCATEGORY_INTERFACETRANSFORM \
+    0xCF1DDA2DL, 0x9743, 0x11D0, 0xA3, 0xEE, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("CF1DDA2D-9743-11D0-A3EE-00A0C9223196", KSCATEGORY_INTERFACETRANSFORM);
+#define KSCATEGORY_INTERFACETRANSFORM DEFINE_GUIDNAMED(KSCATEGORY_INTERFACETRANSFORM)
+
+#define STATIC_KSCATEGORY_MEDIUMTRANSFORM \
+    0xCF1DDA2EL, 0x9743, 0x11D0, 0xA3, 0xEE, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("CF1DDA2E-9743-11D0-A3EE-00A0C9223196", KSCATEGORY_MEDIUMTRANSFORM);
+#define KSCATEGORY_MEDIUMTRANSFORM DEFINE_GUIDNAMED(KSCATEGORY_MEDIUMTRANSFORM)
+
+#define STATIC_KSCATEGORY_FILESYSTEM \
+    0x760FED5EL, 0x9357, 0x11D0, 0xA3, 0xCC, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("760FED5E-9357-11D0-A3CC-00A0C9223196", KSCATEGORY_FILESYSTEM);
+#define KSCATEGORY_FILESYSTEM DEFINE_GUIDNAMED(KSCATEGORY_FILESYSTEM)
+
+// KSNAME_Clock
+#define STATIC_KSCATEGORY_CLOCK \
+    0x53172480L, 0x4791, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("53172480-4791-11D0-A5D6-28DB04C10000", KSCATEGORY_CLOCK);
+#define KSCATEGORY_CLOCK DEFINE_GUIDNAMED(KSCATEGORY_CLOCK)
+
+#define STATIC_KSCATEGORY_PROXY \
+    0x97EBAACAL, 0x95BD, 0x11D0, 0xA3, 0xEA, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("97EBAACA-95BD-11D0-A3EA-00A0C9223196", KSCATEGORY_PROXY);
+#define KSCATEGORY_PROXY DEFINE_GUIDNAMED(KSCATEGORY_PROXY)
+
+#define STATIC_KSCATEGORY_QUALITY \
+    0x97EBAACBL, 0x95BD, 0x11D0, 0xA3, 0xEA, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("97EBAACB-95BD-11D0-A3EA-00A0C9223196", KSCATEGORY_QUALITY);
+#define KSCATEGORY_QUALITY DEFINE_GUIDNAMED(KSCATEGORY_QUALITY)
+
+typedef struct {
+	ULONG   FromNode;
+	ULONG   FromNodePin;
+	ULONG   ToNode;
+	ULONG   ToNodePin;
+} KSTOPOLOGY_CONNECTION, *PKSTOPOLOGY_CONNECTION;
+
+typedef struct {
+	ULONG                           CategoriesCount;
+	_Field_size_(CategoriesCount)
+		const GUID*                     Categories;
+	ULONG                           TopologyNodesCount;
+	_Field_size_(TopologyNodesCount)
+		const GUID*                     TopologyNodes;
+	ULONG                           TopologyConnectionsCount;
+	_Field_size_(TopologyConnectionsCount)
+		const KSTOPOLOGY_CONNECTION*    TopologyConnections;
+	_Field_size_(TopologyNodesCount)
+		const GUID*                     TopologyNodesNames;
+	ULONG                           Reserved;
+} KSTOPOLOGY, *PKSTOPOLOGY;
+
+#define KSFILTER_NODE   ((ULONG)-1)
+#define KSALL_NODES     ((ULONG)-1)
+
+typedef struct {
+	ULONG       CreateFlags;
+	ULONG       Node;
+} KSNODE_CREATE, *PKSNODE_CREATE;
+
+//===========================================================================
+
+// TIME_FORMAT_NONE
+#define STATIC_KSTIME_FORMAT_NONE       STATIC_GUID_NULL
+#define KSTIME_FORMAT_NONE              GUID_NULL
+
+// TIME_FORMAT_FRAME
+#define STATIC_KSTIME_FORMAT_FRAME\
+    0x7b785570L, 0x8c82, 0x11cf, 0xbc, 0x0c, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6
+DEFINE_GUIDSTRUCT("7b785570-8c82-11cf-bc0c-00aa00ac74f6", KSTIME_FORMAT_FRAME);
+#define KSTIME_FORMAT_FRAME DEFINE_GUIDNAMED(KSTIME_FORMAT_FRAME)
+
+// TIME_FORMAT_BYTE             
+#define STATIC_KSTIME_FORMAT_BYTE\
+    0x7b785571L, 0x8c82, 0x11cf, 0xbc, 0x0c, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6
+DEFINE_GUIDSTRUCT("7b785571-8c82-11cf-bc0c-00aa00ac74f6", KSTIME_FORMAT_BYTE);
+#define KSTIME_FORMAT_BYTE DEFINE_GUIDNAMED(KSTIME_FORMAT_BYTE)
+
+// TIME_FORMAT_SAMPLE
+#define STATIC_KSTIME_FORMAT_SAMPLE\
+    0x7b785572L, 0x8c82, 0x11cf, 0xbc, 0x0c, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6
+DEFINE_GUIDSTRUCT("7b785572-8c82-11cf-bc0c-00aa00ac74f6", KSTIME_FORMAT_SAMPLE);
+#define KSTIME_FORMAT_SAMPLE DEFINE_GUIDNAMED(KSTIME_FORMAT_SAMPLE)
+
+// TIME_FORMAT_FIELD
+#define STATIC_KSTIME_FORMAT_FIELD\
+    0x7b785573L, 0x8c82, 0x11cf, 0xbc, 0x0c, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6
+DEFINE_GUIDSTRUCT("7b785573-8c82-11cf-bc0c-00aa00ac74f6", KSTIME_FORMAT_FIELD);
+#define KSTIME_FORMAT_FIELD DEFINE_GUIDNAMED(KSTIME_FORMAT_FIELD)
+
+// TIME_FORMAT_MEDIA_TIME
+#define STATIC_KSTIME_FORMAT_MEDIA_TIME\
+    0x7b785574L, 0x8c82, 0x11cf, 0xbc, 0x0c, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6
+DEFINE_GUIDSTRUCT("7b785574-8c82-11cf-bc0c-00aa00ac74f6", KSTIME_FORMAT_MEDIA_TIME);
+#define KSTIME_FORMAT_MEDIA_TIME DEFINE_GUIDNAMED(KSTIME_FORMAT_MEDIA_TIME)
+
+//===========================================================================
+
+typedef KSIDENTIFIER KSPIN_INTERFACE, *PKSPIN_INTERFACE;
+
+#define STATIC_KSINTERFACESETID_Standard \
+    0x1A8766A0L, 0x62CE, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("1A8766A0-62CE-11CF-A5D6-28DB04C10000", KSINTERFACESETID_Standard);
+#define KSINTERFACESETID_Standard DEFINE_GUIDNAMED(KSINTERFACESETID_Standard)
+
+typedef enum {
+	KSINTERFACE_STANDARD_STREAMING,
+	KSINTERFACE_STANDARD_LOOPED_STREAMING,
+	KSINTERFACE_STANDARD_CONTROL		//Reserved for system use
+} KSINTERFACE_STANDARD;
+
+#define STATIC_KSINTERFACESETID_FileIo \
+    0x8C6F932CL, 0xE771, 0x11D0, 0xB8, 0xFF, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("8C6F932C-E771-11D0-B8FF-00A0C9223196", KSINTERFACESETID_FileIo);
+#define KSINTERFACESETID_FileIo DEFINE_GUIDNAMED(KSINTERFACESETID_FileIo)
+
+typedef enum {
+	KSINTERFACE_FILEIO_STREAMING
+} KSINTERFACE_FILEIO;
+
+//===========================================================================
+
+#define KSMEDIUM_TYPE_ANYINSTANCE       0
+
+#define STATIC_KSMEDIUMSETID_Standard \
+    0x4747B320L, 0x62CE, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("4747B320-62CE-11CF-A5D6-28DB04C10000", KSMEDIUMSETID_Standard);
+#define KSMEDIUMSETID_Standard DEFINE_GUIDNAMED(KSMEDIUMSETID_Standard)
+
+//For compatibility only
+#define KSMEDIUM_STANDARD_DEVIO     KSMEDIUM_TYPE_ANYINSTANCE
+
+//===========================================================================
+
+#define STATIC_KSPROPSETID_Pin\
+    0x8C134960L, 0x51AD, 0x11CF, 0x87, 0x8A, 0x94, 0xF8, 0x01, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("8C134960-51AD-11CF-878A-94F801C10000", KSPROPSETID_Pin);
+#define KSPROPSETID_Pin DEFINE_GUIDNAMED(KSPROPSETID_Pin)
+
+
+
+typedef enum {
+	KSPROPERTY_PIN_CINSTANCES,
+	KSPROPERTY_PIN_CTYPES,
+	KSPROPERTY_PIN_DATAFLOW,
+	KSPROPERTY_PIN_DATARANGES,
+	KSPROPERTY_PIN_DATAINTERSECTION,
+	KSPROPERTY_PIN_INTERFACES,
+	KSPROPERTY_PIN_MEDIUMS,
+	KSPROPERTY_PIN_COMMUNICATION,
+	KSPROPERTY_PIN_GLOBALCINSTANCES,
+	KSPROPERTY_PIN_NECESSARYINSTANCES,
+	KSPROPERTY_PIN_PHYSICALCONNECTION,
+	KSPROPERTY_PIN_CATEGORY,
+	KSPROPERTY_PIN_NAME,
+	KSPROPERTY_PIN_CONSTRAINEDDATARANGES,
+	KSPROPERTY_PIN_PROPOSEDATAFORMAT,
+	KSPROPERTY_PIN_PROPOSEDATAFORMAT2,
+} KSPROPERTY_PIN;
+
+#define KSPROPERTY_PIN_FLAGS_ATTRIBUTE_RANGE_AWARE 0x00000001
+#define KSPROPERTY_PIN_FLAGS_MASK KSPROPERTY_PIN_FLAGS_ATTRIBUTE_RANGE_AWARE
+
+typedef struct {
+	KSPROPERTY      Property;
+	ULONG           PinId;
+	union {
+		ULONG Reserved;
+		ULONG Flags;
+	};
+} KSP_PIN, *PKSP_PIN;
+
+typedef struct {
+	KSEVENT         Event;
+	ULONG           PinId;
+	ULONG           Reserved;
+} KSE_PIN, *PKSE_PIN;
+
+#define KSINSTANCE_INDETERMINATE    ((ULONG)-1)
+
+typedef struct {
+	ULONG  PossibleCount;
+	ULONG  CurrentCount;
+} KSPIN_CINSTANCES, *PKSPIN_CINSTANCES;
+
+typedef enum {
+	KSPIN_DATAFLOW_IN = 1,
+	KSPIN_DATAFLOW_OUT
+} KSPIN_DATAFLOW, *PKSPIN_DATAFLOW;
+
+#define KSDATAFORMAT_BIT_TEMPORAL_COMPRESSION   0
+#define KSDATAFORMAT_TEMPORAL_COMPRESSION       (1 << KSDATAFORMAT_BIT_TEMPORAL_COMPRESSION)
+#define KSDATAFORMAT_BIT_ATTRIBUTES 1
+#define KSDATAFORMAT_ATTRIBUTES (1 << KSDATAFORMAT_BIT_ATTRIBUTES)
+
+#define KSDATARANGE_BIT_ATTRIBUTES 1
+#define KSDATARANGE_ATTRIBUTES (1 << KSDATARANGE_BIT_ATTRIBUTES)
+#define KSDATARANGE_BIT_REQUIRED_ATTRIBUTES 2
+#define KSDATARANGE_REQUIRED_ATTRIBUTES (1 << KSDATARANGE_BIT_REQUIRED_ATTRIBUTES)
+
+#if !defined( _MSC_VER ) 
+typedef struct {
+	ULONG   FormatSize;
+	ULONG   Flags;
+	ULONG   SampleSize;
+	ULONG   Reserved;
+	GUID    MajorFormat;
+	GUID    SubFormat;
+	GUID    Specifier;
+} KSDATAFORMAT, *PKSDATAFORMAT, KSDATARANGE, *PKSDATARANGE;
+#else
+typedef union {
+	struct {
+		ULONG   FormatSize;
+		ULONG   Flags;
+		ULONG   SampleSize;
+		ULONG   Reserved;
+		GUID    MajorFormat;
+		GUID    SubFormat;
+		GUID    Specifier;
+	};
+	LONGLONG    Alignment;
+} KSDATAFORMAT, *PKSDATAFORMAT, KSDATARANGE, *PKSDATARANGE;
+#endif
+
+#define KSATTRIBUTE_REQUIRED 0x00000001
+
+typedef struct {
+	ULONG Size;
+	ULONG Flags;
+	GUID Attribute;
+} KSATTRIBUTE, *PKSATTRIBUTE;
+
+#if defined(_NTDDK_)
+typedef struct {
+	ULONG Count;
+	_Field_size_(Count) PKSATTRIBUTE* Attributes;
+} KSATTRIBUTE_LIST, *PKSATTRIBUTE_LIST;
+#endif // _NTDDK_
+
+typedef enum {
+	KSPIN_COMMUNICATION_NONE,
+	KSPIN_COMMUNICATION_SINK,
+	KSPIN_COMMUNICATION_SOURCE,
+	KSPIN_COMMUNICATION_BOTH,
+	KSPIN_COMMUNICATION_BRIDGE
+} KSPIN_COMMUNICATION, *PKSPIN_COMMUNICATION;
+
+typedef KSIDENTIFIER KSPIN_MEDIUM, *PKSPIN_MEDIUM;
+
+typedef struct {
+	KSPIN_INTERFACE Interface;
+	KSPIN_MEDIUM    Medium;
+	ULONG           PinId;
+	HANDLE          PinToHandle;
+	KSPRIORITY      Priority;
+} KSPIN_CONNECT, *PKSPIN_CONNECT;
+
+typedef struct {
+	ULONG   Size;
+	ULONG   Pin;
+	WCHAR   SymbolicLinkName[1];
+} KSPIN_PHYSICALCONNECTION, *PKSPIN_PHYSICALCONNECTION;
+
+#if defined(_NTDDK_)
+_Must_inspect_result_
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSINTERSECTHANDLER)(
+	_In_ PIRP Irp,
+	_In_ PKSP_PIN Pin,
+	_In_ PKSDATARANGE DataRange,
+	_Out_opt_ PVOID Data
+	);
+_Must_inspect_result_
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSINTERSECTHANDLEREX)(
+	_In_ PVOID Context,
+	_In_ PIRP Irp,
+	_In_ PKSP_PIN Pin,
+	_In_ PKSDATARANGE DataRange,
+	_In_ PKSDATARANGE MatchingDataRange,
+	_In_ ULONG DataBufferSize,
+	_Out_writes_bytes_to_opt_(DataBufferSize, *DataSize) PVOID Data,
+	_Out_ PULONG DataSize
+	);
+#endif // _NTDDK_
+
+#define DEFINE_KSPIN_INTERFACE_TABLE(tablename)\
+    const KSPIN_INTERFACE tablename[] =
+
+#define DEFINE_KSPIN_INTERFACE_ITEM(guid, interface)\
+    {\
+        STATICGUIDOF(guid),\
+        (interface),\
+        0\
+    }
+
+#define DEFINE_KSPIN_MEDIUM_TABLE( tablename )\
+    const KSPIN_MEDIUM tablename[] =
+
+#define DEFINE_KSPIN_MEDIUM_ITEM(guid, medium)\
+    DEFINE_KSPIN_INTERFACE_ITEM(guid, medium)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_CINSTANCES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_CINSTANCES,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        sizeof(KSPIN_CINSTANCES),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_CTYPES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_CTYPES,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(ULONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_DATAFLOW(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_DATAFLOW,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        sizeof(KSPIN_DATAFLOW),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_DATARANGES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_DATARANGES,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_DATAINTERSECTION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_DATAINTERSECTION,\
+        (Handler),\
+        sizeof(KSP_PIN) + sizeof(KSMULTIPLE_ITEM),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_INTERFACES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_INTERFACES,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_MEDIUMS(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_MEDIUMS,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_COMMUNICATION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_COMMUNICATION,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        sizeof(KSPIN_COMMUNICATION),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_GLOBALCINSTANCES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_GLOBALCINSTANCES,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        sizeof(KSPIN_CINSTANCES),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_NECESSARYINSTANCES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_NECESSARYINSTANCES,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        sizeof(ULONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_PHYSICALCONNECTION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_PHYSICALCONNECTION,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_CATEGORY(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_CATEGORY,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        sizeof(GUID),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_NAME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_NAME,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_CONSTRAINEDDATARANGES(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_CONSTRAINEDDATARANGES,\
+        (Handler),\
+        sizeof(KSP_PIN),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_PIN_PROPOSEDATAFORMAT(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_PIN_PROPOSEDATAFORMAT,\
+        NULL,\
+        sizeof(KSP_PIN),\
+        sizeof(KSDATAFORMAT),\
+        (Handler), NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_PINSET(PinSet,\
+    PropGeneral, PropInstances, PropIntersection)\
+DEFINE_KSPROPERTY_TABLE(PinSet) {\
+    DEFINE_KSPROPERTY_ITEM_PIN_CINSTANCES(PropInstances),\
+    DEFINE_KSPROPERTY_ITEM_PIN_CTYPES(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_DATAFLOW(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_DATARANGES(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_DATAINTERSECTION(PropIntersection),\
+    DEFINE_KSPROPERTY_ITEM_PIN_INTERFACES(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_MEDIUMS(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_COMMUNICATION(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_CATEGORY(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_NAME(PropGeneral)\
+}
+
+#define DEFINE_KSPROPERTY_PINSETCONSTRAINED(PinSet,\
+    PropGeneral, PropInstances, PropIntersection)\
+DEFINE_KSPROPERTY_TABLE(PinSet) {\
+    DEFINE_KSPROPERTY_ITEM_PIN_CINSTANCES(PropInstances),\
+    DEFINE_KSPROPERTY_ITEM_PIN_CTYPES(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_DATAFLOW(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_DATARANGES(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_DATAINTERSECTION(PropIntersection),\
+    DEFINE_KSPROPERTY_ITEM_PIN_INTERFACES(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_MEDIUMS(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_COMMUNICATION(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_CATEGORY(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_NAME(PropGeneral),\
+    DEFINE_KSPROPERTY_ITEM_PIN_CONSTRAINEDDATARANGES(PropGeneral)\
+}
+
+#define STATIC_KSEVENTSETID_PinCapsChange \
+    0xDD4F192E, 0x3B78, 0x49AD, 0xA5, 0x34, 0x2C, 0x31, 0x5b, 0x82, 0x20, 0x00
+DEFINE_GUIDSTRUCT("DD4F192E-3B78-49AD-A534-2C315B822000", KSEVENTSETID_PinCapsChange);
+#define KSEVENTSETID_PinCapsChange DEFINE_GUIDNAMED(KSEVENTSETID_PinCapsChange)
+
+typedef enum {
+	KSEVENT_PINCAPS_FORMATCHANGE,
+	KSEVENT_PINCAPS_JACKINFOCHANGE
+} KSEVENT_PINCAPS_CHANGENOTIFICATIONS;
+
+#define STATIC_KSEVENTSETID_VolumeLimit \
+	0xda168465, 0x3a7c, 0x4858, 0x9d, 0x4a, 0x3e, 0x8e, 0x24, 0x70, 0x1a, 0xef
+DEFINE_GUIDSTRUCT("DA168465-3A7C-4858-9D4A-3E8E24701AEF", KSEVENTSETID_VolumeLimit);
+#define KSEVENTSETID_VolumeLimit DEFINE_GUIDNAMED(KSEVENTSETID_VolumeLimit)
+
+typedef enum {
+	KSEVENT_VOLUMELIMIT_CHANGED
+} KSEVENT_VOLUMELIMIT;
+
+
+#define STATIC_KSNAME_Filter\
+    0x9b365890L, 0x165f, 0x11d0, 0xa1, 0x95, 0x00, 0x20, 0xaf, 0xd1, 0x56, 0xe4
+DEFINE_GUIDSTRUCT("9b365890-165f-11d0-a195-0020afd156e4", KSNAME_Filter);
+#define KSNAME_Filter DEFINE_GUIDNAMED(KSNAME_Filter)
+
+#define KSSTRING_Filter L"{9B365890-165F-11D0-A195-0020AFD156E4}"
+
+#define STATIC_KSNAME_Pin\
+    0x146F1A80L, 0x4791, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("146F1A80-4791-11D0-A5D6-28DB04C10000", KSNAME_Pin);
+#define KSNAME_Pin DEFINE_GUIDNAMED(KSNAME_Pin)
+
+#define KSSTRING_Pin L"{146F1A80-4791-11D0-A5D6-28DB04C10000}"
+
+#define STATIC_KSNAME_Clock\
+    0x53172480L, 0x4791, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("53172480-4791-11D0-A5D6-28DB04C10000", KSNAME_Clock);
+#define KSNAME_Clock DEFINE_GUIDNAMED(KSNAME_Clock)
+
+#define KSSTRING_Clock L"{53172480-4791-11D0-A5D6-28DB04C10000}"
+
+#define STATIC_KSNAME_Allocator\
+    0x642F5D00L, 0x4791, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("642F5D00-4791-11D0-A5D6-28DB04C10000", KSNAME_Allocator);
+#define KSNAME_Allocator DEFINE_GUIDNAMED(KSNAME_Allocator)
+
+#define KSSTRING_Allocator L"{642F5D00-4791-11D0-A5D6-28DB04C10000}"
+
+#define KSSTRING_AllocatorEx L"{091BB63B-603F-11D1-B067-00A0C9062802}"
+
+#define STATIC_KSNAME_TopologyNode\
+    0x0621061AL, 0xEE75, 0x11D0, 0xB9, 0x15, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("0621061A-EE75-11D0-B915-00A0C9223196", KSNAME_TopologyNode);
+#define KSNAME_TopologyNode DEFINE_GUIDNAMED(KSNAME_TopologyNode)
+
+#define KSSTRING_TopologyNode L"{0621061A-EE75-11D0-B915-00A0C9223196}"
+
+#if defined(_NTDDK_)
+
+typedef struct {
+	ULONG                   InterfacesCount;
+	_Field_size_(InterfacesCount)
+		const KSPIN_INTERFACE*  Interfaces;
+	ULONG                   MediumsCount;
+	_Field_size_(MediumsCount)
+		const KSPIN_MEDIUM*     Mediums;
+	ULONG                   DataRangesCount;
+	_Field_size_(DataRangesCount)
+		const PKSDATARANGE*     DataRanges;
+	KSPIN_DATAFLOW          DataFlow;
+	KSPIN_COMMUNICATION     Communication;
+	const GUID*             Category;
+	const GUID*             Name;
+	union {
+		LONGLONG            Reserved;
+		struct {
+			ULONG           ConstrainedDataRangesCount;
+			_Field_size_(ConstrainedDataRangesCount)
+				PKSDATARANGE*   ConstrainedDataRanges;
+		};
+	};
+} KSPIN_DESCRIPTOR, *PKSPIN_DESCRIPTOR;
+typedef const KSPIN_DESCRIPTOR *PCKSPIN_DESCRIPTOR;
+
+#define DEFINE_KSPIN_DESCRIPTOR_TABLE(tablename)\
+    const KSPIN_DESCRIPTOR tablename[] =
+
+#define DEFINE_KSPIN_DESCRIPTOR_ITEM(\
+    InterfacesCount, Interfaces,\
+    MediumsCount, Mediums,\
+    DataRangesCount, DataRanges,\
+    DataFlow, Communication)\
+{\
+    InterfacesCount, Interfaces, MediumsCount, Mediums,\
+    DataRangesCount, DataRanges, DataFlow, Communication,\
+    NULL, NULL, 0\
+}
+#define DEFINE_KSPIN_DESCRIPTOR_ITEMEX(\
+    InterfacesCount, Interfaces,\
+    MediumsCount, Mediums,\
+    DataRangesCount, DataRanges,\
+    DataFlow, Communication,\
+    Category, Name)\
+{\
+    InterfacesCount, Interfaces, MediumsCount, Mediums,\
+    DataRangesCount, DataRanges, DataFlow, Communication,\
+    Category, Name, 0\
+}
+
+#endif // defined(_NTDDK_)
+
+//===========================================================================
+
+// MEDIATYPE_NULL
+#define STATIC_KSDATAFORMAT_TYPE_WILDCARD       STATIC_GUID_NULL
+#define KSDATAFORMAT_TYPE_WILDCARD              GUID_NULL
+
+// MEDIASUBTYPE_NULL
+#define STATIC_KSDATAFORMAT_SUBTYPE_WILDCARD    STATIC_GUID_NULL
+#define KSDATAFORMAT_SUBTYPE_WILDCARD           GUID_NULL
+
+// MEDIATYPE_Stream
+#define STATIC_KSDATAFORMAT_TYPE_STREAM\
+    0xE436EB83L, 0x524F, 0x11CE, 0x9F, 0x53, 0x00, 0x20, 0xAF, 0x0B, 0xA7, 0x70
+DEFINE_GUIDSTRUCT("E436EB83-524F-11CE-9F53-0020AF0BA770", KSDATAFORMAT_TYPE_STREAM);
+#define KSDATAFORMAT_TYPE_STREAM DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_STREAM)
+
+// MEDIASUBTYPE_None
+#define STATIC_KSDATAFORMAT_SUBTYPE_NONE\
+    0xE436EB8EL, 0x524F, 0x11CE, 0x9F, 0x53, 0x00, 0x20, 0xAF, 0x0B, 0xA7, 0x70
+DEFINE_GUIDSTRUCT("E436EB8E-524F-11CE-9F53-0020AF0BA770", KSDATAFORMAT_SUBTYPE_NONE);
+#define KSDATAFORMAT_SUBTYPE_NONE DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_NONE)
+
+#define STATIC_KSDATAFORMAT_SPECIFIER_WILDCARD  STATIC_GUID_NULL
+#define KSDATAFORMAT_SPECIFIER_WILDCARD         GUID_NULL
+
+#define STATIC_KSDATAFORMAT_SPECIFIER_FILENAME\
+    0xAA797B40L, 0xE974, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("AA797B40-E974-11CF-A5D6-28DB04C10000", KSDATAFORMAT_SPECIFIER_FILENAME);
+#define KSDATAFORMAT_SPECIFIER_FILENAME DEFINE_GUIDNAMED(KSDATAFORMAT_SPECIFIER_FILENAME)
+
+#define STATIC_KSDATAFORMAT_SPECIFIER_FILEHANDLE\
+    0x65E8773CL, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("65E8773C-8F56-11D0-A3B9-00A0C9223196", KSDATAFORMAT_SPECIFIER_FILEHANDLE);
+#define KSDATAFORMAT_SPECIFIER_FILEHANDLE DEFINE_GUIDNAMED(KSDATAFORMAT_SPECIFIER_FILEHANDLE)
+
+// FORMAT_None
+#define STATIC_KSDATAFORMAT_SPECIFIER_NONE\
+    0x0F6417D6L, 0xC318, 0x11D0, 0xA4, 0x3F, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("0F6417D6-C318-11D0-A43F-00A0C9223196", KSDATAFORMAT_SPECIFIER_NONE);
+#define KSDATAFORMAT_SPECIFIER_NONE DEFINE_GUIDNAMED(KSDATAFORMAT_SPECIFIER_NONE)
+
+//===========================================================================
+
+#define STATIC_KSPROPSETID_Quality \
+    0xD16AD380L, 0xAC1A, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("D16AD380-AC1A-11CF-A5D6-28DB04C10000", KSPROPSETID_Quality);
+#define KSPROPSETID_Quality DEFINE_GUIDNAMED(KSPROPSETID_Quality)
+
+typedef enum {
+	KSPROPERTY_QUALITY_REPORT,
+	KSPROPERTY_QUALITY_ERROR
+} KSPROPERTY_QUALITY;
+
+#define DEFINE_KSPROPERTY_ITEM_QUALITY_REPORT(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_QUALITY_REPORT,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSQUALITY),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_QUALITY_ERROR(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_QUALITY_ERROR,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSERROR),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+//===========================================================================
+
+#define STATIC_KSPROPSETID_Connection \
+    0x1D58C920L, 0xAC9B, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("1D58C920-AC9B-11CF-A5D6-28DB04C10000", KSPROPSETID_Connection);
+#define KSPROPSETID_Connection DEFINE_GUIDNAMED(KSPROPSETID_Connection)
+
+typedef enum {
+	KSPROPERTY_CONNECTION_STATE,
+	KSPROPERTY_CONNECTION_PRIORITY,
+	KSPROPERTY_CONNECTION_DATAFORMAT,
+	KSPROPERTY_CONNECTION_ALLOCATORFRAMING,
+	KSPROPERTY_CONNECTION_PROPOSEDATAFORMAT,
+	KSPROPERTY_CONNECTION_ACQUIREORDERING,
+	KSPROPERTY_CONNECTION_ALLOCATORFRAMING_EX,
+	KSPROPERTY_CONNECTION_STARTAT
+} KSPROPERTY_CONNECTION;
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_STATE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_STATE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSSTATE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_PRIORITY(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_PRIORITY,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSPRIORITY),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_DATAFORMAT(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_DATAFORMAT,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_ALLOCATORFRAMING(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_ALLOCATORFRAMING,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSALLOCATOR_FRAMING),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_ALLOCATORFRAMING_EX(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_ALLOCATORFRAMING_EX,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_PROPOSEDATAFORMAT(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_PROPOSEDATAFORMAT,\
+        NULL,\
+        sizeof(KSPROPERTY),\
+        sizeof(KSDATAFORMAT),\
+        (Handler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_ACQUIREORDERING(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_ACQUIREORDERING,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(int),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_STARTAT(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CONNECTION_STARTAT,\
+        NULL,\
+        sizeof(KSPROPERTY),\
+        sizeof(KSRELATIVEEVENT),\
+        (Handler),\
+        NULL, 0, NULL, NULL, 0)
+
+//===========================================================================
+//VRAM transport related propset
+//===========================================================================
+
+#define STATIC_KSPROPSETID_MemoryTransport \
+    0xa3d1c5d, 0x5243, 0x4819, 0x9e, 0xd0, 0xae, 0xe8, 0x4, 0x4c, 0xee, 0x2b
+DEFINE_GUIDSTRUCT("0A3D1C5D-5243-4819-9ED0-AEE8044CEE2B", KSPROPSETID_MemoryTransport);
+#define KSPROPSETID_MemoryTransport DEFINE_GUIDNAMED(KSPROPSETID_MemoryTransport)
+enum {
+	// a value of zero is ignored
+	KSPROPERTY_MEMORY_TRANSPORT = 1 //Sets pin's memory transport mechanism e.g. VRAM or SYSMEM
+};
+
+#define DEFINE_KSPROPERTY_ITEM_MEMORY_TRANSPORT(SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_MEMORY_TRANSPORT,\
+        NULL,\
+        sizeof(KSPROPERTY),\
+        sizeof(BOOL),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+//===========================================================================
+//
+// pins flags
+//
+#define KSALLOCATOR_REQUIREMENTF_INPLACE_MODIFIER   0x00000001
+#define KSALLOCATOR_REQUIREMENTF_SYSTEM_MEMORY      0x00000002
+#define KSALLOCATOR_REQUIREMENTF_FRAME_INTEGRITY    0x00000004
+#define KSALLOCATOR_REQUIREMENTF_MUST_ALLOCATE      0x00000008
+#define KSALLOCATOR_REQUIREMENTF_PREFERENCES_ONLY   0x80000000
+
+#define KSALLOCATOR_OPTIONF_COMPATIBLE              0x00000001
+#define KSALLOCATOR_OPTIONF_SYSTEM_MEMORY           0x00000002
+#define KSALLOCATOR_OPTIONF_VALID                   0x00000003
+// 
+// pins extended framing flags
+//
+#define KSALLOCATOR_FLAG_PARTIAL_READ_SUPPORT       0x00000010
+#define KSALLOCATOR_FLAG_DEVICE_SPECIFIC            0x00000020
+#define KSALLOCATOR_FLAG_CAN_ALLOCATE               0x00000040
+#define KSALLOCATOR_FLAG_INSIST_ON_FRAMESIZE_RATIO  0x00000080
+#define KSALLOCATOR_FLAG_ENABLE_CACHED_MDL          0x00004000
+
+//
+// allocator pipes flags
+//
+// there is at least one data modification in a pipe
+#define KSALLOCATOR_FLAG_NO_FRAME_INTEGRITY         0x00000100
+#define KSALLOCATOR_FLAG_MULTIPLE_OUTPUT            0x00000200
+#define KSALLOCATOR_FLAG_CYCLE                      0x00000400
+#define KSALLOCATOR_FLAG_ALLOCATOR_EXISTS           0x00000800
+// there is no framing dependency between neighbouring pipes.
+#define KSALLOCATOR_FLAG_INDEPENDENT_RANGES         0x00001000
+#define KSALLOCATOR_FLAG_ATTENTION_STEPPING         0x00002000
+
+
+//
+// old Framing structure
+//
+typedef struct {
+	union {
+		ULONG       OptionsFlags;       // allocator options (create)
+		ULONG       RequirementsFlags;  // allocation requirements (query)
+	};
+#if defined(_NTDDK_)
+	POOL_TYPE   PoolType;
+#else // !_NTDDK_
+	ULONG       PoolType;
+#endif // !_NTDDK_
+	ULONG       Frames;     // total number of allowable outstanding frames
+	ULONG       FrameSize;  // total size of frame
+	ULONG       FileAlignment;
+	ULONG       Reserved;
+} KSALLOCATOR_FRAMING, *PKSALLOCATOR_FRAMING;
+
+#if defined(_NTDDK_)
+typedef
+PVOID
+(*PFNKSDEFAULTALLOCATE)(
+	_In_ PVOID Context
+	);
+
+typedef
+VOID
+(*PFNKSDEFAULTFREE)(
+	_In_ PVOID Context,
+	_In_ PVOID Buffer
+	);
+
+typedef
+NTSTATUS
+(*PFNKSINITIALIZEALLOCATOR)(
+	_In_ PVOID InitialContext,
+	_In_ PKSALLOCATOR_FRAMING AllocatorFraming,
+	_Outptr_ PVOID* Context
+	);
+
+typedef
+VOID
+(*PFNKSDELETEALLOCATOR)(
+	_In_ PVOID Context
+	);
+#endif // !_NTDDK_
+
+//
+// new Framing structure, eventually will replace KSALLOCATOR_FRAMING.
+// 
+typedef struct {
+	ULONG   MinFrameSize;
+	ULONG   MaxFrameSize;
+	ULONG   Stepping;
+} KS_FRAMING_RANGE, *PKS_FRAMING_RANGE;
+
+
+typedef struct {
+	KS_FRAMING_RANGE  Range;
+	ULONG             InPlaceWeight;
+	ULONG             NotInPlaceWeight;
+} KS_FRAMING_RANGE_WEIGHTED, *PKS_FRAMING_RANGE_WEIGHTED;
+
+
+typedef struct {
+	ULONG   RatioNumerator;      // compression/expansion ratio
+	ULONG   RatioDenominator;
+	ULONG   RatioConstantMargin;
+} KS_COMPRESSION, *PKS_COMPRESSION;
+
+
+//
+// Memory Types and Buses are repeated in each entry.
+// Easiest to use but takes a little more memory than the varsize layout Pin\Memories\Buses\Ranges.
+//
+typedef struct {
+	GUID                        MemoryType;
+	GUID                        BusType;
+	ULONG                       MemoryFlags;
+	ULONG                       BusFlags;
+	ULONG                       Flags;
+	ULONG                       Frames;              // total number of allowable outstanding frames
+	ULONG                       FileAlignment;
+	ULONG                       MemoryTypeWeight;    // this memory type Weight pin-wide
+	KS_FRAMING_RANGE            PhysicalRange;
+	KS_FRAMING_RANGE_WEIGHTED   FramingRange;
+} KS_FRAMING_ITEM, *PKS_FRAMING_ITEM;
+
+
+typedef struct {
+	ULONG               CountItems;         // count of FramingItem-s below.
+	ULONG               PinFlags;
+	KS_COMPRESSION      OutputCompression;
+	ULONG               PinWeight;          // this pin framing's Weight graph-wide
+	KS_FRAMING_ITEM     FramingItem[1];
+} KSALLOCATOR_FRAMING_EX, *PKSALLOCATOR_FRAMING_EX;
+
+
+
+//
+// define memory type GUIDs
+//
+#define KSMEMORY_TYPE_WILDCARD          GUID_NULL
+#define STATIC_KSMEMORY_TYPE_WILDCARD   STATIC_GUID_NULL
+
+#define KSMEMORY_TYPE_DONT_CARE         GUID_NULL
+#define STATIC_KSMEMORY_TYPE_DONT_CARE  STATIC_GUID_NULL
+
+#define KS_TYPE_DONT_CARE           GUID_NULL
+#define STATIC_KS_TYPE_DONT_CARE    STATIC_GUID_NULL
+
+#define STATIC_KSMEMORY_TYPE_SYSTEM \
+    0x091bb638L, 0x603f, 0x11d1, 0xb0, 0x67, 0x00, 0xa0, 0xc9, 0x06, 0x28, 0x02
+DEFINE_GUIDSTRUCT("091bb638-603f-11d1-b067-00a0c9062802", KSMEMORY_TYPE_SYSTEM);
+#define KSMEMORY_TYPE_SYSTEM  DEFINE_GUIDNAMED(KSMEMORY_TYPE_SYSTEM)
+
+#define STATIC_KSMEMORY_TYPE_USER \
+    0x8cb0fc28L, 0x7893, 0x11d1, 0xb0, 0x69, 0x00, 0xa0, 0xc9, 0x06, 0x28, 0x02
+DEFINE_GUIDSTRUCT("8cb0fc28-7893-11d1-b069-00a0c9062802", KSMEMORY_TYPE_USER);
+#define KSMEMORY_TYPE_USER  DEFINE_GUIDNAMED(KSMEMORY_TYPE_USER)
+
+#define STATIC_KSMEMORY_TYPE_KERNEL_PAGED \
+    0xd833f8f8L, 0x7894, 0x11d1, 0xb0, 0x69, 0x00, 0xa0, 0xc9, 0x06, 0x28, 0x02
+DEFINE_GUIDSTRUCT("d833f8f8-7894-11d1-b069-00a0c9062802", KSMEMORY_TYPE_KERNEL_PAGED);
+#define KSMEMORY_TYPE_KERNEL_PAGED  DEFINE_GUIDNAMED(KSMEMORY_TYPE_KERNEL_PAGED)
+
+#define STATIC_KSMEMORY_TYPE_KERNEL_NONPAGED \
+    0x4a6d5fc4L, 0x7895, 0x11d1, 0xb0, 0x69, 0x00, 0xa0, 0xc9, 0x06, 0x28, 0x02
+DEFINE_GUIDSTRUCT("4a6d5fc4-7895-11d1-b069-00a0c9062802", KSMEMORY_TYPE_KERNEL_NONPAGED);
+#define KSMEMORY_TYPE_KERNEL_NONPAGED  DEFINE_GUIDNAMED(KSMEMORY_TYPE_KERNEL_NONPAGED)
+
+// old KS clients did not specify the device memory type
+#define STATIC_KSMEMORY_TYPE_DEVICE_UNKNOWN \
+    0x091bb639L, 0x603f, 0x11d1, 0xb0, 0x67, 0x00, 0xa0, 0xc9, 0x06, 0x28, 0x02
+DEFINE_GUIDSTRUCT("091bb639-603f-11d1-b067-00a0c9062802", KSMEMORY_TYPE_DEVICE_UNKNOWN);
+#define KSMEMORY_TYPE_DEVICE_UNKNOWN DEFINE_GUIDNAMED(KSMEMORY_TYPE_DEVICE_UNKNOWN)
+
+//
+// Helper framing macros.
+//
+#define DECLARE_SIMPLE_FRAMING_EX(FramingExName, MemoryType, Flags, Frames, Alignment, MinFrameSize, MaxFrameSize) \
+    const KSALLOCATOR_FRAMING_EX FramingExName = \
+    {\
+        1, \
+        0, \
+        {\
+            1, \
+            1, \
+            0 \
+        }, \
+        0, \
+        {\
+            {\
+                MemoryType, \
+                STATIC_KS_TYPE_DONT_CARE, \
+                0, \
+                0, \
+                Flags, \
+                Frames, \
+                Alignment, \
+                0, \
+                {\
+                    0, \
+                    (ULONG)-1, \
+                    1 \
+                }, \
+                {\
+                    {\
+                        MinFrameSize, \
+                        MaxFrameSize, \
+                        1 \
+                    }, \
+                    0, \
+                    0  \
+                }\
+            }\
+        }\
+    }
+
+#define SetDefaultKsCompression(KsCompressionPointer) \
+{\
+    KsCompressionPointer->RatioNumerator = 1;\
+    KsCompressionPointer->RatioDenominator = 1;\
+    KsCompressionPointer->RatioConstantMargin = 0;\
+}
+
+#define SetDontCareKsFramingRange(KsFramingRangePointer) \
+{\
+    KsFramingRangePointer->MinFrameSize = 0;\
+    KsFramingRangePointer->MaxFrameSize = (ULONG) -1;\
+    KsFramingRangePointer->Stepping = 1;\
+}
+
+#define SetKsFramingRange(KsFramingRangePointer, P_MinFrameSize, P_MaxFrameSize) \
+{\
+    KsFramingRangePointer->MinFrameSize = P_MinFrameSize;\
+    KsFramingRangePointer->MaxFrameSize = P_MaxFrameSize;\
+    KsFramingRangePointer->Stepping = 1;\
+}
+
+#define SetKsFramingRangeWeighted(KsFramingRangeWeightedPointer, P_MinFrameSize, P_MaxFrameSize) \
+{\
+    KS_FRAMING_RANGE *KsFramingRange = &KsFramingRangeWeightedPointer->Range;\
+    SetKsFramingRange(KsFramingRange, P_MinFrameSize, P_MaxFrameSize);\
+    KsFramingRangeWeightedPointer->InPlaceWeight = 0;\
+    KsFramingRangeWeightedPointer->NotInPlaceWeight = 0;\
+}
+
+#define INITIALIZE_SIMPLE_FRAMING_EX(FramingExPointer, P_MemoryType, P_Flags, P_Frames, P_Alignment, P_MinFrameSize, P_MaxFrameSize) \
+{\
+    KS_COMPRESSION *KsCompression = &FramingExPointer->OutputCompression;\
+    KS_FRAMING_RANGE *KsFramingRange = &FramingExPointer->FramingItem[0].PhysicalRange;\
+    KS_FRAMING_RANGE_WEIGHTED *KsFramingRangeWeighted = &FramingExPointer->FramingItem[0].FramingRange;\
+    FramingExPointer->CountItems = 1;\
+    FramingExPointer->PinFlags = 0;\
+    SetDefaultKsCompression(KsCompression);\
+    FramingExPointer->PinWeight = 0;\
+    FramingExPointer->FramingItem[0].MemoryType = P_MemoryType;\
+    FramingExPointer->FramingItem[0].BusType = KS_TYPE_DONT_CARE;\
+    FramingExPointer->FramingItem[0].MemoryFlags = 0;\
+    FramingExPointer->FramingItem[0].BusFlags = 0;\
+    FramingExPointer->FramingItem[0].Flags = P_Flags;\
+    FramingExPointer->FramingItem[0].Frames = P_Frames;\
+    FramingExPointer->FramingItem[0].FileAlignment = P_Alignment;\
+    FramingExPointer->FramingItem[0].MemoryTypeWeight = 0;\
+    SetDontCareKsFramingRange(KsFramingRange);\
+    SetKsFramingRangeWeighted(KsFramingRangeWeighted, P_MinFrameSize, P_MaxFrameSize);\
+}
+
+
+
+// KSEVENTSETID_StreamAllocator: {75D95571-073C-11d0-A161-0020AFD156E4}
+
+#define STATIC_KSEVENTSETID_StreamAllocator\
+    0x75d95571L, 0x073c, 0x11d0, 0xa1, 0x61, 0x00, 0x20, 0xaf, 0xd1, 0x56, 0xe4
+DEFINE_GUIDSTRUCT("75d95571-073c-11d0-a161-0020afd156e4", KSEVENTSETID_StreamAllocator);
+#define KSEVENTSETID_StreamAllocator DEFINE_GUIDNAMED(KSEVENTSETID_StreamAllocator)
+
+typedef enum {
+	KSEVENT_STREAMALLOCATOR_INTERNAL_FREEFRAME,
+	KSEVENT_STREAMALLOCATOR_FREEFRAME
+} KSEVENT_STREAMALLOCATOR;
+
+#define STATIC_KSMETHODSETID_StreamAllocator\
+    0xcf6e4341L, 0xec87, 0x11cf, 0xa1, 0x30, 0x00, 0x20, 0xaf, 0xd1, 0x56, 0xe4
+DEFINE_GUIDSTRUCT("cf6e4341-ec87-11cf-a130-0020afd156e4", KSMETHODSETID_StreamAllocator);
+#define KSMETHODSETID_StreamAllocator DEFINE_GUIDNAMED(KSMETHODSETID_StreamAllocator)
+
+typedef enum {
+	KSMETHOD_STREAMALLOCATOR_ALLOC,
+	KSMETHOD_STREAMALLOCATOR_FREE
+} KSMETHOD_STREAMALLOCATOR;
+
+#define DEFINE_KSMETHOD_ITEM_STREAMALLOCATOR_ALLOC(Handler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_STREAMALLOCATOR_ALLOC,\
+        KSMETHOD_TYPE_WRITE,\
+        (Handler),\
+        sizeof(KSMETHOD),\
+        sizeof(PVOID),\
+        NULL)
+
+#define DEFINE_KSMETHOD_ITEM_STREAMALLOCATOR_FREE(Handler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_STREAMALLOCATOR_FREE,\
+        KSMETHOD_TYPE_READ,\
+        (Handler),\
+        sizeof(KSMETHOD),\
+        sizeof(PVOID),\
+        NULL)
+
+#define DEFINE_KSMETHOD_ALLOCATORSET(AllocatorSet, MethodAlloc, MethodFree)\
+DEFINE_KSMETHOD_TABLE(AllocatorSet) {\
+    DEFINE_KSMETHOD_ITEM_STREAMALLOCATOR_ALLOC(MethodAlloc),\
+    DEFINE_KSMETHOD_ITEM_STREAMALLOCATOR_FREE(MethodFree)\
+}
+
+#define STATIC_KSPROPSETID_StreamAllocator\
+    0xcf6e4342L, 0xec87, 0x11cf, 0xa1, 0x30, 0x00, 0x20, 0xaf, 0xd1, 0x56, 0xe4
+DEFINE_GUIDSTRUCT("cf6e4342-ec87-11cf-a130-0020afd156e4", KSPROPSETID_StreamAllocator);
+#define KSPROPSETID_StreamAllocator DEFINE_GUIDNAMED(KSPROPSETID_StreamAllocator)
+
+#if defined(_NTDDK_)
+typedef enum {
+	KSPROPERTY_STREAMALLOCATOR_FUNCTIONTABLE,
+	KSPROPERTY_STREAMALLOCATOR_STATUS
+} KSPROPERTY_STREAMALLOCATOR;
+
+#define DEFINE_KSPROPERTY_ITEM_STREAMALLOCATOR_FUNCTIONTABLE(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAMALLOCATOR_FUNCTIONTABLE,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSSTREAMALLOCATOR_FUNCTIONTABLE),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAMALLOCATOR_STATUS(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAMALLOCATOR_STATUS,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSSTREAMALLOCATOR_STATUS),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ALLOCATORSET(AllocatorSet, PropFunctionTable, PropStatus)\
+DEFINE_KSPROPERTY_TABLE(AllocatorSet) {\
+    DEFINE_KSPROPERTY_ITEM_STREAMALLOCATOR_STATUS(PropStatus),\
+    DEFINE_KSPROPERTY_ITEM_STREAMALLOCATOR_FUNCTIONTABLE(PropFunctionTable)\
+}
+
+typedef
+NTSTATUS
+(*PFNALLOCATOR_ALLOCATEFRAME)(
+	_In_ PFILE_OBJECT FileObject,
+	_Outptr_ PVOID *Frame
+	);
+
+typedef
+VOID
+(*PFNALLOCATOR_FREEFRAME)(
+	_In_ PFILE_OBJECT FileObject,
+	_In_ PVOID Frame
+	);
+
+typedef struct {
+	PFNALLOCATOR_ALLOCATEFRAME  AllocateFrame;
+	PFNALLOCATOR_FREEFRAME      FreeFrame;
+} KSSTREAMALLOCATOR_FUNCTIONTABLE, *PKSSTREAMALLOCATOR_FUNCTIONTABLE;
+#endif // defined(_NTDDK_)
+
+typedef struct {
+	KSALLOCATOR_FRAMING Framing;
+	ULONG               AllocatedFrames;
+	ULONG               Reserved;
+} KSSTREAMALLOCATOR_STATUS, *PKSSTREAMALLOCATOR_STATUS;
+
+typedef struct {
+	KSALLOCATOR_FRAMING_EX Framing;
+	ULONG                  AllocatedFrames;
+	ULONG                  Reserved;
+} KSSTREAMALLOCATOR_STATUS_EX, *PKSSTREAMALLOCATOR_STATUS_EX;
+
+
+#define KSSTREAM_HEADER_OPTIONSF_SPLICEPOINT        0x00000001
+#define KSSTREAM_HEADER_OPTIONSF_PREROLL            0x00000002
+#define KSSTREAM_HEADER_OPTIONSF_DATADISCONTINUITY  0x00000004
+#define KSSTREAM_HEADER_OPTIONSF_TYPECHANGED        0x00000008
+#define KSSTREAM_HEADER_OPTIONSF_TIMEVALID          0x00000010
+#define KSSTREAM_HEADER_OPTIONSF_TIMEDISCONTINUITY  0x00000040
+#define KSSTREAM_HEADER_OPTIONSF_FLUSHONPAUSE       0x00000080
+#define KSSTREAM_HEADER_OPTIONSF_DURATIONVALID      0x00000100
+#define KSSTREAM_HEADER_OPTIONSF_ENDOFSTREAM        0x00000200
+#define KSSTREAM_HEADER_OPTIONSF_BUFFEREDTRANSFER   0x00000400
+#define KSSTREAM_HEADER_OPTIONSF_VRAM_DATA_TRANSFER 0x00000800
+#define KSSTREAM_HEADER_OPTIONSF_METADATA           0x00001000
+#define KSSTREAM_HEADER_OPTIONSF_ENDOFPHOTOSEQUENCE 0x00002000
+#define KSSTREAM_HEADER_OPTIONSF_FRAMEINFO          0x00004000
+//
+//Start of MDL caching related definitions
+//
+#define KSSTREAM_HEADER_OPTIONSF_PERSIST_SAMPLE     0x00008000   
+#define KSSTREAM_HEADER_OPTIONSF_SAMPLE_PERSISTED   0x00010000
+
+//
+// This flag tells the user mode to look at frame completion numbers
+//
+#define KSSTREAM_HEADER_TRACK_COMPLETION_NUMBERS   0x00020000
+
+//
+//End of MDL caching related definitions		
+#define KSSTREAM_HEADER_OPTIONSF_LOOPEDDATA         0x80000000
+
+typedef struct {
+	LONGLONG    Time;
+	ULONG       Numerator;
+	ULONG       Denominator;
+} KSTIME, *PKSTIME;
+
+typedef struct {
+	ULONG       Size;
+	ULONG       TypeSpecificFlags;
+	KSTIME      PresentationTime;
+	LONGLONG    Duration;
+	ULONG       FrameExtent;
+	ULONG       DataUsed;
+	_Field_size_bytes_(FrameExtent)
+		PVOID       Data;
+	ULONG       OptionsFlags;
+#if _WIN64
+	ULONG       Reserved;
+#endif
+} KSSTREAM_HEADER, *PKSSTREAM_HEADER;
+
+typedef struct {
+	ULONG       BufferSize;
+	ULONG       UsedSize;
+	_Field_size_bytes_(BufferSize)
+		PVOID       Data;    // Metadata buffer passed down by user mode (mapped to SystemVa)
+	_Field_size_bytes_(BufferSize)
+		PVOID       SystemVa;  // Metadata buffer that driver will fill metadata to
+	ULONG       Flags;
+	ULONG       Reserved;
+} KSSTREAM_METADATA_INFO, *PKSSTREAM_METADATA_INFO;
+
+typedef struct
+{
+	ULONG       PresentationTimeStamp;
+	ULONG       SourceClockReference;
+	union
+	{
+		struct
+		{
+			USHORT	Counter : 11;
+			USHORT  Reserved : 5;
+		};
+		USHORT	SCRToken;
+	};
+	USHORT      Reserved0;
+	ULONG       Reserved1;
+} KSSTREAM_UVC_METADATATYPE_TIMESTAMP, *PKSSTREAM_UVC_METADATATYPE_TIMESTAMP;
+
+typedef struct {
+	KSSTREAM_UVC_METADATATYPE_TIMESTAMP StartOfFrameTimestamp;
+	KSSTREAM_UVC_METADATATYPE_TIMESTAMP EndOfFrameTimestamp;
+} KSSTREAM_UVC_METADATA, *PKSSTREAM_UVC_METADATA;
+
+typedef enum {
+	KSPIN_MDL_CACHING_NOTIFY_CLEANUP,
+	KSPIN_MDL_CACHING_NOTIFY_CLEANALL_WAIT,
+	KSPIN_MDL_CACHING_NOTIFY_CLEANALL_NOWAIT,
+	KSPIN_MDL_CACHING_NOTIFY_ADDSAMPLE
+}KSPIN_MDL_CACHING_EVENT;
+
+typedef struct {
+	KSPIN_MDL_CACHING_EVENT Event;
+	PVOID Buffer;
+} KSPIN_MDL_CACHING_NOTIFICATION, *PKSPIN_MDL_CACHING_NOTIFICATION;
+
+typedef struct {
+	KSPIN_MDL_CACHING_EVENT Event;
+	ULONG Buffer;
+} KSPIN_MDL_CACHING_NOTIFICATION32, *PKSPIN_MDL_CACHING_NOTIFICATION32;
+
+
+
+#define STATIC_KSPROPSETID_StreamInterface\
+    0x1fdd8ee1L, 0x9cd3, 0x11d0, 0x82, 0xaa, 0x00, 0x00, 0xf8, 0x22, 0xfe, 0x8a
+DEFINE_GUIDSTRUCT("1fdd8ee1-9cd3-11d0-82aa-0000f822fe8a", KSPROPSETID_StreamInterface);
+#define KSPROPSETID_StreamInterface DEFINE_GUIDNAMED(KSPROPSETID_StreamInterface)
+
+typedef enum {
+	KSPROPERTY_STREAMINTERFACE_HEADERSIZE
+} KSPROPERTY_STREAMINTERFACE;
+
+#define DEFINE_KSPROPERTY_ITEM_STREAMINTERFACE_HEADERSIZE( GetHandler )\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAMINTERFACE_HEADERSIZE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(ULONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_STREAMINTERFACESET(StreamInterfaceSet,\
+    HeaderSizeHandler)\
+DEFINE_KSPROPERTY_TABLE(StreamInterfaceSet) {\
+    DEFINE_KSPROPERTY_ITEM_STREAMINTERFACE_HEADERSIZE( HeaderSizeHandler )\
+}
+
+#define STATIC_KSPROPSETID_Stream\
+    0x65aaba60L, 0x98ae, 0x11cf, 0xa1, 0x0d, 0x00, 0x20, 0xaf, 0xd1, 0x56, 0xe4
+DEFINE_GUIDSTRUCT("65aaba60-98ae-11cf-a10d-0020afd156e4", KSPROPSETID_Stream);
+#define KSPROPSETID_Stream DEFINE_GUIDNAMED(KSPROPSETID_Stream)
+
+typedef enum {
+	KSPROPERTY_STREAM_ALLOCATOR,
+	KSPROPERTY_STREAM_QUALITY,
+	KSPROPERTY_STREAM_DEGRADATION,
+	KSPROPERTY_STREAM_MASTERCLOCK,
+	KSPROPERTY_STREAM_TIMEFORMAT,
+	KSPROPERTY_STREAM_PRESENTATIONTIME,
+	KSPROPERTY_STREAM_PRESENTATIONEXTENT,
+	KSPROPERTY_STREAM_FRAMETIME,
+	KSPROPERTY_STREAM_RATECAPABILITY,
+	KSPROPERTY_STREAM_RATE,
+	KSPROPERTY_STREAM_PIPE_ID
+} KSPROPERTY_STREAM;
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_ALLOCATOR(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_ALLOCATOR,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(HANDLE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_QUALITY(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_QUALITY,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSQUALITY_MANAGER),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_DEGRADATION(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_DEGRADATION,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_MASTERCLOCK(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_MASTERCLOCK,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(HANDLE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_TIMEFORMAT(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_TIMEFORMAT,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(GUID),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_PRESENTATIONTIME(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_PRESENTATIONTIME,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSTIME),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_PRESENTATIONEXTENT(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_PRESENTATIONEXTENT,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_FRAMETIME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_FRAMETIME,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSFRAMETIME),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_RATECAPABILITY(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_RATECAPABILITY,\
+        (Handler),\
+        sizeof(KSRATE_CAPABILITY),\
+        sizeof(KSRATE),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_RATE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_RATE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSRATE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_STREAM_PIPE_ID(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_STREAM_PIPE_ID,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(HANDLE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+typedef enum {
+	KSPROPERTY_ALLOCATOR_CLEANUP_CACHEDMDLPAGES = 1
+}KSPPROPERTY_ALLOCATOR_MDLCACHING;
+
+
+
+#define DEFINE_KSPROPERTY_ITEM_CONNECTION_MDLCACHING(SetHandler)\
+ DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_ALLOCATOR_CLEANUP_CACHEDMDLPAGES,\
+        NULL,\
+        sizeof(KSPROPERTY),\
+        sizeof(KSPIN_MDL_CACHING_NOTIFICATION),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+#define STATIC_KSPROPSETID_PinMDLCacheClearProp \
+    0xbd718a7b, 0x97fc, 0x40c7, 0x88, 0xce, 0xd3, 0xff, 0x6, 0xf5, 0x5b, 0x16	
+DEFINE_GUIDSTRUCT("BD718A7B-97FC-40C7-88CE-D3FF06F55B16", KSPROPSETID_PinMDLCacheClearProp);
+#define KSPROPSETID_PinMDLCacheClearProp DEFINE_GUIDNAMED(KSPROPSETID_PinMDLCacheClearProp)
+
+
+
+typedef struct {
+	HANDLE      QualityManager;
+	PVOID       Context;
+} KSQUALITY_MANAGER, *PKSQUALITY_MANAGER;
+
+
+typedef struct {
+	LONGLONG    Duration;
+	ULONG       FrameFlags;
+	ULONG       Reserved;
+} KSFRAMETIME, *PKSFRAMETIME;
+
+#define KSFRAMETIME_VARIABLESIZE    0x00000001
+
+typedef struct {
+	LONGLONG        PresentationStart;
+	LONGLONG        Duration;
+	KSPIN_INTERFACE Interface;
+	LONG            Rate;
+	ULONG           Flags;
+} KSRATE, *PKSRATE;
+
+#define KSRATE_NOPRESENTATIONSTART      0x00000001
+#define KSRATE_NOPRESENTATIONDURATION   0x00000002
+
+typedef struct {
+	KSPROPERTY      Property;
+	KSRATE          Rate;
+} KSRATE_CAPABILITY, *PKSRATE_CAPABILITY;
+
+#define STATIC_KSPROPSETID_Clock \
+    0xDF12A4C0L, 0xAC17, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("DF12A4C0-AC17-11CF-A5D6-28DB04C10000", KSPROPSETID_Clock);
+#define KSPROPSETID_Clock DEFINE_GUIDNAMED(KSPROPSETID_Clock)
+
+//
+// Performs a x*y/z operation on 64 bit quantities by splitting the operation. The equation
+// is simplified with respect to adding in the remainder for the upper 32 bits.
+//
+// (xh * 10000000 / Frequency) * 2^32 + ((((xh * 10000000) % Frequency) * 2^32 + (xl * 10000000)) / Frequency)
+//
+#define NANOSECONDS 10000000
+#define KSCONVERT_PERFORMANCE_TIME(Frequency, PerformanceTime) \
+    ((((ULONGLONG)(ULONG)(PerformanceTime).HighPart * NANOSECONDS / (Frequency)) << 32) + \
+    ((((((ULONGLONG)(ULONG)(PerformanceTime).HighPart * NANOSECONDS) % (Frequency)) << 32) + \
+    ((ULONGLONG)(PerformanceTime).LowPart * NANOSECONDS)) / (Frequency)))
+
+typedef struct {
+	ULONG       CreateFlags;
+} KSCLOCK_CREATE, *PKSCLOCK_CREATE;
+
+typedef struct {
+	LONGLONG    Time;
+	LONGLONG    SystemTime;
+} KSCORRELATED_TIME, *PKSCORRELATED_TIME;
+
+typedef struct {
+	LONGLONG    Granularity;
+	LONGLONG    Error;
+} KSRESOLUTION, *PKSRESOLUTION;
+
+typedef enum {
+	KSPROPERTY_CLOCK_TIME,
+	KSPROPERTY_CLOCK_PHYSICALTIME,
+	KSPROPERTY_CLOCK_CORRELATEDTIME,
+	KSPROPERTY_CLOCK_CORRELATEDPHYSICALTIME,
+	KSPROPERTY_CLOCK_RESOLUTION,
+	KSPROPERTY_CLOCK_STATE,
+#if defined(_NTDDK_)
+	KSPROPERTY_CLOCK_FUNCTIONTABLE
+#endif // defined(_NTDDK_)
+} KSPROPERTY_CLOCK;
+
+#if defined(_NTDDK_)
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+LONGLONG
+(FASTCALL *PFNKSCLOCK_GETTIME)(
+	_In_ PFILE_OBJECT FileObject
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+LONGLONG
+(FASTCALL *PFNKSCLOCK_CORRELATEDTIME)(
+	_In_ PFILE_OBJECT FileObject,
+	_Out_ PLONGLONG SystemTime);
+
+typedef struct {
+	PFNKSCLOCK_GETTIME GetTime;
+	PFNKSCLOCK_GETTIME GetPhysicalTime;
+	PFNKSCLOCK_CORRELATEDTIME GetCorrelatedTime;
+	PFNKSCLOCK_CORRELATEDTIME GetCorrelatedPhysicalTime;
+} KSCLOCK_FUNCTIONTABLE, *PKSCLOCK_FUNCTIONTABLE;
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+BOOLEAN
+(*PFNKSSETTIMER)(
+	_In_ PVOID Context,
+	_In_ PKTIMER Timer,
+	_In_ LARGE_INTEGER DueTime,
+	_In_ PKDPC Dpc
+	);
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+BOOLEAN
+(*PFNKSCANCELTIMER)(
+	_In_ PVOID Context,
+	_In_ PKTIMER Timer
+	);
+
+typedef
+LONGLONG
+(FASTCALL *PFNKSCORRELATEDTIME)(
+	_In_ PVOID Context,
+	_Out_  PLONGLONG SystemTime);
+
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+typedef PVOID   PKSDEFAULTCLOCK;
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_TIME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_TIME,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_PHYSICALTIME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_PHYSICALTIME,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(LONGLONG),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_CORRELATEDTIME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_CORRELATEDTIME,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSCORRELATED_TIME),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_CORRELATEDPHYSICALTIME(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_CORRELATEDPHYSICALTIME,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSCORRELATED_TIME),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_RESOLUTION(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_RESOLUTION,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSRESOLUTION),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_STATE(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_STATE,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSSTATE),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_CLOCK_FUNCTIONTABLE(Handler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_CLOCK_FUNCTIONTABLE,\
+        (Handler),\
+        sizeof(KSPROPERTY),\
+        sizeof(KSCLOCK_FUNCTIONTABLE),\
+        NULL, NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_CLOCKSET(ClockSet,\
+    PropTime, PropPhysicalTime,\
+    PropCorrelatedTime, PropCorrelatedPhysicalTime,\
+    PropResolution, PropState, PropFunctionTable)\
+DEFINE_KSPROPERTY_TABLE(ClockSet) {\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_TIME(PropTime),\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_PHYSICALTIME(PropPhysicalTime),\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_CORRELATEDTIME(PropCorrelatedTime),\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_CORRELATEDPHYSICALTIME(PropCorrelatedPhysicalTime),\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_RESOLUTION(PropResolution),\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_STATE(PropState),\
+    DEFINE_KSPROPERTY_ITEM_CLOCK_FUNCTIONTABLE(PropFunctionTable)\
+}
+
+#endif // defined(_NTDDK_)
+
+#define STATIC_KSEVENTSETID_Clock \
+    0x364D8E20L, 0x62C7, 0x11CF, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("364D8E20-62C7-11CF-A5D6-28DB04C10000", KSEVENTSETID_Clock);
+#define KSEVENTSETID_Clock DEFINE_GUIDNAMED(KSEVENTSETID_Clock)
+
+typedef enum {
+	KSEVENT_CLOCK_INTERVAL_MARK,
+	KSEVENT_CLOCK_POSITION_MARK
+} KSEVENT_CLOCK_POSITION;
+
+#define STATIC_KSEVENTSETID_Connection\
+    0x7f4bcbe0L, 0x9ea5, 0x11cf, 0xa5, 0xd6, 0x28, 0xdb, 0x04, 0xc1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("7f4bcbe0-9ea5-11cf-a5d6-28db04c10000", KSEVENTSETID_Connection);
+#define KSEVENTSETID_Connection DEFINE_GUIDNAMED(KSEVENTSETID_Connection)
+
+typedef enum {
+	KSEVENT_CONNECTION_POSITIONUPDATE,
+	KSEVENT_CONNECTION_DATADISCONTINUITY,
+	KSEVENT_CONNECTION_TIMEDISCONTINUITY,
+	KSEVENT_CONNECTION_PRIORITY,
+	KSEVENT_CONNECTION_ENDOFSTREAM
+} KSEVENT_CONNECTION;
+
+typedef struct {
+	PVOID       Context;
+	ULONG       Proportion;
+	LONGLONG    DeltaTime;
+} KSQUALITY, *PKSQUALITY;
+
+typedef struct {
+	PVOID       Context;
+	ULONG       Status;
+} KSERROR, *PKSERROR;
+
+typedef enum {
+	KSDEVICE_THERMAL_STATE_LOW,
+	KSDEVICE_THERMAL_STATE_HIGH
+} KSDEVICE_THERMAL_STATE;
+
+
+#define STATIC_KSEVENTSETID_Device\
+    0x288296ec, 0x9f94, 0x41b4, 0xa1, 0x53, 0xaa, 0x31, 0xae, 0xec, 0xb3, 0x3f
+DEFINE_GUIDSTRUCT("288296EC-9F94-41b4-A153-AA31AEECB33F", KSEVENTSETID_Device);
+#define KSEVENTSETID_Device DEFINE_GUIDNAMED(KSEVENTSETID_Device)
+
+typedef enum {
+	KSEVENT_DEVICE_LOST,
+	KSEVENT_DEVICE_PREEMPTED,
+	KSEVENT_DEVICE_THERMAL_HIGH,
+	KSEVENT_DEVICE_THERMAL_LOW
+} KSEVENT_DEVICE;
+
+typedef KSIDENTIFIER KSDEGRADE, *PKSDEGRADE;
+
+#define STATIC_KSDEGRADESETID_Standard\
+    0x9F564180L, 0x704C, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00
+DEFINE_GUIDSTRUCT("9F564180-704C-11D0-A5D6-28DB04C10000", KSDEGRADESETID_Standard);
+#define KSDEGRADESETID_Standard DEFINE_GUIDNAMED(KSDEGRADESETID_Standard)
+
+typedef enum {
+	KSDEGRADE_STANDARD_SAMPLE,
+	KSDEGRADE_STANDARD_QUALITY,
+	KSDEGRADE_STANDARD_COMPUTATION,
+	KSDEGRADE_STANDARD_SKIP
+} KSDEGRADE_STANDARD;
+
+#if defined(_NTDDK_)
+
+#define KSPROBE_STREAMREAD      0x00000000
+#define KSPROBE_STREAMWRITE     0x00000001
+#define KSPROBE_ALLOCATEMDL     0x00000010
+#define KSPROBE_PROBEANDLOCK    0x00000020
+#define KSPROBE_SYSTEMADDRESS   0x00000040
+#define KSPROBE_MODIFY          0x00000200
+#define KSPROBE_STREAMWRITEMODIFY (KSPROBE_MODIFY | KSPROBE_STREAMWRITE)
+#define KSPROBE_ALLOWFORMATCHANGE   0x00000080
+
+#define KSSTREAM_READ           KSPROBE_STREAMREAD
+#define KSSTREAM_WRITE          KSPROBE_STREAMWRITE
+#define KSSTREAM_PAGED_DATA     0x00000000
+#define KSSTREAM_NONPAGED_DATA  0x00000100
+#define KSSTREAM_SYNCHRONOUS    0x00001000
+#define KSSTREAM_FAILUREEXCEPTION 0x00002000
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSCONTEXT_DISPATCH)(
+	_In_ PVOID Context,
+	_In_ PIRP Irp
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSHANDLER)(
+	_In_ PIRP Irp,
+	_In_ PKSIDENTIFIER Request,
+	_Inout_ PVOID Data
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+BOOLEAN
+(*PFNKSFASTHANDLER)(
+	_In_ PFILE_OBJECT FileObject,
+	_In_reads_bytes_(RequestLength) PKSIDENTIFIER Request,
+	_In_ ULONG RequestLength,
+	_Inout_updates_bytes_(DataLength) PVOID Data,
+	_In_ ULONG DataLength,
+	_Out_ PIO_STATUS_BLOCK IoStatus
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSALLOCATOR)(
+	_In_ PIRP Irp,
+	_In_ ULONG BufferSize,
+	_In_ BOOLEAN InputOperation
+	);
+
+typedef struct {
+	KSPROPERTY_MEMBERSHEADER    MembersHeader;
+	const VOID*                 Members;
+} KSPROPERTY_MEMBERSLIST, *PKSPROPERTY_MEMBERSLIST;
+
+typedef struct {
+	KSIDENTIFIER                    PropTypeSet;
+	ULONG                           MembersListCount;
+	_Field_size_(MembersListCount)
+		const KSPROPERTY_MEMBERSLIST*   MembersList;
+} KSPROPERTY_VALUES, *PKSPROPERTY_VALUES;
+
+#define DEFINE_KSPROPERTY_TABLE(tablename)\
+    const KSPROPERTY_ITEM tablename[] =
+
+#define DEFINE_KSPROPERTY_ITEM(PropertyId, GetHandler,\
+                               MinProperty,\
+                               MinData,\
+                               SetHandler,\
+                               Values, RelationsCount, Relations, SupportHandler,\
+                               SerializedSize)\
+{\
+    PropertyId, (PFNKSHANDLER)GetHandler, MinProperty, MinData,\
+    (PFNKSHANDLER)SetHandler,\
+    (PKSPROPERTY_VALUES)Values, RelationsCount, (PKSPROPERTY)Relations,\
+    (PFNKSHANDLER)SupportHandler, (ULONG)SerializedSize\
+}
+
+typedef struct {
+	ULONG                   PropertyId;
+	union {
+		PFNKSHANDLER            GetPropertyHandler;
+		BOOLEAN                 GetSupported;
+	};
+	ULONG                   MinProperty;
+	ULONG                   MinData;
+	union {
+		PFNKSHANDLER            SetPropertyHandler;
+		BOOLEAN                 SetSupported;
+	};
+	const KSPROPERTY_VALUES*Values;
+	ULONG                   RelationsCount;
+	_Field_size_(RelationsCount)
+		const KSPROPERTY*       Relations;
+	PFNKSHANDLER            SupportHandler;
+	ULONG                   SerializedSize;
+} KSPROPERTY_ITEM, *PKSPROPERTY_ITEM;
+
+#define DEFINE_KSFASTPROPERTY_ITEM(PropertyId, GetHandler, SetHandler)\
+{\
+    PropertyId, (PFNKSFASTHANDLER)GetHandler, (PFNKSFASTHANDLER)SetHandler, 0\
+}
+
+typedef struct {
+	ULONG                       PropertyId;
+	union {
+		PFNKSFASTHANDLER            GetPropertyHandler;
+		BOOLEAN                     GetSupported;
+	};
+	union {
+		PFNKSFASTHANDLER            SetPropertyHandler;
+		BOOLEAN                     SetSupported;
+	};
+	ULONG                       Reserved;
+} KSFASTPROPERTY_ITEM, *PKSFASTPROPERTY_ITEM;
+
+#define DEFINE_KSPROPERTY_SET(Set,\
+                              PropertiesCount,\
+                              PropertyItem,\
+                              FastIoCount,\
+                              FastIoTable)\
+{\
+    Set,\
+    PropertiesCount,\
+    PropertyItem,\
+    FastIoCount,\
+    FastIoTable\
+}
+
+#define DEFINE_KSPROPERTY_SET_TABLE(tablename)\
+    const KSPROPERTY_SET tablename[] =
+
+typedef struct {
+	const GUID*                 Set;
+	ULONG                       PropertiesCount;
+	_Field_size_(PropertiesCount)
+		const KSPROPERTY_ITEM*      PropertyItem;
+	ULONG                       FastIoCount;
+	const KSFASTPROPERTY_ITEM*  FastIoTable;
+} KSPROPERTY_SET, *PKSPROPERTY_SET;
+
+#define DEFINE_KSMETHOD_TABLE(tablename)\
+    const KSMETHOD_ITEM tablename[] =
+
+#define DEFINE_KSMETHOD_ITEM(MethodId, Flags,\
+                             MethodHandler,\
+                             MinMethod, MinData, SupportHandler)\
+{\
+    MethodId, (PFNKSHANDLER)MethodHandler, MinMethod, MinData,\
+    SupportHandler, Flags\
+}
+
+typedef struct {
+	ULONG                   MethodId;
+	union {
+		PFNKSHANDLER            MethodHandler;
+		BOOLEAN                 MethodSupported;
+	};
+	ULONG                   MinMethod;
+	ULONG                   MinData;
+	PFNKSHANDLER            SupportHandler;
+	ULONG                   Flags;
+} KSMETHOD_ITEM, *PKSMETHOD_ITEM;
+
+#define DEFINE_KSFASTMETHOD_ITEM(MethodId, MethodHandler)\
+{\
+    MethodId, (PFNKSFASTHANDLER)MethodHandler\
+}
+
+typedef struct {
+	ULONG                   MethodId;
+	union {
+		PFNKSFASTHANDLER        MethodHandler;
+		BOOLEAN                 MethodSupported;
+	};
+} KSFASTMETHOD_ITEM, *PKSFASTMETHOD_ITEM;
+
+#define DEFINE_KSMETHOD_SET(Set,\
+                            MethodsCount,\
+                            MethodItem,\
+                            FastIoCount,\
+                            FastIoTable)\
+{\
+    Set,\
+    MethodsCount,\
+    MethodItem,\
+    FastIoCount,\
+    FastIoTable\
+}
+
+#define DEFINE_KSMETHOD_SET_TABLE(tablename)\
+    const KSMETHOD_SET tablename[] =
+
+typedef struct {
+	const GUID*             Set;
+	ULONG                   MethodsCount;
+	_Field_size_(MethodsCount)
+		const KSMETHOD_ITEM*    MethodItem;
+	ULONG                   FastIoCount;
+	_Field_size_(FastIoCount) const KSFASTMETHOD_ITEM*FastIoTable;
+} KSMETHOD_SET, *PKSMETHOD_SET;
+
+typedef struct _KSEVENT_ENTRY
+KSEVENT_ENTRY, *PKSEVENT_ENTRY;
+
+typedef
+NTSTATUS
+(*PFNKSADDEVENT)(
+	_In_ PIRP Irp,
+	_In_ PKSEVENTDATA EventData,
+	_In_ struct _KSEVENT_ENTRY* EventEntry
+	);
+
+typedef
+VOID
+(*PFNKSREMOVEEVENT)(
+	_In_ PFILE_OBJECT FileObject,
+	_In_ struct _KSEVENT_ENTRY* EventEntry
+	);
+
+#define DEFINE_KSEVENT_TABLE(tablename)\
+    const KSEVENT_ITEM tablename[] =
+
+#define DEFINE_KSEVENT_ITEM(EventId, DataInput, ExtraEntryData,\
+                            AddHandler, RemoveHandler, SupportHandler)\
+{\
+    EventId,\
+    DataInput,\
+    ExtraEntryData,\
+    AddHandler,\
+    RemoveHandler,\
+    SupportHandler\
+}
+
+typedef struct {
+	ULONG               EventId;
+	ULONG               DataInput;
+	ULONG               ExtraEntryData;
+	PFNKSADDEVENT       AddHandler;
+	PFNKSREMOVEEVENT    RemoveHandler;
+	PFNKSHANDLER        SupportHandler;
+} KSEVENT_ITEM, *PKSEVENT_ITEM;
+
+#define DEFINE_KSEVENT_SET(Set,\
+                           EventsCount,\
+                           EventItem)\
+{\
+    Set, EventsCount, EventItem\
+}
+
+#define DEFINE_KSEVENT_SET_TABLE(tablename)\
+    const KSEVENT_SET tablename[] =
+
+typedef struct {
+	const GUID*         Set;
+	ULONG               EventsCount;
+	_Field_size_(EventsCount) const KSEVENT_ITEM* EventItem;
+} KSEVENT_SET, *PKSEVENT_SET;
+
+typedef struct {
+	KDPC            Dpc;
+	ULONG           ReferenceCount;
+	KSPIN_LOCK      AccessLock;
+} KSDPC_ITEM, *PKSDPC_ITEM;
+
+typedef struct {
+	KSDPC_ITEM          DpcItem;
+	LIST_ENTRY          BufferList;
+} KSBUFFER_ITEM, *PKSBUFFER_ITEM;
+
+#define KSEVENT_ENTRY_DELETED   1
+#define KSEVENT_ENTRY_ONESHOT   2
+#define KSEVENT_ENTRY_BUFFERED  4
+
+struct _KSEVENT_ENTRY {
+	LIST_ENTRY      ListEntry;
+	PVOID           Object;
+	union {
+		PKSDPC_ITEM         DpcItem;
+		PKSBUFFER_ITEM      BufferItem;
+	};
+	PKSEVENTDATA        EventData;
+	ULONG               NotificationType;
+	const KSEVENT_SET*  EventSet;
+	const KSEVENT_ITEM* EventItem;
+	PFILE_OBJECT        FileObject;
+	ULONG               SemaphoreAdjustment;
+	ULONG               Reserved;
+	ULONG               Flags;
+};
+
+typedef enum {
+	KSEVENTS_NONE,
+	KSEVENTS_SPINLOCK,
+	KSEVENTS_MUTEX,
+	KSEVENTS_FMUTEX,
+	KSEVENTS_FMUTEXUNSAFE,
+	KSEVENTS_INTERRUPT,
+	KSEVENTS_ERESOURCE
+} KSEVENTS_LOCKTYPE;
+
+#define KSDISPATCH_FASTIO       0x80000000
+
+typedef struct {
+	PDRIVER_DISPATCH        Create;
+	PVOID                   Context;
+	UNICODE_STRING          ObjectClass;
+	PSECURITY_DESCRIPTOR    SecurityDescriptor;
+	ULONG                   Flags;
+} KSOBJECT_CREATE_ITEM, *PKSOBJECT_CREATE_ITEM;
+
+typedef
+VOID
+(*PFNKSITEMFREECALLBACK)(
+	_In_ PKSOBJECT_CREATE_ITEM CreateItem
+	);
+
+#define KSCREATE_ITEM_SECURITYCHANGED       0x00000001
+#define KSCREATE_ITEM_WILDCARD              0x00000002
+#define KSCREATE_ITEM_NOPARAMETERS          0x00000004
+#define KSCREATE_ITEM_FREEONSTOP            0x00000008
+
+#define DEFINE_KSCREATE_DISPATCH_TABLE( tablename )\
+    KSOBJECT_CREATE_ITEM tablename[] =
+
+#define DEFINE_KSCREATE_ITEM(DispatchCreate, TypeName, Context)\
+{\
+    (DispatchCreate),\
+    (PVOID)(Context),\
+    {\
+        sizeof(TypeName) - sizeof(UNICODE_NULL),\
+        sizeof(TypeName),\
+        (PWCHAR)(TypeName)\
+    },\
+    NULL, 0\
+}
+
+#define DEFINE_KSCREATE_ITEMEX(DispatchCreate, TypeName, Context, Flags)\
+{\
+    (DispatchCreate),\
+    (PVOID)(Context),\
+    {\
+        sizeof(TypeName) - sizeof(UNICODE_NULL),\
+        sizeof(TypeName),\
+        (PWCHAR)(TypeName)\
+    },\
+    NULL, (Flags)\
+}
+
+#define DEFINE_KSCREATE_ITEMNULL( DispatchCreate, Context )\
+{\
+    DispatchCreate,\
+    Context,\
+    {\
+        0,\
+        0,\
+        NULL,\
+    },\
+    NULL, 0\
+}
+
+typedef struct {
+	ULONG                    CreateItemsCount;
+	_Field_size_(CreateItemsCount) PKSOBJECT_CREATE_ITEM    CreateItemsList;
+} KSOBJECT_CREATE, *PKSOBJECT_CREATE;
+
+typedef struct {
+	PDRIVER_DISPATCH        DeviceIoControl;
+	PDRIVER_DISPATCH        Read;
+	PDRIVER_DISPATCH        Write;
+	PDRIVER_DISPATCH        Flush;
+	PDRIVER_DISPATCH        Close;
+	PDRIVER_DISPATCH        QuerySecurity;
+	PDRIVER_DISPATCH        SetSecurity;
+	PFAST_IO_DEVICE_CONTROL FastDeviceIoControl;
+	PFAST_IO_READ           FastRead;
+	PFAST_IO_WRITE          FastWrite;
+} KSDISPATCH_TABLE, *PKSDISPATCH_TABLE;
+
+#define DEFINE_KSDISPATCH_TABLE( tablename, DeviceIoControl, Read, Write,\
+                                 Flush, Close, QuerySecurity, SetSecurity,\
+                                 FastDeviceIoControl, FastRead, FastWrite  )\
+    const KSDISPATCH_TABLE tablename = \
+    {\
+        DeviceIoControl,        \
+        Read,                   \
+        Write,                  \
+        Flush,                  \
+        Close,                  \
+        QuerySecurity,          \
+        SetSecurity,            \
+        FastDeviceIoControl,    \
+        FastRead,               \
+        FastWrite,              \
+    }
+
+#define KSCREATE_ITEM_IRP_STORAGE(Irp)      (*(PKSOBJECT_CREATE_ITEM*)&(Irp)->Tail.Overlay.DriverContext[0])
+#define KSEVENT_SET_IRP_STORAGE(Irp)        (*(const KSEVENT_SET**)&(Irp)->Tail.Overlay.DriverContext[0])
+#define KSEVENT_ITEM_IRP_STORAGE(Irp)       (*(const KSEVENT_ITEM**)&(Irp)->Tail.Overlay.DriverContext[3])
+#define KSEVENT_ENTRY_IRP_STORAGE(Irp)      (*(PKSEVENT_ENTRY*)&(Irp)->Tail.Overlay.DriverContext[0])
+#define KSMETHOD_SET_IRP_STORAGE(Irp)       (*(const KSMETHOD_SET**)&(Irp)->Tail.Overlay.DriverContext[0])
+#define KSMETHOD_ITEM_IRP_STORAGE(Irp)      (*(const KSMETHOD_ITEM**)&(Irp)->Tail.Overlay.DriverContext[3])
+#define KSMETHOD_TYPE_IRP_STORAGE(Irp)      (*(ULONG_PTR*)(&(Irp)->Tail.Overlay.DriverContext[2]))
+#define KSQUEUE_SPINLOCK_IRP_STORAGE(Irp)   (*(PKSPIN_LOCK*)&(Irp)->Tail.Overlay.DriverContext[1])
+#define KSPROPERTY_SET_IRP_STORAGE(Irp)     (*(const KSPROPERTY_SET**)&(Irp)->Tail.Overlay.DriverContext[0])
+#define KSPROPERTY_ITEM_IRP_STORAGE(Irp)    (*(const KSPROPERTY_ITEM**)&(Irp)->Tail.Overlay.DriverContext[3])
+#define KSPROPERTY_ATTRIBUTES_IRP_STORAGE(Irp) (*(PKSATTRIBUTE_LIST*)&(Irp)->Tail.Overlay.DriverContext[2])
+
+typedef PVOID   KSDEVICE_HEADER, KSOBJECT_HEADER;
+
+typedef enum {
+	KsInvokeOnSuccess = 1,
+	KsInvokeOnError = 2,
+	KsInvokeOnCancel = 4
+} KSCOMPLETION_INVOCATION;
+
+typedef enum {
+	KsListEntryTail,
+	KsListEntryHead
+} KSLIST_ENTRY_LOCATION;
+
+typedef enum {
+	KsAcquireOnly,
+	KsAcquireAndRemove,
+	KsAcquireOnlySingleItem,
+	KsAcquireAndRemoveOnlySingleItem
+} KSIRP_REMOVAL_OPERATION;
+
+typedef enum {
+	KsStackCopyToNewLocation,
+	KsStackReuseCurrentLocation,
+	KsStackUseNewLocation
+} KSSTACK_USE;
+
+typedef enum {
+	KSTARGET_STATE_DISABLED,
+	KSTARGET_STATE_ENABLED
+} KSTARGET_STATE;
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSIRPLISTCALLBACK)(
+	_In_ PIRP Irp,
+	_In_ PVOID Context
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+VOID
+(*PFNREFERENCEDEVICEOBJECT)(
+	_In_ PVOID Context
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+VOID
+(*PFNDEREFERENCEDEVICEOBJECT)(
+	_In_ PVOID Context
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNQUERYREFERENCESTRING)(
+	_In_ PVOID Context,
+	_Inout_ PWCHAR *String
+	);
+
+#define BUS_INTERFACE_REFERENCE_VERSION    0x100
+
+typedef struct {
+	//
+	// Standard interface header
+	//
+
+	INTERFACE                   Interface;
+
+	//
+	// Standard bus interfaces
+	//
+
+	PFNREFERENCEDEVICEOBJECT    ReferenceDeviceObject;
+	PFNDEREFERENCEDEVICEOBJECT  DereferenceDeviceObject;
+	PFNQUERYREFERENCESTRING     QueryReferenceString;
+
+} BUS_INTERFACE_REFERENCE, *PBUS_INTERFACE_REFERENCE;
+
+#define STATIC_REFERENCE_BUS_INTERFACE STATIC_KSMEDIUMSETID_Standard
+#define REFERENCE_BUS_INTERFACE KSMEDIUMSETID_Standard
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNQUERYMEDIUMSLIST)(
+	_In_ PVOID Context,
+	_Out_ ULONG* MediumsCount,
+	_Out_writes_(MediumsCount) PKSPIN_MEDIUM* MediumList
+	);
+
+typedef struct {
+	//
+	// Standard interface header
+	//
+
+	INTERFACE                   Interface;
+
+	//
+	// Interface definition
+	//
+
+	PFNQUERYMEDIUMSLIST         QueryMediumsList;
+
+} BUS_INTERFACE_MEDIUMS, *PBUS_INTERFACE_MEDIUMS;
+
+#define STATIC_GUID_BUS_INTERFACE_MEDIUMS \
+    0x4EC35C3EL, 0x201B, 0x11D2, 0x87, 0x45, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUIDSTRUCT("4EC35C3E-201B-11D2-8745-00A0C9223196", GUID_BUS_INTERFACE_MEDIUMS);
+#define GUID_BUS_INTERFACE_MEDIUMS DEFINE_GUIDNAMED(GUID_BUS_INTERFACE_MEDIUMS)
+
+#endif // defined(_NTDDK_)
+
+#if !defined( PACK_PRAGMAS_NOT_SUPPORTED )
+#include <pshpack1.h>
+#endif
+
+typedef struct {
+	GUID            PropertySet;
+	ULONG           Count;
+} KSPROPERTY_SERIALHDR, *PKSPROPERTY_SERIALHDR;
+
+#if !defined( PACK_PRAGMAS_NOT_SUPPORTED )
+#include <poppack.h>
+#endif
+
+typedef struct {
+	KSIDENTIFIER    PropTypeSet;
+	ULONG           Id;
+	ULONG           PropertyLength;
+} KSPROPERTY_SERIAL, *PKSPROPERTY_SERIAL;
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+#if defined(_NTDDK_)
+
+#define IOCTL_KS_HANDSHAKE             CTL_CODE(FILE_DEVICE_KS, 0x007, METHOD_NEITHER, FILE_ANY_ACCESS)
+
+typedef struct {
+	GUID ProtocolId;
+	PVOID Argument1;
+	PVOID Argument2;
+} KSHANDSHAKE, *PKSHANDSHAKE;
+
+typedef struct _KSGATE
+KSGATE, *PKSGATE;
+
+struct _KSGATE {
+	LONG Count;
+	PKSGATE NextGate;
+};
+
+#ifndef _NTOS_
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateTurnInputOn(
+	_In_opt_ PKSGATE Gate
+	)
+{
+	while (Gate && (InterlockedIncrement(&Gate->Count) == 1)) {
+		Gate = Gate->NextGate;
+	}
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateTurnInputOff(
+	_In_opt_ PKSGATE Gate
+	)
+{
+	while (Gate && (InterlockedDecrement(&Gate->Count) == 0)) {
+		Gate = Gate->NextGate;
+	}
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+BOOLEAN __inline
+KsGateGetStateUnsafe(
+	_In_ PKSGATE Gate
+	)
+{
+	ASSERT(Gate);
+	return((BOOLEAN)(Gate->Count > 0));
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+BOOLEAN __inline
+KsGateCaptureThreshold(
+	_In_ PKSGATE Gate
+	)
+{
+	BOOLEAN captured;
+
+	ASSERT(Gate);
+
+	captured = (BOOLEAN)(InterlockedCompareExchange(&Gate->Count, 0, 1) == 1);
+
+	//
+	// If we made a transition, it must be propagated.
+	//
+	if (captured) {
+		KsGateTurnInputOff(Gate->NextGate);
+	}
+
+	//
+	// We return whatever the state was prior to the compare/exchange.  If
+	// the state was on, the state is now off.
+	//
+	return captured;
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateInitialize(
+	_In_ PKSGATE Gate,
+	_In_ LONG InitialCount,
+	_In_opt_ PKSGATE NextGate,
+	_In_ BOOLEAN StateToPropagate // _In_ BOOLEAN NextGateIsAnOrGate
+	)
+{
+	ASSERT(Gate);
+	Gate->Count = InitialCount;
+	Gate->NextGate = NextGate;
+
+	if (NextGate) {
+		if (InitialCount > 0) {
+			if (StateToPropagate) {
+				KsGateTurnInputOn(NextGate);
+			}
+		}
+		else {
+			if (!StateToPropagate) {
+				KsGateTurnInputOff(NextGate);
+			}
+		}
+	}
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateInitializeAnd(
+	_In_ PKSGATE AndGate,
+	_In_opt_ PKSGATE NextOrGate
+	)
+{
+	KsGateInitialize(AndGate, 1, NextOrGate, TRUE);
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateInitializeOr(
+	_In_ PKSGATE OrGate,
+	_In_opt_ PKSGATE NextAndGate
+	)
+{
+	KsGateInitialize(OrGate, 0, NextAndGate, FALSE);
+}
+
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateAddOnInputToAnd(_In_ PKSGATE AndGate) { UNREFERENCED_PARAMETER(AndGate); }
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateAddOffInputToAnd(_In_ PKSGATE AndGate) { KsGateTurnInputOff(AndGate); }
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateRemoveOnInputFromAnd(_In_ PKSGATE AndGate) { UNREFERENCED_PARAMETER(AndGate); }
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateRemoveOffInputFromAnd(_In_ PKSGATE AndGate) { KsGateTurnInputOn(AndGate); }
+
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateAddOnInputToOr(_In_ PKSGATE OrGate) { KsGateTurnInputOn(OrGate); }
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateAddOffInputToOr(_In_ PKSGATE OrGate) { UNREFERENCED_PARAMETER(OrGate); }
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateRemoveOnInputFromOr(_In_ PKSGATE OrGate) { KsGateTurnInputOff(OrGate); }
+_IRQL_requires_max_(HIGH_LEVEL) void __inline KsGateRemoveOffInputFromOr(_In_ PKSGATE OrGate) { UNREFERENCED_PARAMETER(OrGate); }
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateTerminateAnd(
+	_In_ PKSGATE AndGate
+	)
+{
+	ASSERT(AndGate);
+	if (KsGateGetStateUnsafe(AndGate)) {
+		KsGateRemoveOnInputFromOr(AndGate->NextGate);
+	}
+	else {
+		KsGateRemoveOffInputFromOr(AndGate->NextGate);
+	}
+}
+
+_IRQL_requires_max_(HIGH_LEVEL)
+void __inline
+KsGateTerminateOr(
+	_In_ PKSGATE OrGate
+	)
+{
+	ASSERT(OrGate);
+	if (KsGateGetStateUnsafe(OrGate)) {
+		KsGateRemoveOnInputFromAnd(OrGate->NextGate);
+	}
+	else {
+		KsGateRemoveOffInputFromAnd(OrGate->NextGate);
+	}
+}
+
+#endif // !_NTOS_
+
+typedef PVOID KSOBJECT_BAG;
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+BOOLEAN
+(*PFNKSGENERATEEVENTCALLBACK)(
+	_In_ PVOID Context,
+	_In_ PKSEVENT_ENTRY EventEntry
+	);
+
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSDEVICECREATE)(
+	_In_ PKSDEVICE Device
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSDEVICEPNPSTART)(
+	_In_ PKSDEVICE Device,
+	_In_ PIRP Irp,
+	_In_opt_ PCM_RESOURCE_LIST TranslatedResourceList,
+	_In_opt_ PCM_RESOURCE_LIST UntranslatedResourceList
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSDEVICE)(
+	_In_ PKSDEVICE Device
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSDEVICEIRP)(
+	_In_ PKSDEVICE Device,
+	_In_ PIRP Irp
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+void
+(*PFNKSDEVICEIRPVOID)(
+	_In_ PKSDEVICE Device,
+	_In_ PIRP Irp
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSDEVICEQUERYCAPABILITIES)(
+	_In_ PKSDEVICE Device,
+	_In_ PIRP Irp,
+	_Inout_ PDEVICE_CAPABILITIES Capabilities
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSDEVICEQUERYPOWER)(
+	_In_ PKSDEVICE Device,
+	_In_ PIRP Irp,
+	_In_ DEVICE_POWER_STATE DeviceTo,
+	_In_ DEVICE_POWER_STATE DeviceFrom,
+	_In_ SYSTEM_POWER_STATE SystemTo,
+	_In_ SYSTEM_POWER_STATE SystemFrom,
+	_In_ POWER_ACTION Action
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+void
+(*PFNKSDEVICESETPOWER)(
+	_In_ PKSDEVICE Device,
+	_In_ PIRP Irp,
+	_In_ DEVICE_POWER_STATE To,
+	_In_ DEVICE_POWER_STATE From
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSFILTERFACTORYVOID)(
+	_In_ PKSFILTERFACTORY FilterFactory
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+void
+(*PFNKSFILTERFACTORYPOWER)(
+	_In_ PKSFILTERFACTORY FilterFactory,
+	_In_ DEVICE_POWER_STATE State
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSFILTERIRP)(
+	_In_ PKSFILTER Filter,
+	_In_ PIRP Irp
+	);
+typedef
+NTSTATUS
+(*PFNKSFILTERPROCESS)(
+	_In_ PKSFILTER Filter,
+	_In_ PKSPROCESSPIN_INDEXENTRY Index
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSFILTERVOID)(
+	_In_ PKSFILTER Filter
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+void
+(*PFNKSFILTERPOWER)(
+	_In_ PKSFILTER Filter,
+	_In_ DEVICE_POWER_STATE State
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSPINIRP)(
+	_In_ PKSPIN Pin,
+	_In_ PIRP Irp
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSPINSETDEVICESTATE)(
+	_In_ PKSPIN Pin,
+	_In_ KSSTATE ToState,
+	_In_ KSSTATE FromState
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSPINSETDATAFORMAT)(
+	_In_ PKSPIN Pin,
+	_In_opt_ PKSDATAFORMAT OldFormat,
+	_In_opt_ PKSMULTIPLE_ITEM OldAttributeList,
+	_In_ const KSDATARANGE* DataRange,
+	_In_opt_ const KSATTRIBUTE_LIST* AttributeRange
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSPINHANDSHAKE)(
+	_In_ PKSPIN Pin,
+	_In_ PKSHANDSHAKE In,
+	_In_ PKSHANDSHAKE Out
+	);
+typedef
+NTSTATUS
+(*PFNKSPIN)(
+	_In_ PKSPIN Pin
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+void
+(*PFNKSPINVOID)(
+	_In_ PKSPIN Pin
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+void
+(*PFNKSPINPOWER)(
+	_In_ PKSPIN Pin,
+	_In_ DEVICE_POWER_STATE State
+	);
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+BOOLEAN
+(*PFNKSPINSETTIMER)(
+	_In_ PKSPIN Pin,
+	_In_ PKTIMER Timer,
+	_In_ LARGE_INTEGER DueTime,
+	_In_ PKDPC Dpc
+	);
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+BOOLEAN
+(*PFNKSPINCANCELTIMER)(
+	_In_ PKSPIN Pin,
+	_In_ PKTIMER Timer
+	);
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+LONGLONG
+(FASTCALL *PFNKSPINCORRELATEDTIME)(
+	_In_ PKSPIN Pin,
+	_Out_ PLONGLONG SystemTime
+	);
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+void
+(*PFNKSPINRESOLUTION)(
+	_In_ PKSPIN Pin,
+	_Out_ PKSRESOLUTION Resolution
+	);
+_IRQL_requires_max_(PASSIVE_LEVEL)
+typedef
+NTSTATUS
+(*PFNKSPININITIALIZEALLOCATOR)(
+	_In_ PKSPIN Pin,
+	_In_ PKSALLOCATOR_FRAMING AllocatorFraming,
+	_Out_ PVOID* Context
+	);
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+void
+(*PFNKSSTREAMPOINTER)(
+	_In_ PKSSTREAM_POINTER StreamPointer
+	);
+
+typedef struct KSAUTOMATION_TABLE_
+KSAUTOMATION_TABLE, *PKSAUTOMATION_TABLE;
+struct KSAUTOMATION_TABLE_ {
+	ULONG PropertySetsCount;
+	ULONG PropertyItemSize;
+	_Field_size_bytes_(PropertySetsCount * PropertyItemSize) const KSPROPERTY_SET* PropertySets;
+	ULONG MethodSetsCount;
+	ULONG MethodItemSize;
+	_Field_size_bytes_(MethodSetsCount * MethodItemSize) const KSMETHOD_SET* MethodSets;
+	ULONG EventSetsCount;
+	ULONG EventItemSize;
+	_Field_size_bytes_(EventSetsCount * EventItemSize) const KSEVENT_SET* EventSets;
+#if !defined(_WIN64)
+	PVOID Alignment;
+#endif // !defined(_WIN64)
+};
+
+#define DEFINE_KSAUTOMATION_TABLE(table)\
+    const KSAUTOMATION_TABLE table =
+
+#define DEFINE_KSAUTOMATION_PROPERTIES(table)\
+    SIZEOF_ARRAY(table),\
+    sizeof(KSPROPERTY_ITEM),\
+    table
+
+#define DEFINE_KSAUTOMATION_METHODS(table)\
+    SIZEOF_ARRAY(table),\
+    sizeof(KSMETHOD_ITEM),\
+    table
+
+#define DEFINE_KSAUTOMATION_EVENTS(table)\
+    SIZEOF_ARRAY(table),\
+    sizeof(KSEVENT_ITEM),\
+    table
+
+#define DEFINE_KSAUTOMATION_PROPERTIES_NULL\
+    0,\
+    sizeof(KSPROPERTY_ITEM),\
+    NULL
+
+#define DEFINE_KSAUTOMATION_METHODS_NULL\
+    0,\
+    sizeof(KSMETHOD_ITEM),\
+    NULL
+
+#define DEFINE_KSAUTOMATION_EVENTS_NULL\
+    0,\
+    sizeof(KSEVENT_ITEM),\
+    NULL
+
+#define MIN_DEV_VER_FOR_QI (0x100)
+
+struct _KSDEVICE_DISPATCH {
+	PFNKSDEVICECREATE Add;
+	PFNKSDEVICEPNPSTART Start;
+	PFNKSDEVICE PostStart;
+	PFNKSDEVICEIRP QueryStop;
+	PFNKSDEVICEIRPVOID CancelStop;
+	PFNKSDEVICEIRPVOID Stop;
+	PFNKSDEVICEIRP QueryRemove;
+	PFNKSDEVICEIRPVOID CancelRemove;
+	PFNKSDEVICEIRPVOID Remove;
+	PFNKSDEVICEQUERYCAPABILITIES QueryCapabilities;
+	PFNKSDEVICEIRPVOID SurpriseRemoval;
+	PFNKSDEVICEQUERYPOWER QueryPower;
+	PFNKSDEVICESETPOWER SetPower;
+	PFNKSDEVICEIRP QueryInterface;  // added in version 0x100
+};
+
+struct _KSFILTER_DISPATCH {
+	PFNKSFILTERIRP Create;
+	PFNKSFILTERIRP Close;
+	PFNKSFILTERPROCESS Process;
+	PFNKSFILTERVOID Reset;
+};
+
+struct _KSPIN_DISPATCH {
+	PFNKSPINIRP Create;
+	PFNKSPINIRP Close;
+	PFNKSPIN Process;
+	PFNKSPINVOID Reset;
+	PFNKSPINSETDATAFORMAT SetDataFormat;
+	PFNKSPINSETDEVICESTATE SetDeviceState;
+	PFNKSPIN Connect;
+	PFNKSPINVOID Disconnect;
+	const KSCLOCK_DISPATCH* Clock;
+	const KSALLOCATOR_DISPATCH* Allocator;
+};
+
+struct _KSCLOCK_DISPATCH {
+	PFNKSPINSETTIMER SetTimer;
+	PFNKSPINCANCELTIMER CancelTimer;
+	PFNKSPINCORRELATEDTIME CorrelatedTime;
+	PFNKSPINRESOLUTION Resolution;
+};
+
+struct _KSALLOCATOR_DISPATCH {
+	PFNKSPININITIALIZEALLOCATOR InitializeAllocator;
+	PFNKSDELETEALLOCATOR DeleteAllocator;
+	PFNKSDEFAULTALLOCATE Allocate;
+	PFNKSDEFAULTFREE Free;
+};
+
+//
+// VERSION indicates support of the following:
+//
+//     - QueryInterface dispatch of KSDEVICE_DISPATCH
+//
+#define KSDEVICE_DESCRIPTOR_VERSION (0x100)
+
+#if (NTDDI_VERSION >= NTDDI_VISTA)
+
+//
+// VERSION_2 indicates support of the following:
+//
+//     - Flags field of KSDEVICE_DESCRIPTOR
+//           - Loading a VERSION_2 descriptor on earlier versions of AVStream
+//             will work; however, all flags will be considered to be zero.
+//           - Using an earlier version descriptor on later versions of
+//             AVStream causes no flags to be specificed.
+//
+#define KSDEVICE_DESCRIPTOR_VERSION_2 (0x110)
+
+#define MIN_DEV_VER_FOR_FLAGS (0x110)
+
+#endif // (NTDDI_VERSION >= NTDDI_VISTA)
+
+struct _KSDEVICE_DESCRIPTOR {
+	const KSDEVICE_DISPATCH* Dispatch;
+	ULONG FilterDescriptorsCount;
+	_Field_size_(FilterDescriptorsCount) const KSFILTER_DESCRIPTOR*const* FilterDescriptors;
+	ULONG Version; // this is 0 for pre-version 100 driver
+
+#if (NTDDI_VERSION >= NTDDI_VISTA)
+
+	ULONG Flags;
+#define KSDEVICE_FLAG_ENABLE_REMOTE_WAKEUP  0x00000001
+#define KSDEVICE_FLAG_LOWPOWER_PASSTHROUGH  0x00000002
+
+#if (NTDDI_VERSION >= NTDDI_WINTHRESHOLD)
+#define KSDEVICE_FLAG_ENABLE_QUERYINTERFACE 0x00000004
+#endif
+
+#if !defined(_WIN64)
+	PVOID Alignment;
+#endif //!defined(_WIN64)
+
+#endif // (NTDDI_VERSION >= NTDDI_VISTA)
+
+};
+
+struct _KSFILTER_DESCRIPTOR {
+	const KSFILTER_DISPATCH* Dispatch;
+	const KSAUTOMATION_TABLE* AutomationTable;
+	ULONG Version;
+#define KSFILTER_DESCRIPTOR_VERSION ((ULONG)-1)
+	ULONG Flags;
+#define KSFILTER_FLAG_DISPATCH_LEVEL_PROCESSING 0x00000001
+#define KSFILTER_FLAG_CRITICAL_PROCESSING 0x00000002
+#define KSFILTER_FLAG_HYPERCRITICAL_PROCESSING 0x00000004
+#define KSFILTER_FLAG_RECEIVE_ZERO_LENGTH_SAMPLES 0x00000008
+#if (NTDDI_VERSION >= NTDDI_WINXPSP2)
+#define KSFILTER_FLAG_DENY_USERMODE_ACCESS 0x80000000
+#endif // (NTDDI_VERSION >= NTDDI_WINXPSP2)
+	// This flag is added to prioritize the ReferenceGUID when creating
+	// filter factory over the reference string.  All devices that publish
+	// camera profiles must set this flag.
+#define KSFILTER_FLAG_PRIORITIZE_REFERENCEGUID    0x00000010
+	const GUID* ReferenceGuid;
+	ULONG PinDescriptorsCount;
+	ULONG PinDescriptorSize;
+	_Field_size_bytes_(PinDescriptorsCount * PinDescriptorSize) const KSPIN_DESCRIPTOR_EX* PinDescriptors;
+	ULONG CategoriesCount;
+	_Field_size_(CategoriesCount)
+		const GUID* Categories;
+	ULONG NodeDescriptorsCount;
+	ULONG NodeDescriptorSize;
+	_Field_size_bytes_(NodeDescriptorsCount * NodeDescriptorSize) const KSNODE_DESCRIPTOR* NodeDescriptors;
+	ULONG ConnectionsCount;
+	_Field_size_(ConnectionsCount) const KSTOPOLOGY_CONNECTION* Connections;
+	const KSCOMPONENTID* ComponentId;
+};
+
+#define DEFINE_KSFILTER_DESCRIPTOR(descriptor)\
+    const KSFILTER_DESCRIPTOR descriptor =
+
+#define DEFINE_KSFILTER_PIN_DESCRIPTORS(table)\
+    SIZEOF_ARRAY(table),\
+    sizeof(table[0]),\
+    table
+
+#define DEFINE_KSFILTER_CATEGORIES(table)\
+    SIZEOF_ARRAY(table),\
+    table
+
+#define DEFINE_KSFILTER_CATEGORY(category)\
+    1,\
+    &(category)
+
+#define DEFINE_KSFILTER_CATEGORIES_NULL\
+    0,\
+    NULL
+
+#define DEFINE_KSFILTER_NODE_DESCRIPTORS(table)\
+    SIZEOF_ARRAY(table),\
+    sizeof(table[0]),\
+    table
+
+#define DEFINE_KSFILTER_NODE_DESCRIPTORS_NULL\
+    0,\
+    sizeof(KSNODE_DESCRIPTOR),\
+    NULL
+
+#define DEFINE_KSFILTER_CONNECTIONS(table)\
+    SIZEOF_ARRAY(table),\
+    table
+
+#define DEFINE_KSFILTER_DEFAULT_CONNECTIONS\
+    0,\
+    NULL
+
+#define DEFINE_KSFILTER_DESCRIPTOR_TABLE(table)\
+    const KSFILTER_DESCRIPTOR*const table[] =
+
+struct _KSPIN_DESCRIPTOR_EX {
+	const KSPIN_DISPATCH* Dispatch;
+	const KSAUTOMATION_TABLE* AutomationTable;
+	KSPIN_DESCRIPTOR PinDescriptor;
+	ULONG Flags;
+#define KSPIN_FLAG_DISPATCH_LEVEL_PROCESSING KSFILTER_FLAG_DISPATCH_LEVEL_PROCESSING
+#define KSPIN_FLAG_CRITICAL_PROCESSING KSFILTER_FLAG_CRITICAL_PROCESSING
+#define KSPIN_FLAG_HYPERCRITICAL_PROCESSING KSFILTER_FLAG_HYPERCRITICAL_PROCESSING
+#define KSPIN_FLAG_ASYNCHRONOUS_PROCESSING 0x00000008
+#define KSPIN_FLAG_DO_NOT_INITIATE_PROCESSING 0x00000010
+#define KSPIN_FLAG_INITIATE_PROCESSING_ON_EVERY_ARRIVAL 0x00000020
+#define KSPIN_FLAG_FRAMES_NOT_REQUIRED_FOR_PROCESSING 0x00000040
+#define KSPIN_FLAG_ENFORCE_FIFO 0x00000080
+
+#define KSPIN_FLAG_GENERATE_MAPPINGS 0x00000100
+#define KSPIN_FLAG_DISTINCT_TRAILING_EDGE 0x00000200
+
+#define KSPIN_FLAG_PROCESS_IN_RUN_STATE_ONLY 0x00010000
+#define KSPIN_FLAG_SPLITTER 0x00020000
+#define KSPIN_FLAG_USE_STANDARD_TRANSPORT 0x00040000
+#define KSPIN_FLAG_DO_NOT_USE_STANDARD_TRANSPORT 0x00080000
+#define KSPIN_FLAG_FIXED_FORMAT 0x00100000
+#define KSPIN_FLAG_GENERATE_EOS_EVENTS 0x00200000
+#define KSPIN_FLAG_RENDERER (KSPIN_FLAG_PROCESS_IN_RUN_STATE_ONLY|KSPIN_FLAG_GENERATE_EOS_EVENTS)
+#define KSPIN_FLAG_IMPLEMENT_CLOCK 0x00400000
+#define KSPIN_FLAG_SOME_FRAMES_REQUIRED_FOR_PROCESSING 0x00800000
+#define KSPIN_FLAG_PROCESS_IF_ANY_IN_RUN_STATE 0x01000000
+#if (NTDDI_VERSION >= NTDDI_WINXPSP2)
+#define KSPIN_FLAG_DENY_USERMODE_ACCESS 0x80000000
+#endif // (NTDDI_VERSION >= NTDDI_WINXPSP2)
+	ULONG InstancesPossible;
+	ULONG InstancesNecessary;
+	const KSALLOCATOR_FRAMING_EX* AllocatorFraming;
+	PFNKSINTERSECTHANDLEREX IntersectHandler;
+};
+
+#define DEFINE_KSPIN_DEFAULT_INTERFACES\
+    0,\
+    NULL
+
+#define DEFINE_KSPIN_DEFAULT_MEDIUMS\
+    0,\
+    NULL
+
+struct _KSNODE_DESCRIPTOR {
+	const KSAUTOMATION_TABLE* AutomationTable;
+	const GUID* Type;
+	const GUID* Name;
+#if !defined(_WIN64)
+	PVOID Alignment;
+#endif // !defined(_WIN64)
+};
+
+#if !defined(_WIN64)
+#define DEFINE_NODE_DESCRIPTOR(automation,type,name) \
+    { (automation), (type), (name), NULL }
+#else // !defined(_WIN64)
+#define DEFINE_NODE_DESCRIPTOR(automation,type,name) \
+    { (automation), (type), (name) }
+#endif // !defined(_WIN64)
+
+struct _KSDEVICE {
+	const KSDEVICE_DESCRIPTOR* Descriptor;
+	KSOBJECT_BAG Bag;
+	PVOID Context;
+	PDEVICE_OBJECT FunctionalDeviceObject;
+	PDEVICE_OBJECT PhysicalDeviceObject;
+	PDEVICE_OBJECT NextDeviceObject;
+	BOOLEAN Started;
+	SYSTEM_POWER_STATE SystemPowerState;
+	DEVICE_POWER_STATE DevicePowerState;
+};
+
+struct _KSFILTERFACTORY {
+	const KSFILTER_DESCRIPTOR* FilterDescriptor;
+	KSOBJECT_BAG Bag;
+	PVOID Context;
+};
+
+struct _KSFILTER {
+	const KSFILTER_DESCRIPTOR* Descriptor;
+	KSOBJECT_BAG Bag;
+	PVOID Context;
+};
+
+struct _KSPIN {
+	const KSPIN_DESCRIPTOR_EX* Descriptor;
+	KSOBJECT_BAG Bag;
+	PVOID Context;
+	ULONG Id;
+	KSPIN_COMMUNICATION Communication;
+	BOOLEAN ConnectionIsExternal;
+	KSPIN_INTERFACE ConnectionInterface;
+	KSPIN_MEDIUM ConnectionMedium;
+	KSPRIORITY ConnectionPriority;
+	PKSDATAFORMAT ConnectionFormat;
+	PKSMULTIPLE_ITEM AttributeList;
+	ULONG StreamHeaderSize;
+	KSPIN_DATAFLOW DataFlow;
+	KSSTATE DeviceState;
+	KSRESET ResetState;
+	KSSTATE ClientState;
+};
+
+struct _KSMAPPING {
+	PHYSICAL_ADDRESS PhysicalAddress;
+	ULONG ByteCount;
+	ULONG Alignment;
+};
+
+struct _KSSTREAM_POINTER_OFFSET
+{
+#if defined(_NTDDK_)
+	union {
+		PUCHAR Data;
+		PKSMAPPING Mappings;
+	};
+#else // !defined(_NTDDK_)
+	PUCHAR Data;
+#endif // !defined(_NTDDK_)
+#if !defined(_WIN64)
+	PVOID Alignment;
+#endif // !defined(_WIN64)
+	ULONG Count;
+	ULONG Remaining;
+};
+
+struct _KSSTREAM_POINTER
+{
+	PVOID Context;
+	PKSPIN Pin;
+	PKSSTREAM_HEADER StreamHeader;
+	PKSSTREAM_POINTER_OFFSET Offset;
+	KSSTREAM_POINTER_OFFSET OffsetIn;
+	KSSTREAM_POINTER_OFFSET OffsetOut;
+};
+
+struct _KSPROCESSPIN {
+	PKSPIN Pin;
+	PKSSTREAM_POINTER StreamPointer;
+	PKSPROCESSPIN InPlaceCounterpart;
+	PKSPROCESSPIN DelegateBranch;
+	PKSPROCESSPIN CopySource;
+	_Field_size_bytes_(BytesAvailable) PVOID Data;
+	ULONG BytesAvailable;
+	ULONG BytesUsed;
+	ULONG Flags;
+	BOOLEAN Terminate;
+};
+
+struct _KSPROCESSPIN_INDEXENTRY {
+	_Field_size_(Count) PKSPROCESSPIN *Pins;
+	ULONG Count;
+};
+
+typedef enum {
+	KsObjectTypeDevice,
+	KsObjectTypeFilterFactory,
+	KsObjectTypeFilter,
+	KsObjectTypePin
+} KSOBJECTTYPE;
+
+typedef
+void
+(*PFNKSFREE)(
+	_In_ PVOID Data
+	);
+
+typedef
+void
+(*PFNKSPINFRAMERETURN)(
+	_In_ PKSPIN Pin,
+	_In_reads_bytes_opt_(Size) PVOID Data,
+	_In_ ULONG Size OPTIONAL,
+	_In_opt_ PMDL Mdl,
+	_In_opt_ PVOID Context,
+	_In_ NTSTATUS Status
+	);
+
+_IRQL_requires_max_(DISPATCH_LEVEL)
+typedef
+void
+(*PFNKSPINIRPCOMPLETION)(
+	_In_ PKSPIN Pin,
+	_In_ PIRP Irp
+	);
+
+#if defined(_UNKNOWN_H_) || defined(__IUnknown_INTERFACE_DEFINED__)
+#if !defined(_IKsControl_)
+#define _IKsControl_
+
+typedef interface IKsControl* PIKSCONTROL;
+
+#if !defined(DEFINE_ABSTRACT_UNKNOWN)
+
+#define DEFINE_ABSTRACT_UNKNOWN()                               \
+    STDMETHOD_(NTSTATUS, QueryInterface)(THIS_                  \
+        _In_         REFIID InterfaceId,                        \
+        _COM_Outptr_ PVOID* Interface                           \
+        ) PURE;                                                 \
+    STDMETHOD_(ULONG,AddRef)(THIS) PURE;                        \
+    STDMETHOD_(ULONG,Release)(THIS) PURE;
+
+#endif //!defined(DEFINE_ABSTRACT_UNKNOWN)
+
+#undef INTERFACE
+#define INTERFACE IKsControl
+DECLARE_INTERFACE_(IKsControl, IUnknown)
+{
+	DEFINE_ABSTRACT_UNKNOWN() // For C
+
+		STDMETHOD_(NTSTATUS, KsProperty)(THIS_
+			_In_reads_bytes_(PropertyLength) PKSPROPERTY Property,
+			_In_ ULONG PropertyLength,
+			_Inout_updates_bytes_(DataLength) PVOID PropertyData,
+			_In_ ULONG DataLength,
+			_Out_ ULONG* BytesReturned
+			) PURE;
+	STDMETHOD_(NTSTATUS, KsMethod)(THIS_
+		_In_reads_bytes_(MethodLength) PKSMETHOD Method,
+		_In_ ULONG MethodLength,
+		_Inout_updates_bytes_(DataLength) PVOID MethodData,
+		_In_ ULONG DataLength,
+		_Out_ ULONG* BytesReturned
+		) PURE;
+	STDMETHOD_(NTSTATUS, KsEvent)(THIS_
+		_In_reads_bytes_opt_(EventLength) PKSEVENT Event,
+		_In_ ULONG EventLength,
+		_Inout_updates_bytes_(DataLength) PVOID EventData,
+		_In_ ULONG DataLength,
+		_Out_ ULONG* BytesReturned
+		) PURE;
+};
+
+typedef interface IKsReferenceClock* PIKSREFERENCECLOCK;
+
+#undef INTERFACE
+#define INTERFACE IKsReferenceClock
+DECLARE_INTERFACE_(IKsReferenceClock, IUnknown)
+{
+	DEFINE_ABSTRACT_UNKNOWN() // For C
+
+		STDMETHOD_(LONGLONG, GetTime)(THIS
+			) PURE;
+	STDMETHOD_(LONGLONG, GetPhysicalTime)(THIS
+		) PURE;
+	STDMETHOD_(LONGLONG, GetCorrelatedTime)(THIS_
+		_Out_ PLONGLONG SystemTime
+		) PURE;
+	STDMETHOD_(LONGLONG, GetCorrelatedPhysicalTime)(THIS_
+		_Out_ PLONGLONG SystemTime
+		) PURE;
+	STDMETHOD_(NTSTATUS, GetResolution)(THIS_
+		_Out_ PKSRESOLUTION Resolution
+		) PURE;
+	STDMETHOD_(NTSTATUS, GetState)(THIS_
+		_Out_ PKSSTATE State
+		) PURE;
+};
+#undef INTERFACE
+
+#if (NTDDI_VERSION >= NTDDI_WS03SP1)
+
+#define INTERFACE IKsDeviceFunctions
+DECLARE_INTERFACE_(IKsDeviceFunctions, IUnknown)
+{
+	DEFINE_ABSTRACT_UNKNOWN() // For C
+
+		STDMETHOD_(NTSTATUS, RegisterAdapterObjectEx)(THIS_
+			_In_ PADAPTER_OBJECT AdapterObject,
+			_In_ PDEVICE_DESCRIPTION DeviceDescription,
+			_In_ ULONG NumberOfMapRegisters,
+			_In_ ULONG MaxMappingsByteCount,
+			_In_ ULONG MappingTableStride
+			) PURE;
+};
+
+#undef INTERFACE
+
+#endif // (NTDDI_VERSION >= NTDDI_WS03SP1)
+
+#define STATIC_IID_IKsControl \
+0x28F54685L, 0x06FD, 0x11D2, 0xB2, 0x7A, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96
+DEFINE_GUID(IID_IKsControl,
+	0x28F54685L, 0x06FD, 0x11D2, 0xB2, 0x7A, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96);
+#if defined(__cplusplus) && _MSC_VER >= 1100
+struct __declspec(uuid("28F54685-06FD-11D2-B27A-00A0C9223196")) IKsControl;
+#endif
+
+#define STATIC_IID_IKsFastClock \
+0xc9902485, 0xc180, 0x11d2, 0x84, 0x73, 0xd4, 0x23, 0x94, 0x45, 0x9e, 0x5e
+DEFINE_GUID(IID_IKsFastClock,
+	0xc9902485, 0xc180, 0x11d2, 0x84, 0x73, 0xd4, 0x23, 0x94, 0x45, 0x9e, 0x5e);
+#if defined(__cplusplus) && _MSC_VER >= 1100
+struct __declspec(uuid("C9902485-C180-11d2-8473-D42394459E5E")) IKsFastClock;
+#endif
+
+#if (NTDDI_VERSION >= NTDDI_WS03SP1)
+
+#define STATIC_IID_IKsDeviceFunctions \
+0xe234f2e2, 0xbd69, 0x4f8c, 0xb3, 0xf2, 0x7c, 0xd7, 0x9e, 0xd4, 0x66, 0xbd
+DEFINE_GUID(IID_IKsDeviceFunctions,
+	0xe234f2e2, 0xbd69, 0x4f8c, 0xb3, 0xf2, 0x7c, 0xd7, 0x9e, 0xd4, 0x66, 0xbd);
+#if defined(__cplusplus) && _MSC_VER >= 1100
+struct __declspec(uuid("E234F2E2-BD69-4F8C-B3F2-7CD79ED466BD")) IKsDeviceFunctions;
+#endif
+
+#endif // (NTDDI_VERSION >= NTDDI_WS03SP1)
+
+#endif // !defined(_IKsControl_)
+#endif // defined(_UNKNOWN_H_) || defined(__IUnknown_INTERFACE_DEFINED__)
+
+#endif // defined(_NTDDK_)
+
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+//===========================================================================
+
+#if defined(__cplusplus)
+extern "C" {
+#endif // defined(__cplusplus)
+
+	//
+	// exported prototypes
+	//
+
+#ifdef _KSDDK_
+#define KSDDKAPI
+#else // !_KSDDK_
+#define KSDDKAPI DECLSPEC_IMPORT
+#endif // _KSDDK_
+
+#if defined(_NTDDK_)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsEnableEvent(
+			_In_ PIRP Irp,
+			_In_ ULONG EventSetsCount,
+			_In_reads_(EventSetsCount) const KSEVENT_SET* EventSet,
+			_Inout_opt_ PLIST_ENTRY EventsList,
+			_In_opt_ KSEVENTS_LOCKTYPE EventsFlags,
+			_In_opt_ PVOID EventsLock
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsEnableEventWithAllocator(
+			_In_ PIRP Irp,
+			_In_ ULONG EventSetsCount,
+			_In_reads_(EventSetsCount) const KSEVENT_SET* EventSet,
+			_Inout_opt_ PLIST_ENTRY EventsList,
+			_In_ KSEVENTS_LOCKTYPE EventsFlags OPTIONAL,
+			_In_opt_ PVOID EventsLock,
+			_In_opt_ PFNKSALLOCATOR Allocator,
+			_In_opt_ ULONG EventItemSize
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDisableEvent(
+			_In_ PIRP Irp,
+			_Inout_ PLIST_ENTRY EventsList,
+			_In_ KSEVENTS_LOCKTYPE EventsFlags,
+			_In_ PVOID EventsLock
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsDiscardEvent(
+			_In_ PKSEVENT_ENTRY EventEntry
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsFreeEventList(
+			_In_ PFILE_OBJECT FileObject,
+			_Inout_ PLIST_ENTRY EventsList,
+			_In_ KSEVENTS_LOCKTYPE EventsFlags,
+			_In_ PVOID EventsLock
+			);
+
+	KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsGenerateEvent(
+			_In_ PKSEVENT_ENTRY EventEntry
+			);
+
+	KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsGenerateDataEvent(
+			_In_ PKSEVENT_ENTRY EventEntry,
+			_In_ ULONG DataSize,
+			_In_reads_bytes_(DataSize) PVOID Data
+			);
+
+	KSDDKAPI
+		VOID
+		NTAPI
+		KsGenerateEventList(
+			_In_opt_ GUID* Set,
+			_In_ ULONG EventId,
+			_In_ PLIST_ENTRY EventsList,
+			_In_ KSEVENTS_LOCKTYPE EventsFlags,
+			_In_ PVOID EventsLock
+			);
+
+
+
+
+	KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsGenerateThermalEvent(
+			_In_ PVOID                               Object,
+			_In_ KSDEVICE_THERMAL_STATE Value
+			);
+
+	//
+	//Independent KS Thermal notifications..
+	//
+
+
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		typedef
+		void
+		(*PFNKSDEVICETHERMALACTIVECOOLING)(
+			_In_ PKSDEVICE KsDevice,
+			_In_ BOOLEAN Engaged,
+			_Out_ KSDEVICE_THERMAL_STATE* DeviceThermalState
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		typedef
+		void
+		(*PFNKSDEVICETHERMALPASSIVECOOLING)(
+			_In_ PKSDEVICE KsDevice,
+			_In_ ULONG Percentage,
+			_Out_ KSDEVICE_THERMAL_STATE* DeviceThermalState
+			);
+
+	typedef struct _KSDEVICE_THERMAL_DISPATCH {
+		PFNKSDEVICETHERMALACTIVECOOLING ActiveCooling;
+		PFNKSDEVICETHERMALPASSIVECOOLING PassiveCooling;
+	} KSDEVICE_THERMAL_DISPATCH, *PKSDEVICE_THERMAL_DISPATCH;
+
+	KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDeviceRegisterThermalDispatch(
+			_In_ PKSDEVICE KsDevice,
+			_In_ PKSDEVICE_THERMAL_DISPATCH KsDeviceThermalDispatch
+			);
+
+
+
+	// property.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPropertyHandler(
+			_In_ PIRP Irp,
+			_In_ ULONG PropertySetsCount,
+			_In_reads_(PropertySetsCount) const KSPROPERTY_SET* PropertySet
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPropertyHandlerWithAllocator(
+			_In_ PIRP Irp,
+			_In_ ULONG PropertySetsCount,
+			_In_reads_(PropertySetsCount) const KSPROPERTY_SET* PropertySet,
+			_In_opt_ PFNKSALLOCATOR Allocator,
+			_In_ ULONG PropertyItemSize OPTIONAL
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		BOOLEAN
+		NTAPI
+		KsFastPropertyHandler(
+			_In_ PFILE_OBJECT FileObject,
+			_In_reads_bytes_(PropertyLength) PKSPROPERTY Property,
+			_In_ ULONG PropertyLength,
+			_In_reads_bytes_(DataLength)PVOID Data,
+			_In_ ULONG DataLength,
+			_Out_ PIO_STATUS_BLOCK IoStatus,
+			_In_ ULONG PropertySetsCount,
+			_In_reads_(PropertySetsCount) const KSPROPERTY_SET* PropertySet
+			);
+
+	// method.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsMethodHandler(
+			_In_ PIRP Irp,
+			_In_ ULONG MethodSetsCount,
+			_In_reads_(MethodSetsCount) const KSMETHOD_SET* MethodSet
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsMethodHandlerWithAllocator(
+			_In_ PIRP Irp,
+			_In_ ULONG MethodSetsCount,
+			_In_reads_(MethodSetsCount) const KSMETHOD_SET* MethodSet,
+			_In_opt_ PFNKSALLOCATOR Allocator,
+			_In_ ULONG MethodItemSize OPTIONAL
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		BOOLEAN
+		NTAPI
+		KsFastMethodHandler(
+			_In_ PFILE_OBJECT FileObject,
+			_In_reads_bytes_(MethodLength) PKSMETHOD Method,
+			_In_ ULONG MethodLength,
+			_Inout_updates_bytes_(DataLength) PVOID Data,
+			_In_ ULONG DataLength,
+			_Out_ PIO_STATUS_BLOCK IoStatus,
+			_In_ ULONG MethodSetsCount,
+			_In_reads_(MethodSetsCount) const KSMETHOD_SET* MethodSet
+			);
+
+	// alloc.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateDefaultAllocator(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateDefaultAllocatorEx(
+			_In_ PIRP Irp,
+			_In_opt_ PVOID InitializeContext,
+			_In_opt_ PFNKSDEFAULTALLOCATE DefaultAllocate,
+			_In_opt_ PFNKSDEFAULTFREE DefaultFree,
+			_In_opt_ PFNKSINITIALIZEALLOCATOR InitializeAllocator,
+			_In_opt_ PFNKSDELETEALLOCATOR DeleteAllocator
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateAllocator(
+			_In_ HANDLE ConnectionHandle,
+			_In_ PKSALLOCATOR_FRAMING AllocatorFraming,
+			_Out_ PHANDLE AllocatorHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsValidateAllocatorCreateRequest(
+			_In_ PIRP Irp,
+			_Out_ PKSALLOCATOR_FRAMING* AllocatorFraming
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsValidateAllocatorFramingEx(
+			_In_ PKSALLOCATOR_FRAMING_EX Framing,
+			_In_ ULONG BufferSize,
+			_In_ const KSALLOCATOR_FRAMING_EX *PinFraming
+			);
+
+	// clock.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateDefaultClock(
+			_Out_ PKSDEFAULTCLOCK* DefaultClock
+			);
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateDefaultClockEx(
+			_Out_ PKSDEFAULTCLOCK* DefaultClock,
+			_In_opt_ PVOID Context,
+			_In_opt_ PFNKSSETTIMER SetTimer,
+			_In_opt_ PFNKSCANCELTIMER CancelTimer,
+			_In_opt_ PFNKSCORRELATEDTIME CorrelatedTime,
+			_In_opt_ const KSRESOLUTION* Resolution,
+			_In_ ULONG Flags
+			);
+
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsFreeDefaultClock(
+			_In_ PKSDEFAULTCLOCK DefaultClock
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateDefaultClock(
+			_In_ PIRP Irp,
+			_In_ PKSDEFAULTCLOCK DefaultClock
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateClock(
+			_In_ HANDLE ConnectionHandle,
+			_In_ PKSCLOCK_CREATE ClockCreate,
+			_Out_ PHANDLE ClockHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsValidateClockCreateRequest(
+			_In_ PIRP Irp,
+			_Outptr_ PKSCLOCK_CREATE* ClockCreate
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		KSSTATE
+		NTAPI
+		KsGetDefaultClockState(
+			_In_ PKSDEFAULTCLOCK DefaultClock
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsSetDefaultClockState(
+			_In_ PKSDEFAULTCLOCK DefaultClock,
+			_In_ KSSTATE State
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		LONGLONG
+		NTAPI
+		KsGetDefaultClockTime(
+			_In_ PKSDEFAULTCLOCK DefaultClock
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsSetDefaultClockTime(
+			_In_ PKSDEFAULTCLOCK DefaultClock,
+			_In_ LONGLONG Time
+			);
+
+	// connect.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreatePin(
+			_In_ HANDLE FilterHandle,
+			_In_ PKSPIN_CONNECT Connect,
+			_In_ ACCESS_MASK DesiredAccess,
+			_Out_ PHANDLE ConnectionHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsValidateConnectRequest(
+			_In_ PIRP Irp,
+			_In_ ULONG DescriptorsCount,
+			_In_reads_(DescriptorsCount) const KSPIN_DESCRIPTOR* Descriptor,
+			_Out_ PKSPIN_CONNECT* Connect
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinPropertyHandler(
+			_In_ PIRP Irp,
+			_In_ PKSPROPERTY Property,
+			_Inout_ PVOID Data,
+			_In_ ULONG DescriptorsCount,
+			_In_reads_(DescriptorsCount) const KSPIN_DESCRIPTOR* Descriptor
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinDataIntersection(
+			_In_ PIRP Irp,
+			_In_ PKSP_PIN Pin,
+			_Out_opt_ PVOID Data,
+			_In_ ULONG DescriptorsCount,
+			_In_reads_(DescriptorsCount) const KSPIN_DESCRIPTOR* Descriptor,
+			_In_ PFNKSINTERSECTHANDLER IntersectHandler
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinDataIntersectionEx(
+			_In_ PIRP Irp,
+			_In_ PKSP_PIN Pin,
+			_Out_ PVOID Data,
+			_In_ ULONG DescriptorsCount,
+			_In_reads_bytes_(DescriptorsCount * DescriptorSize) const KSPIN_DESCRIPTOR* Descriptor,
+			_In_ ULONG DescriptorSize,
+			_In_opt_ PFNKSINTERSECTHANDLEREX IntersectHandler,
+			_In_opt_ PVOID HandlerContext
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsHandleSizedListQuery(
+			_In_ PIRP Irp,
+			_In_ ULONG DataItemsCount,
+			_In_ ULONG DataItemSize,
+			_In_reads_bytes_(DataItemsCount * DataItemSize) const VOID* DataItems
+			);
+
+	// image.c:
+
+#if (!defined( MAKEINTRESOURCE )) 
+#define MAKEINTRESOURCE( res ) ((ULONG_PTR) (USHORT) res)
+#endif
+
+#if (!defined( RT_STRING ))
+#define RT_STRING           MAKEINTRESOURCE( 6 )
+#define RT_RCDATA           MAKEINTRESOURCE( 10 ) 
+#endif
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsLoadResource(
+			_In_ PVOID ImageBase,
+			_In_ POOL_TYPE PoolType,
+			_In_ ULONG_PTR ResourceName,
+			_In_ ULONG ResourceType,
+			_Outptr_result_bytebuffer_(ResourceSize) PVOID *Resource,
+			_Out_opt_ PULONG ResourceSize
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsGetImageNameAndResourceId(
+			_In_ HANDLE RegKey,
+			_Out_ PUNICODE_STRING ImageName,
+			_Out_ PULONG_PTR ResourceId,
+			_Out_ PULONG ValueType
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsMapModuleName(
+			_In_ PDEVICE_OBJECT PhysicalDeviceObject,
+			_In_ PUNICODE_STRING ModuleName,
+			_Out_ PUNICODE_STRING ImageName,
+			_Out_ PULONG_PTR ResourceId,
+			_Out_ PULONG ValueType
+			);
+
+	// irp.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsReferenceBusObject(
+			_In_ KSDEVICE_HEADER  Header
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsDereferenceBusObject(
+			_In_ KSDEVICE_HEADER  Header
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDispatchQuerySecurity(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDispatchSetSecurity(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDispatchSpecificProperty(
+			_In_ PIRP Irp,
+			_In_ PFNKSHANDLER Handler
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDispatchSpecificMethod(
+			_In_ PIRP Irp,
+			_In_ PFNKSHANDLER Handler
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsReadFile(
+			_In_ PFILE_OBJECT FileObject,
+			_In_opt_ PKEVENT Event,
+			_In_opt_ PVOID PortContext,
+			_Out_ PIO_STATUS_BLOCK IoStatusBlock,
+			_Out_writes_bytes_(Length) PVOID Buffer,
+			_In_ ULONG Length,
+			_In_ ULONG Key OPTIONAL,
+			_In_ KPROCESSOR_MODE RequestorMode
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsWriteFile(
+			_In_ PFILE_OBJECT FileObject,
+			_In_opt_ PKEVENT Event,
+			_In_opt_ PVOID PortContext,
+			_Out_ PIO_STATUS_BLOCK IoStatusBlock,
+			_In_reads_bytes_(Length) PVOID Buffer,
+			_In_ ULONG Length,
+			_In_ ULONG Key OPTIONAL,
+			_In_ KPROCESSOR_MODE RequestorMode
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsQueryInformationFile(
+			_In_ PFILE_OBJECT FileObject,
+			_Out_writes_bytes_(Length) PVOID FileInformation,
+			_In_ ULONG Length,
+			_In_ FILE_INFORMATION_CLASS FileInformationClass
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsSetInformationFile(
+			_In_ PFILE_OBJECT FileObject,
+			_In_reads_bytes_(Length) PVOID FileInformation,
+			_In_ ULONG Length,
+			_In_ FILE_INFORMATION_CLASS FileInformationClass
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsStreamIo(
+			_In_ PFILE_OBJECT FileObject,
+			_In_opt_ PKEVENT Event,
+			_In_opt_ PVOID PortContext,
+			_In_opt_ PIO_COMPLETION_ROUTINE CompletionRoutine,
+			_In_opt_ PVOID CompletionContext,
+			_In_ KSCOMPLETION_INVOCATION CompletionInvocationFlags OPTIONAL,
+			_Out_ PIO_STATUS_BLOCK IoStatusBlock,
+			_Inout_updates_bytes_(Length) PVOID StreamHeaders,
+			_In_ ULONG Length,
+			_In_ ULONG Flags,
+			_In_ KPROCESSOR_MODE RequestorMode
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsProbeStreamIrp(
+			_Inout_ PIRP Irp,
+			_In_ ULONG ProbeFlags,
+			_In_ ULONG HeaderSize OPTIONAL
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateExtraData(
+			_Inout_ PIRP Irp,
+			_In_ ULONG ExtraSize,
+			_Out_ PVOID* ExtraBuffer
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsNullDriverUnload(
+			_In_ PDRIVER_OBJECT DriverObject
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsSetMajorFunctionHandler(
+			_In_ PDRIVER_OBJECT DriverObject,
+			_In_ ULONG MajorFunction
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDispatchInvalidDeviceRequest(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDefaultDeviceIoCompletion(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDispatchIrp(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		BOOLEAN
+		NTAPI
+		KsDispatchFastIoDeviceControlFailure(
+			_In_ PFILE_OBJECT FileObject,
+			_In_ BOOLEAN Wait,
+			_In_reads_bytes_opt_(InputBufferLength) PVOID InputBuffer,
+			_In_ ULONG InputBufferLength,
+			_Out_writes_bytes_opt_(OutputBufferLength) PVOID OutputBuffer,
+			_In_ ULONG OutputBufferLength,
+			_In_ ULONG IoControlCode,
+			_Out_ PIO_STATUS_BLOCK IoStatus,
+			_In_ PDEVICE_OBJECT DeviceObject
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		BOOLEAN
+		NTAPI
+		KsDispatchFastReadFailure(
+			_In_ PFILE_OBJECT FileObject,
+			_In_ PLARGE_INTEGER FileOffset,
+			_In_ ULONG Length,
+			_In_ BOOLEAN Wait,
+			_In_ ULONG LockKey,
+			_Out_ PVOID Buffer,
+			_Out_ PIO_STATUS_BLOCK IoStatus,
+			_In_ PDEVICE_OBJECT DeviceObject
+			);
+
+#define KsDispatchFastWriteFailure KsDispatchFastReadFailure
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		DRIVER_CANCEL KsCancelRoutine;
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsCancelIo(
+			_Inout_ PLIST_ENTRY  QueueHead,
+			_In_ PKSPIN_LOCK SpinLock
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsReleaseIrpOnCancelableQueue(
+			_In_ PIRP Irp,
+			_In_opt_ PDRIVER_CANCEL DriverCancel
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PIRP
+		NTAPI
+		KsRemoveIrpFromCancelableQueue(
+			_Inout_ PLIST_ENTRY QueueHead,
+			_In_ PKSPIN_LOCK SpinLock,
+			_In_ KSLIST_ENTRY_LOCATION ListLocation,
+			_In_ KSIRP_REMOVAL_OPERATION RemovalOperation
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsMoveIrpsOnCancelableQueue(
+			_Inout_ PLIST_ENTRY SourceList,
+			_In_ PKSPIN_LOCK SourceLock,
+			_Inout_ PLIST_ENTRY DestinationList,
+			_In_opt_ PKSPIN_LOCK DestinationLock,
+			_In_ KSLIST_ENTRY_LOCATION ListLocation,
+			_In_ PFNKSIRPLISTCALLBACK ListCallback,
+			_In_ PVOID Context
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsRemoveSpecificIrpFromCancelableQueue(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsAddIrpToCancelableQueue(
+			_Inout_ PLIST_ENTRY QueueHead,
+			_In_ PKSPIN_LOCK SpinLock,
+			_In_ PIRP Irp,
+			_In_ KSLIST_ENTRY_LOCATION ListLocation,
+			_In_opt_ PDRIVER_CANCEL DriverCancel
+			);
+
+	// api.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAcquireResetValue(
+			_In_ PIRP Irp,
+			_Out_ KSRESET* ResetValue
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsTopologyPropertyHandler(
+			_In_ PIRP Irp,
+			_In_ PKSPROPERTY Property,
+			_Inout_ PVOID Data,
+			_In_ const KSTOPOLOGY* Topology
+			);
+
+	_IRQL_requires_max_(APC_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsAcquireDeviceSecurityLock(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ BOOLEAN Exclusive
+			);
+
+	_IRQL_requires_max_(APC_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsReleaseDeviceSecurityLock(
+			_In_ KSDEVICE_HEADER Header
+			);
+
+	KSDDKAPI
+		_Dispatch_type_(IRP_MJ_PNP) DRIVER_DISPATCH KsDefaultDispatchPnp;
+
+	KSDDKAPI
+		_Dispatch_type_(IRP_MJ_POWER) DRIVER_DISPATCH KsDefaultDispatchPower;
+
+	KSDDKAPI
+		_Dispatch_type_(IRP_MJ_SYSTEM_CONTROL)
+		_Dispatch_type_(IRP_MJ_DEVICE_CONTROL)
+		DRIVER_DISPATCH KsDefaultForwardIrp;
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsSetDevicePnpAndBaseObject(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ PDEVICE_OBJECT PnpDeviceObject,
+			_In_ PDEVICE_OBJECT BaseObject
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PDEVICE_OBJECT
+		NTAPI
+		KsQueryDevicePnpObject(
+			_In_ KSDEVICE_HEADER Header
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ACCESS_MASK
+		NTAPI
+		KsQueryObjectAccessMask(
+			_In_ KSOBJECT_HEADER Header
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsRecalculateStackDepth(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ BOOLEAN ReuseStackLocation
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsSetTargetState(
+			_In_ KSOBJECT_HEADER Header,
+			_In_ KSTARGET_STATE TargetState
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsSetTargetDeviceObject(
+			_In_ KSOBJECT_HEADER Header,
+			_In_opt_ PDEVICE_OBJECT TargetDevice
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsSetPowerDispatch(
+			_In_ KSOBJECT_HEADER Header,
+			_In_opt_ PFNKSCONTEXT_DISPATCH PowerDispatch,
+			_In_opt_ PVOID PowerContext
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PKSOBJECT_CREATE_ITEM
+		NTAPI
+		KsQueryObjectCreateItem(
+			_In_ KSOBJECT_HEADER Header
+			);
+
+	_IRQL_requires_max_(APC_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateDeviceHeader(
+			_Out_ KSDEVICE_HEADER* Header,
+			_In_ ULONG ItemsCount,
+			_In_reads_opt_(ItemsCount) PKSOBJECT_CREATE_ITEM ItemsList
+			);
+
+	_IRQL_requires_max_(APC_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsFreeDeviceHeader(
+			_In_ KSDEVICE_HEADER Header
+			);
+
+	_IRQL_requires_max_(APC_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateObjectHeader(
+			_Out_ KSOBJECT_HEADER* Header,
+			_In_ ULONG ItemsCount,
+			_In_reads_opt_(ItemsCount) PKSOBJECT_CREATE_ITEM ItemsList,
+			_In_ PIRP Irp,
+			_In_ const KSDISPATCH_TABLE* Table
+			);
+
+	_IRQL_requires_max_(APC_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsFreeObjectHeader(
+			_In_ KSOBJECT_HEADER Header
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAddObjectCreateItemToDeviceHeader(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ PDRIVER_DISPATCH Create,
+			_In_ PVOID Context,
+			_In_ PWSTR ObjectClass,
+			_In_opt_ PSECURITY_DESCRIPTOR SecurityDescriptor
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAddObjectCreateItemToObjectHeader(
+			_In_ KSOBJECT_HEADER Header,
+			_In_ PDRIVER_DISPATCH Create,
+			_In_ PVOID Context,
+			_In_ PWSTR ObjectClass,
+			_In_opt_ PSECURITY_DESCRIPTOR SecurityDescriptor
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateObjectCreateItem(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ PKSOBJECT_CREATE_ITEM CreateItem,
+			_In_ BOOLEAN AllocateEntry,
+			_In_opt_ PFNKSITEMFREECALLBACK ItemFreeCallback
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFreeObjectCreateItem(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ PUNICODE_STRING CreateItem
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFreeObjectCreateItemsByContext(
+			_In_ KSDEVICE_HEADER Header,
+			_In_ PVOID Context
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateDefaultSecurity(
+			_In_opt_ PSECURITY_DESCRIPTOR ParentSecurity,
+			_Out_ PSECURITY_DESCRIPTOR* DefaultSecurity
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsForwardIrp(
+			_In_ PIRP Irp,
+			_In_ PFILE_OBJECT FileObject,
+			_In_ BOOLEAN ReuseStackLocation
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsForwardAndCatchIrp(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ PIRP Irp,
+			_In_ PFILE_OBJECT FileObject,
+			_In_ KSSTACK_USE StackUse
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsSynchronousIoControlDevice(
+			_In_ PFILE_OBJECT FileObject,
+			_In_ KPROCESSOR_MODE RequestorMode,
+			_In_ ULONG IoControl,
+			_In_reads_bytes_(InSize) PVOID InBuffer,
+			_In_ ULONG InSize,
+			_Out_writes_bytes_to_(OutSize, *BytesReturned) PVOID OutBuffer,
+			_In_ ULONG OutSize,
+			_Out_ PULONG BytesReturned
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsUnserializeObjectPropertiesFromRegistry(
+			_In_ PFILE_OBJECT FileObject,
+			_In_opt_ HANDLE ParentKey,
+			_In_opt_ PUNICODE_STRING RegistryPath
+			);
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCacheMedium(
+			_In_ PUNICODE_STRING SymbolicLink,
+			_In_ PKSPIN_MEDIUM Medium,
+			_In_ ULONG PinDirection
+			);
+
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+	// thread.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsRegisterWorker(
+			_In_ WORK_QUEUE_TYPE WorkQueueType,
+			_Out_ PKSWORKER* Worker
+			);
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsRegisterCountedWorker(
+			_In_ WORK_QUEUE_TYPE WorkQueueType,
+			_In_ PWORK_QUEUE_ITEM CountedWorkItem,
+			_Out_ PKSWORKER* Worker
+			);
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsUnregisterWorker(
+			_In_ PKSWORKER Worker
+			);
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsQueueWorkItem(
+			_In_ PKSWORKER Worker,
+			_In_ PWORK_QUEUE_ITEM WorkItem
+			);
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsIncrementCountedWorker(
+			_In_ PKSWORKER Worker
+			);
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsDecrementCountedWorker(
+			_In_ PKSWORKER Worker
+			);
+
+	// topology.c:
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateTopologyNode(
+			_In_ HANDLE ParentHandle,
+			_In_ PKSNODE_CREATE NodeCreate,
+			_In_ ACCESS_MASK DesiredAccess,
+			_Out_ PHANDLE NodeHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsValidateTopologyNodeCreateRequest(
+			_In_ PIRP Irp,
+			_In_ PKSTOPOLOGY Topology,
+			_Out_ PKSNODE_CREATE* NodeCreate
+			);
+
+#if (NTDDI_VERSION >= NTDDI_WINXP)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsMergeAutomationTables(
+			_Out_ PKSAUTOMATION_TABLE* AutomationTableAB,
+			_In_opt_ PKSAUTOMATION_TABLE AutomationTableA,
+			_In_opt_ PKSAUTOMATION_TABLE AutomationTableB,
+			_In_opt_ KSOBJECT_BAG Bag
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsInitializeDriver(
+			_In_ PDRIVER_OBJECT DriverObject,
+			_In_ PUNICODE_STRING RegistryPathName,
+			_In_opt_ const KSDEVICE_DESCRIPTOR* Descriptor
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAddDevice(
+			_In_ PDRIVER_OBJECT DriverObject,
+			_In_ PDEVICE_OBJECT PhysicalDeviceObject
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateDevice(
+			_In_ PDRIVER_OBJECT DriverObject,
+			_In_ PDEVICE_OBJECT PhysicalDeviceObject,
+			_In_opt_ const KSDEVICE_DESCRIPTOR* Descriptor,
+			_In_ ULONG ExtensionSize,
+			_Out_opt_ PKSDEVICE* Device
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsInitializeDevice(
+			_In_ PDEVICE_OBJECT FunctionalDeviceObject,
+			_In_ PDEVICE_OBJECT PhysicalDeviceObject,
+			_In_ PDEVICE_OBJECT NextDeviceObject,
+			_In_opt_ const KSDEVICE_DESCRIPTOR* Descriptor
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsTerminateDevice(
+			_In_ PDEVICE_OBJECT DeviceObject
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PKSDEVICE
+		NTAPI
+		KsGetDeviceForDeviceObject(
+			_In_ PDEVICE_OBJECT FunctionalDeviceObject
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsAcquireDevice(
+			_In_ PKSDEVICE Device
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsReleaseDevice(
+			_In_ PKSDEVICE Device
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsDeviceRegisterAdapterObject(
+			_In_ PKSDEVICE Device,
+			_In_ PADAPTER_OBJECT AdapterObject,
+			_In_ ULONG MaxMappingsByteCount,
+			_In_ ULONG MappingTableStride
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsDeviceGetBusData(
+			_In_ PKSDEVICE Device,
+			_In_ ULONG DataType,
+			_In_reads_bytes_(Length) PVOID Buffer,
+			_In_ ULONG Offset,
+			_In_ ULONG Length
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsDeviceSetBusData(
+			_In_ PKSDEVICE Device,
+			_In_ ULONG DataType,
+			_In_reads_bytes_(Length) PVOID Buffer,
+			_In_ ULONG Offset,
+			_In_ ULONG Length
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCreateFilterFactory(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ const KSFILTER_DESCRIPTOR *Descriptor,
+			_In_opt_ PWSTR RefString,
+			_In_opt_ PSECURITY_DESCRIPTOR SecurityDescriptor,
+			_In_ ULONG CreateItemFlags,
+			_In_opt_ PFNKSFILTERFACTORYPOWER SleepCallback,
+			_In_opt_ PFNKSFILTERFACTORYPOWER WakeCallback,
+			_Out_opt_ PKSFILTERFACTORY *FilterFactory
+			);
+
+#define KsDeleteFilterFactory(FilterFactory) \
+    KsFreeObjectCreateItemsByContext(\
+        *(KSDEVICE_HEADER *)(\
+            KsFilterFactoryGetParentDevice(FilterFactory)->FunctionalDeviceObject->\
+                DeviceExtension),\
+        FilterFactory)
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFilterFactoryUpdateCacheData(
+			_In_ PKSFILTERFACTORY FilterFactory,
+			_In_opt_ const KSFILTER_DESCRIPTOR *FilterDescriptor
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFilterFactoryAddCreateItem(
+			_In_ PKSFILTERFACTORY FilterFactory,
+			_In_ PWSTR RefString,
+			_In_opt_ PSECURITY_DESCRIPTOR SecurityDescriptor,
+			_In_ ULONG CreateItemFlags
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFilterFactorySetDeviceClassesState(
+			_In_ PKSFILTERFACTORY FilterFactory,
+			_In_ BOOLEAN NewState
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PUNICODE_STRING
+		NTAPI
+		KsFilterFactoryGetSymbolicLink(
+			_In_ PKSFILTERFACTORY FilterFactory
+			);
+
+#if (NTDDI_VERSION >= NTDDI_WINTHRESHOLD)
+
+	// Forward decl.
+	typedef struct _KSDEVICE_PROFILE_INFO
+		KSDEVICE_PROFILE_INFO, *PKSDEVICE_PROFILE_INFO;
+
+	__drv_maxIRQL(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsInitializeDeviceProfile(
+			_In_ PKSFILTERFACTORY FilterFactory
+			);
+
+	__drv_maxIRQL(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPublishDeviceProfile(
+			_In_ PKSFILTERFACTORY FilterFactory,
+			_In_ PKSDEVICE_PROFILE_INFO Profile
+			);
+
+	__drv_maxIRQL(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPersistDeviceProfile(
+			_In_ PKSFILTERFACTORY FilterFactory
+			);
+
+#endif // NTDDI_WINTHRESHOLD
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsAddEvent(
+			_In_ PVOID Object,
+			_In_ PKSEVENT_ENTRY EventEntry
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		void _inline
+		KsFilterAddEvent(
+			_In_ PKSFILTER Filter,
+			_In_ PKSEVENT_ENTRY EventEntry
+			)
+	{
+		KsAddEvent(Filter, EventEntry);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		void _inline
+		KsPinAddEvent(
+			_In_ PKSPIN Pin,
+			_In_ PKSEVENT_ENTRY EventEntry
+			)
+	{
+		KsAddEvent(Pin, EventEntry);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsDefaultAddEventHandler(
+			_In_ PIRP Irp,
+			_In_ PKSEVENTDATA EventData,
+			_Inout_ PKSEVENT_ENTRY EventEntry
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsGenerateEvents(
+			_In_ PVOID Object,
+			_In_opt_ const GUID* EventSet,
+			_In_ ULONG EventId,
+			_In_ ULONG DataSize,
+			_In_reads_bytes_opt_(DataSize) PVOID Data,
+			_In_opt_ PFNKSGENERATEEVENTCALLBACK CallBack,
+			_In_opt_ PVOID CallBackContext
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		void _inline
+		KsFilterGenerateEvents(
+			_In_ PKSFILTER Filter,
+			_In_opt_ const GUID* EventSet,
+			_In_ ULONG EventId,
+			_In_ ULONG DataSize,
+			_In_reads_bytes_(DataSize) PVOID Data,
+			_In_opt_ PFNKSGENERATEEVENTCALLBACK CallBack,
+			_In_opt_ PVOID CallBackContext
+			)
+	{
+		KsGenerateEvents(
+			Filter,
+			EventSet,
+			EventId,
+			DataSize,
+			Data,
+			CallBack,
+			CallBackContext);
+	}
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		void _inline
+		KsPinGenerateEvents(
+			_In_ PKSPIN Pin,
+			_In_opt_ const GUID* EventSet,
+			_In_ ULONG EventId,
+			_In_ ULONG DataSize,
+			_In_reads_bytes_opt_(DataSize) PVOID Data,
+			_In_opt_ PFNKSGENERATEEVENTCALLBACK CallBack,
+			_In_opt_ PVOID CallBackContext
+			)
+	{
+		KsGenerateEvents(
+			Pin,
+			EventSet,
+			EventId,
+			DataSize,
+			Data,
+			CallBack,
+			CallBackContext);
+	}
+
+	typedef enum {
+		KSSTREAM_POINTER_STATE_UNLOCKED = 0,
+		KSSTREAM_POINTER_STATE_LOCKED
+	} KSSTREAM_POINTER_STATE;
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinGetAvailableByteCount(
+			_In_ PKSPIN Pin,
+			_Out_opt_ PLONG InputDataBytes,
+			_Out_opt_ PLONG OutputBufferBytes
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSSTREAM_POINTER
+		NTAPI
+		KsPinGetLeadingEdgeStreamPointer(
+			_In_ PKSPIN Pin,
+			_In_ KSSTREAM_POINTER_STATE State
+			);
+
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSSTREAM_POINTER
+		NTAPI
+		KsPinGetTrailingEdgeStreamPointer(
+			_In_ PKSPIN Pin,
+			_In_ KSSTREAM_POINTER_STATE State
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsStreamPointerSetStatusCode(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_In_ NTSTATUS Status
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsStreamPointerLock(
+			_In_ PKSSTREAM_POINTER StreamPointer
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsStreamPointerUnlock(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_In_ BOOLEAN Eject
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsStreamPointerAdvanceOffsetsAndUnlock(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_In_ ULONG InUsed,
+			_In_ ULONG OutUsed,
+			_In_ BOOLEAN Eject
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsStreamPointerDelete(
+			_In_ PKSSTREAM_POINTER StreamPointer
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsStreamPointerClone(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_In_opt_ PFNKSSTREAMPOINTER CancelCallback,
+			_In_ ULONG ContextSize,
+			_Out_ PKSSTREAM_POINTER* CloneStreamPointer
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsStreamPointerAdvanceOffsets(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_In_ ULONG InUsed,
+			_In_ ULONG OutUsed,
+			_In_ BOOLEAN Eject
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsStreamPointerAdvance(
+			_In_ PKSSTREAM_POINTER StreamPointer
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PMDL
+		NTAPI
+		KsStreamPointerGetMdl(
+			_In_ PKSSTREAM_POINTER StreamPointer
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PIRP
+		NTAPI
+		KsStreamPointerGetIrp(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_Out_opt_ PBOOLEAN FirstFrameInIrp,
+			_Out_opt_ PBOOLEAN LastFrameInIrp
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsStreamPointerScheduleTimeout(
+			_In_ PKSSTREAM_POINTER StreamPointer,
+			_In_ PFNKSSTREAMPOINTER Callback,
+			_In_ ULONGLONG Interval
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsStreamPointerCancelTimeout(
+			_In_ PKSSTREAM_POINTER StreamPointer
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSSTREAM_POINTER
+		NTAPI
+		KsPinGetFirstCloneStreamPointer(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSSTREAM_POINTER
+		NTAPI
+		KsStreamPointerGetNextClone(
+			_In_ PKSSTREAM_POINTER StreamPointer
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinHandshake(
+			_In_ PKSPIN Pin,
+			_In_ PKSHANDSHAKE In,
+			_Out_ PKSHANDSHAKE Out
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsCompletePendingRequest(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		KSOBJECTTYPE
+		NTAPI
+		KsGetObjectTypeFromIrp(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PVOID
+		NTAPI
+		KsGetObjectFromFileObject(
+			_In_ PFILE_OBJECT FileObject
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		KSOBJECTTYPE
+		NTAPI
+		KsGetObjectTypeFromFileObject(
+			_In_ PFILE_OBJECT FileObject
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		PKSFILTER __inline
+		KsGetFilterFromFileObject(
+			_In_ PFILE_OBJECT FileObject
+			)
+	{
+		return (PKSFILTER)KsGetObjectFromFileObject(FileObject);
+	}
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		PKSPIN __inline
+		KsGetPinFromFileObject(
+			_In_ PFILE_OBJECT FileObject
+			)
+	{
+		return (PKSPIN)KsGetObjectFromFileObject(FileObject);
+	}
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSGATE
+		NTAPI
+		KsFilterGetAndGate(
+			_In_ PKSFILTER Filter
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsFilterAcquireProcessingMutex(
+			_In_ PKSFILTER Filter
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsFilterReleaseProcessingMutex(
+			_In_ PKSFILTER Filter
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsFilterAttemptProcessing(
+			_In_ PKSFILTER Filter,
+			_In_ BOOLEAN Asynchronous
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSGATE
+		NTAPI
+		KsPinGetAndGate(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinAttachAndGate(
+			_In_ PKSPIN Pin,
+			_In_opt_ PKSGATE AndGate
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinAttachOrGate(
+			_In_ PKSPIN Pin,
+			_In_opt_ PKSGATE OrGate
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinAcquireProcessingMutex(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinReleaseProcessingMutex(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		BOOLEAN
+		NTAPI
+		KsProcessPinUpdate(
+			_In_ PKSPROCESSPIN ProcessPin
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinGetCopyRelationships(
+			_In_ PKSPIN Pin,
+			_Out_ PKSPIN* CopySource,
+			_Out_ PKSPIN* DelegateBranch
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinAttemptProcessing(
+			_In_ PKSPIN Pin,
+			_In_ BOOLEAN Asynchronous
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PVOID
+		NTAPI
+		KsGetParent(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSDEVICE __inline
+		KsFilterFactoryGetParentDevice(
+			_In_ PKSFILTERFACTORY FilterFactory
+			)
+	{
+		return (PKSDEVICE)KsGetParent((PVOID)FilterFactory);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSFILTERFACTORY __inline
+		KsFilterGetParentFilterFactory(
+			_In_ PKSFILTER Filter
+			)
+	{
+		return (PKSFILTERFACTORY)KsGetParent((PVOID)Filter);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PKSFILTER
+		NTAPI
+		KsPinGetParentFilter(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PVOID
+		NTAPI
+		KsGetFirstChild(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSFILTERFACTORY __inline
+		KsDeviceGetFirstChildFilterFactory(
+			_In_ PKSDEVICE Device
+			)
+	{
+		return (PKSFILTERFACTORY)KsGetFirstChild((PVOID)Device);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSFILTER __inline
+		KsFilterFactoryGetFirstChildFilter(
+			_In_ PKSFILTERFACTORY FilterFactory
+			)
+	{
+		return (PKSFILTER)KsGetFirstChild((PVOID)FilterFactory);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsFilterGetChildPinCount(
+			_In_ PKSFILTER Filter,
+			_In_ ULONG PinId
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PKSPIN
+		NTAPI
+		KsFilterGetFirstChildPin(
+			_In_ PKSFILTER Filter,
+			_In_ ULONG PinId
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PVOID
+		NTAPI
+		KsGetNextSibling(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PKSPIN
+		NTAPI
+		KsPinGetNextSiblingPin(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSFILTERFACTORY __inline
+		KsFilterFactoryGetNextSiblingFilterFactory(
+			_In_ PKSFILTERFACTORY FilterFactory
+			)
+	{
+		return (PKSFILTERFACTORY)KsGetNextSibling((PVOID)FilterFactory);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSFILTER __inline
+		KsFilterGetNextSiblingFilter(
+			_In_ PKSFILTER Filter
+			)
+	{
+		return (PKSFILTER)KsGetNextSibling((PVOID)Filter);
+	}
+
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PKSDEVICE
+		NTAPI
+		KsGetDevice(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSDEVICE __inline
+		KsFilterFactoryGetDevice(
+			_In_ PKSFILTERFACTORY FilterFactory
+			)
+	{
+		return KsGetDevice((PVOID)FilterFactory);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSDEVICE __inline
+		KsFilterGetDevice(
+			_In_ PKSFILTER Filter
+			)
+	{
+		return KsGetDevice((PVOID)Filter);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PKSDEVICE __inline
+		KsPinGetDevice(
+			_In_ PKSPIN Pin
+			)
+	{
+		return KsGetDevice((PVOID)Pin);
+	}
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSFILTER
+		NTAPI
+		KsGetFilterFromIrp(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		PKSPIN
+		NTAPI
+		KsGetPinFromIrp(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsGetNodeIdFromIrp(
+			_In_ PIRP Irp
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsAcquireControl(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsReleaseControl(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		void __inline
+		KsFilterAcquireControl(
+			_In_ PKSFILTER Filter
+			)
+	{
+		KsAcquireControl((PVOID)Filter);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		void __inline
+		KsFilterReleaseControl(
+			_In_ PKSFILTER Filter
+			)
+	{
+		KsReleaseControl((PVOID)Filter);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		void __inline
+		KsPinAcquireControl(
+			_In_ PKSPIN Pin
+			)
+	{
+		KsAcquireControl((PVOID)Pin);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		void __inline
+		KsPinReleaseControl(
+			_In_ PKSPIN Pin
+			)
+	{
+		KsReleaseControl((PVOID)Pin);
+	}
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAddItemToObjectBag(
+			_In_ KSOBJECT_BAG ObjectBag,
+			_In_ __drv_aliasesMem PVOID Item,
+			_In_opt_ PFNKSFREE Free
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		ULONG
+		NTAPI
+		KsRemoveItemFromObjectBag(
+			_In_ KSOBJECT_BAG ObjectBag,
+			_In_ PVOID Item,
+			_In_ BOOLEAN Free
+			);
+
+#define KsDiscard(Object,Pointer)\
+    KsRemoveItemFromObjectBag(\
+        (Object)->Bag,\
+        (PVOID)(Pointer),\
+        TRUE)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsAllocateObjectBag(
+			_In_ PKSDEVICE Device,
+			_Out_ KSOBJECT_BAG* ObjectBag
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsFreeObjectBag(
+			_In_ KSOBJECT_BAG ObjectBag
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsCopyObjectBagItems(
+			_In_ KSOBJECT_BAG ObjectBagDestination,
+			_In_ KSOBJECT_BAG ObjectBagSource
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		_KsEdit(
+			_In_ KSOBJECT_BAG ObjectBag,
+			_Inout_ PVOID* PointerToPointerToItem,
+			_In_ ULONG NewSize,
+			_In_ ULONG OldSize,
+			_In_ ULONG Tag
+			);
+
+#define KsEdit(Object,PointerToPointer,Tag)\
+    _KsEdit(\
+        (Object)->Bag,\
+        (PVOID*)(PointerToPointer),\
+        sizeof(**(PointerToPointer)),\
+        sizeof(**(PointerToPointer)),\
+        (Tag))
+#define KsEditSized(Object,PointerToPointer,NewSize,OldSize,Tag)\
+    _KsEdit((Object)->Bag,(PVOID*)(PointerToPointer),(NewSize),(OldSize),(Tag))
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsRegisterFilterWithNoKSPins(
+			_In_ PDEVICE_OBJECT DeviceObject,
+			_In_ const GUID * InterfaceClassGUID,
+			_In_ ULONG PinCount,
+			_In_reads_(PinCount) BOOL * PinDirection,
+			_In_reads_(PinCount) KSPIN_MEDIUM * MediumList,
+			_In_reads_opt_(PinCount) GUID * CategoryList
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFilterCreatePinFactory(
+			_In_ PKSFILTER Filter,
+			_In_ const KSPIN_DESCRIPTOR_EX *const PinDescriptor,
+			_Out_ PULONG PinID
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFilterCreateNode(
+			_In_ PKSFILTER Filter,
+			_In_ const KSNODE_DESCRIPTOR *const NodeDescriptor,
+			_Out_ PULONG NodeID
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsFilterAddTopologyConnections(
+			_In_ PKSFILTER Filter,
+			_In_ ULONG NewConnectionsCount,
+			_In_reads_(NewConnectionsCount) const KSTOPOLOGY_CONNECTION *const NewTopologyConnections
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinGetConnectedPinInterface(
+			_In_ PKSPIN Pin,
+			_In_ const GUID* InterfaceId,
+			_Out_ PVOID* Interface
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PFILE_OBJECT
+		NTAPI
+		KsPinGetConnectedPinFileObject(
+			_In_ PKSPIN Pin
+			);
+
+	KSDDKAPI
+		PDEVICE_OBJECT
+		NTAPI
+		KsPinGetConnectedPinDeviceObject(
+			_In_ PKSPIN Pin
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinGetConnectedFilterInterface(
+			_In_ PKSPIN Pin,
+			_In_ const GUID* InterfaceId,
+			_Out_ PVOID* Interface
+			);
+
+#if defined(_UNKNOWN_H_) || defined(__IUnknown_INTERFACE_DEFINED__)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinGetReferenceClockInterface(
+			_In_ PKSPIN Pin,
+			_Out_ PIKSREFERENCECLOCK* Interface
+			);
+
+#endif //defined(_UNKNOWN_H_) || defined(__IUnknown_INTERFACE_DEFINED__)
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		VOID
+		NTAPI
+		KsPinSetPinClockTime(
+			_In_ PKSPIN Pin,
+			_In_ LONGLONG Time
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinSubmitFrame(
+			_In_ PKSPIN Pin,
+			_In_reads_bytes_opt_(Size) PVOID Data,
+			_In_ ULONG Size OPTIONAL,
+			_In_opt_ PKSSTREAM_HEADER StreamHeader,
+			_In_opt_ PVOID Context
+			);
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		NTAPI
+		KsPinSubmitFrameMdl(
+			_In_ PKSPIN Pin,
+			_In_opt_ PMDL Mdl,
+			_In_opt_ PKSSTREAM_HEADER StreamHeader,
+			_In_opt_ PVOID Context
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinRegisterFrameReturnCallback(
+			_In_ PKSPIN Pin,
+			_In_ PFNKSPINFRAMERETURN FrameReturn
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinRegisterIrpCompletionCallback(
+			_In_ PKSPIN Pin,
+			_In_ PFNKSPINIRPCOMPLETION IrpCompletion
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinRegisterHandshakeCallback(
+			_In_ PKSPIN Pin,
+			_In_ PFNKSPINHANDSHAKE Handshake
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsFilterRegisterPowerCallbacks(
+			_In_ PKSFILTER Filter,
+			_In_opt_ PFNKSFILTERPOWER Sleep,
+			_In_opt_ PFNKSFILTERPOWER Wake
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		void
+		NTAPI
+		KsPinRegisterPowerCallbacks(
+			_In_ PKSPIN Pin,
+			_In_opt_ PFNKSPINPOWER Sleep,
+			_In_opt_ PFNKSPINPOWER Wake
+			);
+
+#if defined(_UNKNOWN_H_) || defined(__IUnknown_INTERFACE_DEFINED__)
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PUNKNOWN
+		NTAPI
+		KsRegisterAggregatedClientUnknown(
+			_In_ PVOID Object,
+			_In_ PUNKNOWN ClientUnknown
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		PUNKNOWN
+		NTAPI
+		KsGetOuterUnknown(
+			_In_ PVOID Object
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsDeviceRegisterAggregatedClientUnknown(
+			_In_ PKSDEVICE Device,
+			_In_ PUNKNOWN ClientUnknown
+			)
+	{
+		return KsRegisterAggregatedClientUnknown((PVOID)Device, ClientUnknown);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsDeviceGetOuterUnknown(
+			_In_ PKSDEVICE Device
+			)
+	{
+		return KsGetOuterUnknown((PVOID)Device);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsFilterFactoryRegisterAggregatedClientUnknown(
+			_In_ PKSFILTERFACTORY FilterFactory,
+			_In_ PUNKNOWN ClientUnknown
+			)
+	{
+		return KsRegisterAggregatedClientUnknown((PVOID)FilterFactory, ClientUnknown);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsFilterFactoryGetOuterUnknown(
+			_In_ PKSFILTERFACTORY FilterFactory
+			)
+	{
+		return KsGetOuterUnknown((PVOID)FilterFactory);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsFilterRegisterAggregatedClientUnknown(
+			_In_ PKSFILTER Filter,
+			_In_ PUNKNOWN ClientUnknown
+			)
+	{
+		return KsRegisterAggregatedClientUnknown((PVOID)Filter, ClientUnknown);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsFilterGetOuterUnknown(
+			_In_ PKSFILTER Filter
+			)
+	{
+		return KsGetOuterUnknown((PVOID)Filter);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsPinRegisterAggregatedClientUnknown(
+			_In_ PKSPIN Pin,
+			_In_ PUNKNOWN ClientUnknown
+			)
+	{
+		return KsRegisterAggregatedClientUnknown((PVOID)Pin, ClientUnknown);
+	}
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		PUNKNOWN __inline
+		KsPinGetOuterUnknown(
+			_In_ PKSPIN Pin
+			)
+	{
+		return KsGetOuterUnknown((PVOID)Pin);
+	}
+
+#endif // defined(_UNKNOWN_H_) || defined(__IUnknown_INTERFACE_DEFINED__)
+
+#endif // (NTDDI_VERSION >= NTDDI_WINXP)
+
+#else // !defined(_NTDDK_)
+
+#if !defined( KS_NO_CREATE_FUNCTIONS )
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		DWORD
+		WINAPI
+		KsCreateAllocator(
+			_In_ HANDLE ConnectionHandle,
+			_In_ PKSALLOCATOR_FRAMING AllocatorFraming,
+			_Out_ PHANDLE AllocatorHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		DWORD
+		NTAPI
+		KsCreateClock(
+			_In_ HANDLE ConnectionHandle,
+			_In_ PKSCLOCK_CREATE ClockCreate,
+			_Out_ PHANDLE ClockHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		DWORD
+		WINAPI
+		KsCreatePin(
+			_In_ HANDLE FilterHandle,
+			_In_ PKSPIN_CONNECT Connect,
+			_In_ ACCESS_MASK DesiredAccess,
+			_Out_ PHANDLE ConnectionHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		DWORD
+		WINAPI
+		KsCreateTopologyNode(
+			_In_ HANDLE ParentHandle,
+			_In_ PKSNODE_CREATE NodeCreate,
+			_In_ ACCESS_MASK DesiredAccess,
+			_Out_ PHANDLE NodeHandle
+			);
+
+	//
+	// KS create function that needs to be called after initializing COM
+	//
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		HRESULT
+		WINAPI
+		KsCreateAllocator2(
+			_In_ HANDLE ConnectionHandle,
+			_In_ PKSALLOCATOR_FRAMING AllocatorFraming,
+			_Out_ PHANDLE AllocatorHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		HRESULT
+		NTAPI
+		KsCreateClock2(
+			_In_ HANDLE ConnectionHandle,
+			_In_ PKSCLOCK_CREATE ClockCreate,
+			_Out_ PHANDLE ClockHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		HRESULT
+		WINAPI
+		KsCreatePin2(
+			_In_ HANDLE FilterHandle,
+			_In_ PKSPIN_CONNECT Connect,
+			_In_ ACCESS_MASK DesiredAccess,
+			_Out_ PHANDLE ConnectionHandle
+			);
+
+	_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		HRESULT
+		WINAPI
+		KsCreateTopologyNode2(
+			_In_ HANDLE ParentHandle,
+			_In_ PKSNODE_CREATE NodeCreate,
+			_In_ ACCESS_MASK DesiredAccess,
+			_Out_ PHANDLE NodeHandle
+			);
+
+#endif
+
+#endif // !defined(_NTDDK_)
+
+#if defined(__cplusplus)
+}
+#endif // defined(__cplusplus)
+
+//
+//Start of MDL caching related decisions
+//
+
+
+#if defined(__cplusplus)
+extern "C" {
+#endif // defined(__cplusplus)
+
+	//
+	//MDL sharing related definitions
+	//
+	typedef union _MF_MDL_SHARED_PAYLOAD_KEY {
+		struct {
+			ULONG pHandle;   /* The Handle which represents the user mode Pin Handle  */
+			ULONG fHandle;
+			ULONG64 uPayload; /* The PayLoad from Sample, which is the Buffer attached */
+		}combined;
+		GUID GMDLHandle;
+	}MF_MDL_SHARED_PAYLOAD_KEY, *PMF_MDL_SHARED_PAYLOAD_KEY;
+	//
+	//We need the handle and upayload to be ULONG64
+	//to adjust for 64 bit systems and 32 bit systems
+	//
+#define MF_SET_SHARED_MDLHANDLE(a,b,c,d){\
+    d.combined.phandle = (ULONG32)a;\
+    d.combined.fhandle = (ULONG32)b;\
+    d.combined.upayload = (ULONG64)c;\
+}
+
+
+
+
+
+#if defined(_NTDDK_)
+
+	_IRQL_requires_max_(DISPATCH_LEVEL)
+		typedef
+		VOID
+		(*PFNKSCANCELPINNEDMDL)(
+			_In_ GUID,
+			_In_ PVOID,
+			_In_ PVOID
+			);
+
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		WINAPI
+		KsAcquireCachedMdl(
+			_In_  PIRP                 Irp,
+			_In_  REFGUID              Guid,
+			_In_  PFNKSCANCELPINNEDMDL CancelRoutine,
+			_In_  PVOID                CancelContext,
+			_Outptr_result_maybenull_ PMDL   *MdlAddr,
+			_Outptr_result_maybenull_ PVOID*  ReleaseContext
+			);
+
+	_Must_inspect_result_
+		_IRQL_requires_max_(PASSIVE_LEVEL)
+		KSDDKAPI
+		NTSTATUS
+		WINAPI
+		KsReleaseCachedMdl(
+			_In_     REFGUID                Guid,
+			_In_     PMDL                   MdlAddr,
+			_In_     HANDLE                 ReleaseContext
+			);
+
+#endif
+
+#if defined(__cplusplus)
+}
+#endif // defined(__cplusplus)
+
+//
+//End of MDL sharing related definitions
+//
+
+
+#define DENY_USERMODE_ACCESS( pIrp, CompleteRequest ) \
+if ( pIrp->RequestorMode != KernelMode ) { \
+    pIrp->IoStatus.Information = 0; \
+    pIrp->IoStatus.Status = STATUS_INVALID_DEVICE_REQUEST; \
+    if ( CompleteRequest ) IoCompleteRequest ( pIrp, IO_NO_INCREMENT ); \
+    return STATUS_INVALID_DEVICE_REQUEST; \
+}
+
+
+
+
+
+
+#pragma region bda
+/*************************************bdatypes.h**************************************/
+#define V1_ENUM
+#define V1_ENUMG(g)
+#define RATLEVEL(x) x
+#define RATATTR(x) x
+#define ENUM typedef V1_ENUM enum
+#define ENUMG(g) typedef V1_ENUMG(g) enum
+#define ENUM16 typedef enum
+#define FLAGS ENUM
+#define FLAGS16 ENUM16
+#define TAG(x) tag##x
+#define EHRECVR_MGD_NAMESPACE(x) x
+#define ANALOG_VIDEO_STANDARD_NAMESPACE(x) x
+//------------------------------------------------------------------------------
+// File: BDATypes.h
+//
+// Desc: Typedefs and enums needed by both the WDM drivers and the user mode
+//       COM interfaces.
+//
+// Copyright (c) 1999 - 2004, Microsoft Corporation.  All rights reserved.
+//------------------------------------------------------------------------------
+
+
+
+
+
+#pragma region Desktop Family
+
+
+#include <exposeenums2managed.h>
+
+/* Utility Macros */
+
+#define MIN_DIMENSION   1
+
+
+//===========================================================================
+//
+//  BDA Topology Structures
+//
+//===========================================================================
+
+#ifndef MANAGED_ENUMS
+
+typedef struct _BDA_TEMPLATE_CONNECTION
+{
+	ULONG   FromNodeType;
+	ULONG   FromNodePinType;
+	ULONG   ToNodeType;
+	ULONG   ToNodePinType;
+}BDA_TEMPLATE_CONNECTION, *PBDA_TEMPLATE_CONNECTION;
+
+
+typedef struct _BDA_TEMPLATE_PIN_JOINT
+{
+	ULONG   uliTemplateConnection;
+	ULONG   ulcInstancesMax;
+}BDA_TEMPLATE_PIN_JOINT, *PBDA_TEMPLATE_PIN_JOINT;
+#endif
+
+
+//===========================================================================
+//
+//  BDA Events
+//
+//===========================================================================
+
+//  In-band Event IDs
+//
+ENUM BDA_EVENT_ID{
+	BDA_EVENT_SIGNAL_LOSS = 0,
+	BDA_EVENT_SIGNAL_LOCK,
+	BDA_EVENT_DATA_START,
+	BDA_EVENT_DATA_STOP,
+	BDA_EVENT_CHANNEL_ACQUIRED,
+	BDA_EVENT_CHANNEL_LOST,
+	BDA_EVENT_CHANNEL_SOURCE_CHANGED,
+	BDA_EVENT_CHANNEL_ACTIVATED,
+	BDA_EVENT_CHANNEL_DEACTIVATED,
+	BDA_EVENT_SUBCHANNEL_ACQUIRED,
+	BDA_EVENT_SUBCHANNEL_LOST,
+	BDA_EVENT_SUBCHANNEL_SOURCE_CHANGED,
+	BDA_EVENT_SUBCHANNEL_ACTIVATED,
+	BDA_EVENT_SUBCHANNEL_DEACTIVATED,
+	BDA_EVENT_ACCESS_GRANTED,
+	BDA_EVENT_ACCESS_DENIED,
+	BDA_EVENT_OFFER_EXTENDED,
+	BDA_EVENT_PURCHASE_COMPLETED,
+	BDA_EVENT_SMART_CARD_INSERTED,
+	BDA_EVENT_SMART_CARD_REMOVED
+} BDA_EVENT_ID, *PBDA_EVENT_ID;
+
+
+
+//===========================================================================
+//
+//  KSSTREAM_HEADER extensions for BDA
+//
+//===========================================================================
+
+#ifndef MANAGED_ENUMS
+typedef struct tagKS_BDA_FRAME_INFO {
+	ULONG                   ExtendedHeaderSize; // Size of this extended header
+	DWORD                   dwFrameFlags;  //
+	ULONG                   ulEvent; //
+	ULONG                   ulChannelNumber; //
+	ULONG                   ulSubchannelNumber; //
+	ULONG                   ulReason; //
+} KS_BDA_FRAME_INFO, *PKS_BDA_FRAME_INFO;
+
+
+//------------------------------------------------------------
+//
+//  BDA Network Ethernet Filter Property Set
+//
+// {71985F43-1CA1-11d3-9CC8-00C04F7971E0}
+//
+typedef struct _BDA_ETHERNET_ADDRESS {
+	BYTE    rgbAddress[6];
+} BDA_ETHERNET_ADDRESS, *PBDA_ETHERNET_ADDRESS;
+
+typedef struct _BDA_ETHERNET_ADDRESS_LIST {
+	ULONG               ulcAddresses;
+	BDA_ETHERNET_ADDRESS    rgAddressl[MIN_DIMENSION];
+} BDA_ETHERNET_ADDRESS_LIST, *PBDA_ETHERNET_ADDRESS_LIST;
+
+#endif
+
+ENUM BDA_MULTICAST_MODE{
+	BDA_PROMISCUOUS_MULTICAST = 0,
+	BDA_FILTERED_MULTICAST,
+	BDA_NO_MULTICAST
+} BDA_MULTICAST_MODE, *PBDA_MULTICAST_MODE;
+
+
+//------------------------------------------------------------
+//
+//  BDA Network IPv4 Filter Property Set
+//
+// {71985F44-1CA1-11d3-9CC8-00C04F7971E0}
+//
+#ifndef MANAGED_ENUMS
+typedef struct _BDA_IPv4_ADDRESS {
+	BYTE    rgbAddress[4];
+} BDA_IPv4_ADDRESS, *PBDA_IPv4_ADDRESS;
+
+typedef struct _BDA_IPv4_ADDRESS_LIST {
+	ULONG               ulcAddresses;
+	BDA_IPv4_ADDRESS    rgAddressl[MIN_DIMENSION];
+} BDA_IPv4_ADDRESS_LIST, *PBDA_IPv4_ADDRESS_LIST;
+
+//------------------------------------------------------------
+//
+//  BDA Network IPv4 Filter Property Set
+//
+// {E1785A74-2A23-4fb3-9245-A8F88017EF33}
+//
+typedef struct _BDA_IPv6_ADDRESS {
+	BYTE    rgbAddress[6];
+} BDA_IPv6_ADDRESS, *PBDA_IPv6_ADDRESS;
+
+typedef struct _BDA_IPv6_ADDRESS_LIST {
+	ULONG               ulcAddresses;
+	BDA_IPv6_ADDRESS    rgAddressl[MIN_DIMENSION];
+} BDA_IPv6_ADDRESS_LIST, *PBDA_IPv6_ADDRESS_LIST;
+
+#endif
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Signal Property Set
+//
+//  {D2F1644B-B409-11d2-BC69-00A0C9EE9E16}
+//
+ENUM BDA_SIGNAL_STATE{
+	BDA_SIGNAL_UNAVAILABLE = 0,
+	BDA_SIGNAL_INACTIVE,
+	BDA_SIGNAL_ACTIVE
+} BDA_SIGNAL_STATE, *PBDA_SIGNAL_STATE;
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Change Sync Method Set
+//
+// {FD0A5AF3-B41D-11d2-9C95-00C04F7971E0}
+//
+ENUM BDA_CHANGE_STATE{
+	BDA_CHANGES_COMPLETE = 0,
+	BDA_CHANGES_PENDING
+} BDA_CHANGE_STATE, *PBDA_CHANGE_STATE;
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Device Configuration Method Set
+//
+// {71985F45-1CA1-11d3-9CC8-00C04F7971E0}
+//
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Topology Property Set
+//
+// {A14EE835-0A23-11d3-9CC7-00C04F7971E0}
+//
+
+#ifndef MANAGED_ENUMS
+typedef struct _BDANODE_DESCRIPTOR
+{
+	ULONG               ulBdaNodeType;  // The node type as it is used
+										// in the BDA template topology
+
+	GUID                guidFunction;   // GUID from BdaMedia.h describing
+										// the node's function (e.g.
+										// KSNODE_BDA_RF_TUNER)
+
+	GUID                guidName;       // GUID that can be use to look up
+										// a displayable name for the node.
+} BDANODE_DESCRIPTOR, *PBDANODE_DESCRIPTOR;
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Void Transform Property Set
+//
+// {71985F46-1CA1-11d3-9CC8-00C04F7971E0}
+//
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Null Transform Property Set
+//
+// {DDF15B0D-BD25-11d2-9CA0-00C04F7971E0}
+//
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Frequency Filter Property Set
+//
+// {71985F47-1CA1-11d3-9CC8-00C04F7971E0}
+//
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Autodemodulate Property Set
+//
+// {DDF15B12-BD25-11d2-9CA0-00C04F7971E0}
+//
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA Table Section Property Set
+//
+// {516B99C5-971C-4aaf-B3F3-D9FDA8A15E16}
+//
+
+typedef struct _BDA_TABLE_SECTION
+{
+	ULONG               ulPrimarySectionId;
+	ULONG               ulSecondarySectionId;
+	ULONG               ulcbSectionLength;
+	ULONG               argbSectionData[MIN_DIMENSION];
+} BDA_TABLE_SECTION, *PBDA_TABLE_SECTION;
+
+#endif
+
+#ifndef MANAGED_ENUMS
+
+//------------------------------------------------------------
+//
+//
+//  BDA Diseq Command Property Set
+//
+// {F84E2AB0-3C6B-45e3-A0FC-8669D4B81F11}
+//
+
+typedef struct _BDA_DISEQC_SEND
+{
+	ULONG   ulRequestId;
+	ULONG   ulPacketLength;
+	BYTE    argbPacketData[8];
+} BDA_DISEQC_SEND, *PBDA_DISEQC_SEND;
+
+typedef struct _BDA_DISEQC_RESPONSE
+{
+	ULONG   ulRequestId;
+	ULONG   ulPacketLength;
+	BYTE    argbPacketData[8];
+} BDA_DISEQC_RESPONSE, *PBDA_DISEQC_RESPONSE;
+
+
+#endif
+//------------------------------------------------------------
+//
+//
+//  BDA PID Filter Property Set
+//
+// {D0A67D65-08DF-4fec-8533-E5B550410B85}
+//
+
+//---------------------------------------------------------------------
+// From IEnumPIDMap interface
+//---------------------------------------------------------------------
+
+ENUM MEDIA_SAMPLE_CONTENT{
+	MEDIA_TRANSPORT_PACKET,         //  complete TS packet e.g. pass-through mode
+	MEDIA_ELEMENTARY_STREAM,        //  PES payloads; audio/video only
+	MEDIA_MPEG2_PSI,                //  PAT, PMT, CAT, Private
+	MEDIA_TRANSPORT_PAYLOAD         //  gathered TS packet payloads (PES packets, etc...)
+} MEDIA_SAMPLE_CONTENT;
+
+#ifndef MANAGED_ENUMS
+typedef struct {
+	ULONG                   ulPID;
+	MEDIA_SAMPLE_CONTENT    MediaSampleContent;
+} PID_MAP;
+
+typedef struct _BDA_PID_MAP
+{
+	MEDIA_SAMPLE_CONTENT    MediaSampleContent;
+	ULONG                   ulcPIDs;
+	ULONG                   aulPIDs[MIN_DIMENSION];
+} BDA_PID_MAP, *PBDA_PID_MAP;
+
+typedef struct _BDA_PID_UNMAP
+{
+	ULONG               ulcPIDs;
+	ULONG               aulPIDs[MIN_DIMENSION];
+} BDA_PID_UNMAP, *PBDA_PID_UNMAP;
+
+
+//------------------------------------------------------------
+//
+//
+//  BDA CA Property Set
+//
+// {B0693766-5278-4ec6-B9E1-3CE40560EF5A}
+//
+typedef struct _BDA_CA_MODULE_UI
+{
+	ULONG   ulFormat;
+	ULONG   ulbcDesc;
+	ULONG   ulDesc[MIN_DIMENSION];
+} BDA_CA_MODULE_UI, *PBDA_CA_MODULE_UI;
+
+typedef struct _BDA_PROGRAM_PID_LIST
+{
+	ULONG   ulProgramNumber;
+	ULONG   ulcPIDs;
+	ULONG   ulPID[MIN_DIMENSION];
+} BDA_PROGRAM_PID_LIST, *PBDA_PROGRAM_PID_LIST;
+
+#endif
+
+//------------------------------------------------------------
+//
+//
+//  BDA CA Event Set
+//
+// {488C4CCC-B768-4129-8EB1-B00A071F9068}
+//
+
+#ifndef MANAGED_ENUMS
+
+//=============================================================
+// PBDA RESULT parameter definition 
+//=============================================================
+typedef LONG PBDARESULT;
+
+//=============================================================
+//  BDA_DRM_STATUS used by the DRMService
+//=============================================================
+
+typedef struct _BDA_DRM_DRMSTATUS
+{
+	PBDARESULT lResult;
+	GUID    DRMuuid;
+	ULONG   ulDrmUuidListStringSize;
+	GUID    argbDrmUuidListString[MIN_DIMENSION];
+} BDA_DRM_DRMSTATUS, *PBDA_DRM_DRMSTATUS;
+
+
+//=============================================================
+// PBDA_WMDRM and PBDA_WMDRMTuner structures 
+//=============================================================
+
+typedef struct _BDA_WMDRM_STATUS
+{
+	PBDARESULT lResult;
+	ULONG      ulMaxCaptureTokenSize;
+	ULONG      uMaxStreamingPid;
+	ULONG      ulMaxLicense;
+	ULONG      ulMinSecurityLevel;
+	ULONG      ulRevInfoSequenceNumber;
+	ULONGLONG  ulRevInfoIssuedTime;
+	ULONG      ulRevListVersion;
+	ULONG      ulRevInfoTTL;
+	ULONG      ulState;
+} BDA_WMDRM_STATUS, *PBDA_WMDRM_STATUS;
+
+typedef struct _BDA_WMDRM_KEYINFOLIST
+{
+	PBDARESULT  lResult;
+	ULONG       ulKeyuuidBufferLen;
+	GUID        argKeyuuidBuffer[MIN_DIMENSION];
+} BDA_WMDRM_KEYINFOLIST, *PBDA_WMDRM_KEYINFOLIST;
+
+typedef struct _BDA_BUFFER
+{
+	PBDARESULT  lResult;
+	ULONG       ulBufferSize;
+	BYTE        argbBuffer[MIN_DIMENSION];
+} BDA_BUFFER, *PBDA_BUFFER;
+
+//=============================================================
+// PBDA - DRM structures used in methods
+//=============================================================
+
+typedef struct _BDA_WMDRM_RENEWLICENSE
+{
+	PBDARESULT  lResult;
+	ULONG       ulDescrambleStatus;
+	ULONG       ulXmrLicenseOutputLength;
+	BYTE        argbXmrLicenceOutputBuffer[MIN_DIMENSION]; //License and Entitlement Token Buffer 
+} BDA_WMDRM_RENEWLICENSE, *PBDA_WMDRM_RENEWLICENSE;
+
+typedef struct _BDA_WMDRMTUNER_PIDPROTECTION
+{
+	PBDARESULT  lResult;
+	GUID        uuidKeyID;
+} BDA_WMDRMTUNER_PIDPROTECTION, *PBDA_WMDRMTUNER_PIDPROTECTION;
+
+typedef struct _BDA_WMDRMTUNER_PURCHASEENTITLEMENT
+{
+	PBDARESULT  lResult;
+	ULONG       ulDescrambleStatus;
+	ULONG       ulCaptureTokenLength;
+	BYTE        argbCaptureTokenBuffer[MIN_DIMENSION];
+} BDA_WMDRMTUNER_PURCHASEENTITLEMENT, *PBDA_WMDRMTUNER_PURCHASEENTITLEMENT;
+
+//=============================================================
+// PBDA - TUNER structures used in methods
+//=============================================================
+
+typedef struct _BDA_TUNER_TUNERSTATE {
+	PBDARESULT  lResult;
+	ULONG       ulTuneLength;
+	BYTE        argbTuneData[MIN_DIMENSION];
+} BDA_TUNER_TUNERSTATE, *PBDA_TUNER_TUNERSTATE;
+
+typedef struct _BDA_TUNER_DIAGNOSTICS {
+	PBDARESULT  lResult;
+	ULONG       ulSignalLevel;
+	ULONG       ulSignalLevelQuality;
+	ULONG       ulSignalNoiseRatio;
+} BDA_TUNER_DIAGNOSTICS, *PBDA_TUNER_DIAGNOSTICS;
+
+//=============================================================
+// PBDA - STRING structure used in methods
+//=============================================================
+
+typedef struct _BDA_STRING
+{
+	PBDARESULT  lResult;
+	ULONG       ulStringSize;
+	BYTE        argbString[MIN_DIMENSION];
+} BDA_STRING, *PBDA_STRING;
+
+
+//=============================================================
+// PBDA - SCANNING structures used in methods
+//=============================================================
+
+typedef struct _BDA_SCAN_CAPABILTIES
+{
+	PBDARESULT  lResult;
+	UINT64      ul64AnalogStandardsSupported;
+} BDA_SCAN_CAPABILTIES, *PBDA_SCAN_CAPABILTIES;
+
+typedef struct _BDA_SCAN_STATE
+{
+	PBDARESULT  lResult;
+	ULONG       ulSignalLock;
+	ULONG       ulSecondsLeft;
+	ULONG       ulCurrentFrequency;
+} BDA_SCAN_STATE, *PBDA_SCAN_STATE;
+
+typedef struct _BDA_SCAN_START
+{
+	PBDARESULT  lResult;
+	ULONG       LowerFrequency;
+	ULONG       HigerFrequency;
+} BDA_SCAN_START, *PBDA_SCAN_START;
+
+
+//=============================================================
+// PBDA - GUIDE DATA structures used in methods
+//=============================================================
+
+typedef struct _BDA_GDDS_DATATYPE
+{
+	PBDARESULT  lResult;
+	GUID        uuidDataType;
+} BDA_GDDS_DATATYPE, *P_BDA_GDDS_DATATYPE;
+
+typedef struct _BDA_GDDS_DATA
+{
+	PBDARESULT  lResult;
+	ULONG       ulDataLength;
+	ULONG       ulPercentageProgress;
+	BYTE        argbData[MIN_DIMENSION];
+} BDA_GDDS_DATA, *P_BDA_GDDS_DATA;
+
+
+//=============================================================
+// PBDA - USER ACTIVITY structures used in methods
+//=============================================================
+
+typedef struct _BDA_USERACTIVITY_INTERVAL
+{
+	PBDARESULT  lResult;
+	ULONG       ulActivityInterval;
+} BDA_USERACTIVITY_INTERVAL, *P_BDA_USERACTIVITY_INTERVAL;
+
+
+//=============================================================
+// PBDA - CAS structures used in methods
+//=============================================================
+
+typedef struct _BDA_CAS_CHECK_ENTITLEMENTTOKEN
+{
+	PBDARESULT  lResult;
+	ULONG       ulDescrambleStatus;
+} BDA_CAS_CHECK_ENTITLEMENTTOKEN, *PBDA_CAS_CHECK_ENTITLEMENTTOKEN;
+
+typedef struct _BDA_CAS_CLOSE_MMIDIALOG
+{
+	PBDARESULT  lResult;
+	ULONG       SessionResult;
+} BDA_CAS_CLOSE_MMIDIALOG, *PBDA_CAS_CLOSE_MMIDIALOG;
+
+typedef struct _BDA_CAS_REQUESTTUNERDATA
+{
+	UCHAR       ucRequestPriority;
+	UCHAR       ucRequestReason;
+	UCHAR       ucRequestConsequences;
+	ULONG       ulEstimatedTime;
+} BDA_CAS_REQUESTTUNERDATA, *PBDA_CAS_REQUESTTUNERDATA;
+
+typedef struct _BDA_CAS_OPENMMIDATA
+{
+	ULONG       ulDialogNumber;
+	ULONG       ulDialogRequest;
+	GUID        uuidDialogType;
+	USHORT      usDialogDataLength;
+	BYTE        argbDialogData[MIN_DIMENSION];
+} BDA_CAS_OPENMMIDATA, *PBDA_CAS_OPENMMIDATA;
+
+typedef struct _BDA_CAS_CLOSEMMIDATA
+{
+	ULONG       ulDialogNumber;
+} BDA_CAS_CLOSEMMIDATA, *PBDA_CAS_CLOSEMMIDATA;
+
+//=============================================================
+// PBDA - ISDB CAS structures used in methods
+//=============================================================
+
+#pragma pack(push, 1)
+
+ENUM ISDBCAS_REQUEST_ID{
+	ISDBCAS_REQUEST_ID_EMG = 0x38,
+	ISDBCAS_REQUEST_ID_EMD = 0x3A,
+} ISDBCAS_REQUEST_ID;
+
+typedef struct _BDA_ISDBCAS_REQUESTHEADER
+{
+	BYTE        bInstruction;                   // EMD/EMG
+	BYTE        bReserved[3];                   // future use
+	ULONG       ulDataLength;                   // byte size of argbIsdbCommand
+	BYTE        argbIsdbCommand[MIN_DIMENSION];
+} BDA_ISDBCAS_REQUESTHEADER, *PBDA_ISDBCAS_REQUESTHEADER;
+
+typedef struct _BDA_ISDBCAS_RESPONSEDATA
+{
+	PBDARESULT  lResult;
+	ULONG       ulRequestID;
+	ULONG       ulIsdbStatus;
+	ULONG       ulIsdbDataSize;
+	BYTE        argbIsdbCommandData[MIN_DIMENSION];
+} BDA_ISDBCAS_RESPONSEDATA, *PBDA_ISDBCAS_RESPONSEDATA;
+
+typedef struct _BDA_ISDBCAS_EMG_REQ
+{
+	BYTE        bCLA;                           // 0x90
+	BYTE        bINS;                           // 0x38
+	BYTE        bP1;                            // 0x00
+	BYTE        bP2;                            // 0x00
+	BYTE        bLC;                            // Following bytes - 1(LE)
+	BYTE        bCardId[6];                     // from EMM message packet
+	BYTE        bProtocol;                      // from EMM message packet
+	BYTE        bCABroadcasterGroupId;          // from EMM message packet
+	BYTE        bMessageControl;                // from EMM message packet
+	BYTE        bMessageCode[MIN_DIMENSION];    // Last byte is reserved as 'LE'
+} BDA_ISDBCAS_EMG_REQ, *PBDA_ISDBCAS_EMG_REQ;
+
+#pragma pack(pop)
+
+//=============================================================
+// PBDA - MUX structures used in methods
+//=============================================================
+ENUM MUX_PID_TYPE{
+	PID_OTHER = -1,
+	PID_ELEMENTARY_STREAM,            //  PES payloads
+	PID_MPEG2_SECTION_PSI_SI,       //  ISO 13818_1 Sections PAT, PMT, CAT, Private. Service Information Sections e.g SDT, NIT, EIT, BAT
+} MUX_PID_TYPE;
+
+#pragma pack(push, 2)
+typedef struct _BDA_MUX_PIDLISTITEM
+{
+	USHORT          usPIDNumber;        //PID number of the stream
+	USHORT          usProgramNumber;    //associated Service Id, if applicable
+	MUX_PID_TYPE    ePIDType;           //PID Type of the stream if applicable
+} BDA_MUX_PIDLISTITEM, *PBDA_MUX_PIDLISTITEM;
+#pragma pack(pop)
+
+#endif
+
+//=============================================================
+// BDA - TS Selector structures used in methods
+//=============================================================
+
+//  |<-------------- bTSInfolength ---------------------->|
+//  |                                                     |
+//  |                     |                               |
+//  | BDA_TS_SELECTORINFO | BDA_TS_SELECTORINFO_ISDBS_EXT |
+//  |                     | (for ISDB-S extension)        |
+//  |                     |                               |
+
+#pragma pack(push, 1)
+typedef struct _BDA_TS_SELECTORINFO
+{
+	BYTE            bTSInfolength;          // buffer length including extension
+	BYTE            bReserved[2];
+	GUID            guidNetworkType;        // current type of tuning
+	BYTE            bTSIDCount;             // number of usTSID
+	USHORT          usTSID[MIN_DIMENSION];
+} BDA_TS_SELECTORINFO, *PBDA_TS_SELECTORINFO;
+
+typedef struct _BDA_TS_SELECTORINFO_ISDBS_EXT
+{
+	BYTE            bTMCC[48];
+} BDA_TS_SELECTORINFO_ISDBS_EXT, *PBDA_TS_SELECTORINFO_ISDBS_EXT;
+#pragma pack(pop)
+
+//DVB-T2 related L1 signalling information returned in _GETTSINFORMATION
+
+typedef struct _BDA_DVBT2_L1_SIGNALLING_DATA
+{
+	BYTE  L1Pre_TYPE;
+	BYTE  L1Pre_BWT_S1_S2;
+	BYTE  L1Pre_REPETITION_GUARD_PAPR;
+	BYTE  L1Pre_MOD_COD_FEC;
+	BYTE  L1Pre_POSTSIZE_INFO_PILOT[5];
+	BYTE  L1Pre_TX_ID_AVAIL;
+	BYTE  L1Pre_CELL_ID[2];
+	BYTE  L1Pre_NETWORK_ID[2];
+	BYTE  L1Pre_T2SYSTEM_ID[2];
+	BYTE  L1Pre_NUM_T2_FRAMES;
+	BYTE  L1Pre_NUM_DATA_REGENFLAG_L1POSTEXT[2];
+	BYTE  L1Pre_NUMRF_CURRENTRF_RESERVED[2];
+	BYTE  L1Pre_CRC32[4];
+	BYTE  L1PostData[MIN_DIMENSION];
+} BDA_DVBT2_L1_SIGNALLING_DATA, *PBDA_DVBT2_L1_SIGNALLING_DATA;
+
+
+//=============================================================
+// PBDA - RATING structures used in methods
+//=============================================================
+typedef struct _BDA_RATING_PINRESET
+{
+	BYTE    bPinLength;                 //Buffer size including a null termination
+	BYTE    argbNewPin[MIN_DIMENSION];  //Null terminated UTF8. Use empty string if disable pin
+} BDA_RATING_PINRESET, *PBDA_RATING_PINRESET;
+
+//=============================================================
+//
+//
+//  BDA Tuning Model enumerations
+//
+//
+//=============================================================
+
+// system type for particular DVB Tuning Space instance
+ENUM DVBSystemType{
+	DVB_Cable,
+	DVB_Terrestrial,
+	DVB_Satellite,
+	ISDB_Terrestrial,
+	ISDB_Satellite,
+} DVBSystemType;
+
+//------------------------------------------------------------
+//
+//  BDA Channel Tune Request
+
+ENUM  BDA_Channel{
+	BDA_UNDEFINED_CHANNEL = -1,
+} BDA_Channel;
+
+
+//------------------------------------------------------------
+//
+//  BDA Component(substream)
+//
+//  Note: Persistent TS remember preferred component categories by their number.
+//        Please update the rgs files at multimedia\dshow\vidctl\msvidctl\res
+//        and multimedia\dshow\vidctl\manifests\Video-TVVideoControl.man accordingly
+//        if the order/value changes.
+//        Also make sure ehiProxy.asmmeta, ehiVidCtl.asmmeta and bdatunepia.asmmeta
+//        are properly updated.
+//
+ENUM ComponentCategory{
+	CategoryNotSet = -1,
+	CategoryOther = 0,
+	CategoryVideo,
+	CategoryAudio,
+	CategoryText,
+	CategorySubtitles,
+	CategoryCaptions,
+	CategorySuperimpose,
+	CategoryData,
+	CATEGORY_COUNT,
+} ComponentCategory;
+
+// Component Status
+ENUM ComponentStatus{
+	StatusActive,
+	StatusInactive,
+	StatusUnavailable,
+} ComponentStatus;
+
+
+//------------------------------------------------------------
+//
+//  BDA MPEG2 Component Type
+//
+// from the MPEG2 specification
+ENUM MPEG2StreamType{
+	BDA_UNITIALIZED_MPEG2STREAMTYPE = -1,
+	Reserved1 = 0x00,
+	ISO_IEC_11172_2_VIDEO = 0x01,
+	ISO_IEC_13818_2_VIDEO = 0x02,
+	ISO_IEC_11172_3_AUDIO = 0x03,
+	ISO_IEC_13818_3_AUDIO = 0x04,
+	ISO_IEC_13818_1_PRIVATE_SECTION = 0x05,
+	ISO_IEC_13818_1_PES = 0x06,
+	ISO_IEC_13522_MHEG = 0x07,
+	ANNEX_A_DSM_CC = 0x08,
+	ITU_T_REC_H_222_1 = 0x09,
+	ISO_IEC_13818_6_TYPE_A = 0x0A,
+	ISO_IEC_13818_6_TYPE_B = 0x0B,
+	ISO_IEC_13818_6_TYPE_C = 0x0C,
+	ISO_IEC_13818_6_TYPE_D = 0x0D,
+	ISO_IEC_13818_1_AUXILIARY = 0x0E,
+	ISO_IEC_13818_7_AUDIO = 0x0F,
+	ISO_IEC_14496_2_VISUAL = 0x10,
+	ISO_IEC_14496_3_AUDIO = 0x11,
+	ISO_IEC_14496_1_IN_PES = 0x12,
+	ISO_IEC_14496_1_IN_SECTION = 0x13,
+	ISO_IEC_13818_6_DOWNLOAD = 0x14,
+	METADATA_IN_PES = 0x15,
+	METADATA_IN_SECTION = 0x16,
+	METADATA_IN_DATA_CAROUSEL = 0x17,
+	METADATA_IN_OBJECT_CAROUSEL = 0x18,
+	METADATA_IN_DOWNLOAD_PROTOCOL = 0x19,
+	IRPM_STREAMM = 0x1A,
+	ITU_T_H264 = 0x1B,
+	ISO_IEC_13818_1_RESERVED = 0x1C, // continues until 0x7F
+	USER_PRIVATE = 0x10, // standard says 0x80, retaining for backwards compatibility
+	ISO_IEC_USER_PRIVATE = 0x80,
+	DOLBY_AC3_AUDIO = 0x81,
+	DOLBY_DIGITAL_PLUS_AUDIO_ATSC = 0X87
+} MPEG2StreamType;
+
+//------------------------------------------------------------
+//
+//  mpeg-2 transport stride format block; associated with media
+//   types MEDIATYPE_Stream/MEDIASUBTYPE_MPEG2_TRANSPORT_STRIDE;
+//   *all* format blocks associated with above media type *must*
+//   start with the MPEG2_TRANSPORT_STRIDE structure
+//
+
+#ifndef MANAGED_ENUMS
+typedef struct _MPEG2_TRANSPORT_STRIDE {
+	DWORD   dwOffset;
+	DWORD   dwPacketLength;
+	DWORD   dwStride;
+} MPEG2_TRANSPORT_STRIDE, *PMPEG2_TRANSPORT_STRIDE;
+#endif
+
+//------------------------------------------------------------
+//
+//  BDA ATSC Component Type
+//
+//
+// ATSC made AC3 Audio a descriptor instead of
+// defining a user private stream type.
+
+FLAGS ATSCComponentTypeFlags{
+	// bit flags for various component type properties
+	ATSCCT_AC3 = 0x00000001,
+} ATSCComponentTypeFlags;
+
+
+//------------------------------------------------------------
+//
+//  BDA Locators
+//
+
+
+ENUM BinaryConvolutionCodeRate{
+	BDA_BCC_RATE_NOT_SET = -1,
+	BDA_BCC_RATE_NOT_DEFINED = 0,
+	BDA_BCC_RATE_1_2 = 1,   // 1/2
+	BDA_BCC_RATE_2_3,       // 2/3
+	BDA_BCC_RATE_3_4,       // 3/4
+	BDA_BCC_RATE_3_5,       // 3/5
+	BDA_BCC_RATE_4_5,       // 4/5
+	BDA_BCC_RATE_5_6,       // 5/6
+	BDA_BCC_RATE_5_11,      // 5/11
+	BDA_BCC_RATE_7_8,       // 7/8
+	BDA_BCC_RATE_1_4,       // 1/4
+	BDA_BCC_RATE_1_3,       // 1/3
+	BDA_BCC_RATE_2_5,       // 2/5
+	BDA_BCC_RATE_6_7,       // 6/7
+	BDA_BCC_RATE_8_9,       // 8/9
+	BDA_BCC_RATE_9_10,      // 9/10
+	BDA_BCC_RATE_MAX,
+} BinaryConvolutionCodeRate;
+
+ENUM FECMethod{
+	BDA_FEC_METHOD_NOT_SET = -1,
+	BDA_FEC_METHOD_NOT_DEFINED = 0,
+	BDA_FEC_VITERBI = 1,    // FEC is a Viterbi Binary Convolution.
+	BDA_FEC_RS_204_188,     // The FEC is Reed-Solomon 204/188 (outer FEC)
+	BDA_FEC_LDPC,           // Low Density Parity Check error correction code
+	BDA_FEC_BCH,            // Bose-Chaudhuri-Hocquenghem multiple error correction binary block code
+	BDA_FEC_RS_147_130,     // The FEC is Reed-Solomon 147/130 (outer FEC) DirecTV-DSS
+	BDA_FEC_MAX,
+} FECMethod;
+
+ENUM ModulationType{
+	BDA_MOD_NOT_SET = -1,
+	BDA_MOD_NOT_DEFINED = 0,
+	BDA_MOD_16QAM = 1,
+	BDA_MOD_32QAM,
+	BDA_MOD_64QAM,
+	BDA_MOD_80QAM,
+	BDA_MOD_96QAM,
+	BDA_MOD_112QAM,
+	BDA_MOD_128QAM,
+	BDA_MOD_160QAM,
+	BDA_MOD_192QAM,
+	BDA_MOD_224QAM,
+	BDA_MOD_256QAM,
+	BDA_MOD_320QAM,
+	BDA_MOD_384QAM,
+	BDA_MOD_448QAM,
+	BDA_MOD_512QAM,
+	BDA_MOD_640QAM,
+	BDA_MOD_768QAM,
+	BDA_MOD_896QAM,
+	BDA_MOD_1024QAM,
+	BDA_MOD_QPSK,             // Quadrature Phase Shift Keying (including backwards compatible mode)
+	BDA_MOD_BPSK,             // Binary Phase Shift Keying
+	BDA_MOD_OQPSK,            // Offset QPSK
+	BDA_MOD_8VSB,             // 8-Level Vestigial Sideband
+	BDA_MOD_16VSB,            // 16-Level Vestigial Sideband
+	BDA_MOD_ANALOG_AMPLITUDE, // std am
+	BDA_MOD_ANALOG_FREQUENCY, // std fm
+	BDA_MOD_8PSK,             // 8 Phase Shift Keying (including backwards compatible mode)
+	BDA_MOD_RF, // analog TV (Video standards such as NTSC/PAL/SECAM specified in IAnalogLocator VideoStandard property)
+	BDA_MOD_16APSK,           // DVB-S2 modulation 16-Level APSK
+	BDA_MOD_32APSK,           // DVB-S2 modulation 32-Level APSK
+	BDA_MOD_NBC_QPSK,         // Non-Backwards Compatible Quadrature Phase Shift Keying
+	BDA_MOD_NBC_8PSK,         // Non-Backwards Compatible 8 Phase Shift Keying
+	BDA_MOD_DIRECTV,          // DIRECTV DSS
+	BDA_MOD_ISDB_T_TMCC,      // Automatic demodulation by Transmission and Multiplexing Configuration Control signal for ISDB-T
+	BDA_MOD_ISDB_S_TMCC,      // Automatic demodulation by Transmission and Multiplexing Configuration Control signal for ISDB-S
+	BDA_MOD_MAX,
+} ModulationType;
+
+#ifdef _MANAGED
+FLAGS TAG(ScanModulationTypes) : unsigned int
+#else
+// this is to silence enum warning C4369
+FLAGS TAG(ScanModulationTypes)
+#endif
+{
+	BDA_SCAN_MOD_16QAM = 0x00000001,
+		BDA_SCAN_MOD_32QAM = 0x00000002,
+		BDA_SCAN_MOD_64QAM = 0x00000004,
+		BDA_SCAN_MOD_80QAM = 0x00000008,
+		BDA_SCAN_MOD_96QAM = 0x00000010,
+		BDA_SCAN_MOD_112QAM = 0x00000020,
+		BDA_SCAN_MOD_128QAM = 0x00000040,
+		BDA_SCAN_MOD_160QAM = 0x00000080,
+		BDA_SCAN_MOD_192QAM = 0x00000100,
+		BDA_SCAN_MOD_224QAM = 0x00000200,
+		BDA_SCAN_MOD_256QAM = 0x00000400,
+		BDA_SCAN_MOD_320QAM = 0x00000800,
+		BDA_SCAN_MOD_384QAM = 0x00001000,
+		BDA_SCAN_MOD_448QAM = 0x00002000,
+		BDA_SCAN_MOD_512QAM = 0x00004000,
+		BDA_SCAN_MOD_640QAM = 0x00008000,
+		BDA_SCAN_MOD_768QAM = 0x00010000,
+		BDA_SCAN_MOD_896QAM = 0x00020000,
+		BDA_SCAN_MOD_1024QAM = 0x00040000,
+		BDA_SCAN_MOD_QPSK = 0x00080000,
+		BDA_SCAN_MOD_BPSK = 0x00100000,
+		BDA_SCAN_MOD_OQPSK = 0x00200000,
+		BDA_SCAN_MOD_8VSB = 0x00400000,
+		BDA_SCAN_MOD_16VSB = 0x00800000,
+		BDA_SCAN_MOD_AM_RADIO = 0x01000000,
+		BDA_SCAN_MOD_FM_RADIO = 0x02000000,
+		BDA_SCAN_MOD_8PSK = 0x04000000,
+		BDA_SCAN_MOD_RF = 0x08000000, // analog TV
+		ScanModulationTypesMask_MCE_DigitalCable = BDA_MOD_64QAM |
+		BDA_MOD_256QAM,
+		ScanModulationTypesMask_MCE_TerrestrialATSC = BDA_MOD_8VSB,
+		ScanModulationTypesMask_MCE_AnalogTv = BDA_MOD_RF,
+		ScanModulationTypesMask_MCE_All_TV = 0xffffffff,
+		ScanModulationTypesMask_DVBC = BDA_MOD_64QAM | BDA_SCAN_MOD_128QAM |
+		BDA_MOD_256QAM,
+		BDA_SCAN_MOD_16APSK = 0x10000000,
+		BDA_SCAN_MOD_32APSK = 0x20000000,
+} ScanModulationTypes;
+
+ENUM SpectralInversion{
+	BDA_SPECTRAL_INVERSION_NOT_SET = -1,
+	BDA_SPECTRAL_INVERSION_NOT_DEFINED = 0,
+	BDA_SPECTRAL_INVERSION_AUTOMATIC = 1,
+	BDA_SPECTRAL_INVERSION_NORMAL,
+	BDA_SPECTRAL_INVERSION_INVERTED,
+	BDA_SPECTRAL_INVERSION_MAX
+} SpectralInversion;
+
+ENUM Polarisation{
+	BDA_POLARISATION_NOT_SET = -1,
+	BDA_POLARISATION_NOT_DEFINED = 0,
+	BDA_POLARISATION_LINEAR_H = 1, // Linear horizontal polarisation
+	BDA_POLARISATION_LINEAR_V, // Linear vertical polarisation
+	BDA_POLARISATION_CIRCULAR_L, // Circular left polarisation
+	BDA_POLARISATION_CIRCULAR_R, // Circular right polarisation
+	BDA_POLARISATION_MAX,
+} Polarisation;
+
+ENUM LNB_Source{
+	BDA_LNB_SOURCE_NOT_SET = -1,
+	BDA_LNB_SOURCE_NOT_DEFINED = 0,
+	BDA_LNB_SOURCE_A = 1, // 
+	BDA_LNB_SOURCE_B = 2, // 
+	BDA_LNB_SOURCE_C = 3, // 
+	BDA_LNB_SOURCE_D = 4, // 
+	BDA_LNB_SOURCE_MAX,
+} LNB_Source;
+
+
+ENUM GuardInterval{
+	BDA_GUARD_NOT_SET = -1,
+	BDA_GUARD_NOT_DEFINED = 0,
+	BDA_GUARD_1_32 = 1, // Guard interval is 1/32
+	BDA_GUARD_1_16, // Guard interval is 1/16
+	BDA_GUARD_1_8, // Guard interval is 1/8
+	BDA_GUARD_1_4, // Guard interval is 1/4
+	BDA_GUARD_1_128, // Guard interval is 1/128 (DVB-T2)
+	BDA_GUARD_19_128, // Guard interval is 19/128 (DVB-T2)
+	BDA_GUARD_19_256, // Guard interval is 19/256 (DVB-T2)
+	BDA_GUARD_MAX,
+} GuardInterval;
+
+ENUM HierarchyAlpha{
+	BDA_HALPHA_NOT_SET = -1,
+	BDA_HALPHA_NOT_DEFINED = 0,
+	BDA_HALPHA_1 = 1, // Hierarchy alpha is 1.
+	BDA_HALPHA_2, // Hierarchy alpha is 2.
+	BDA_HALPHA_4, // Hierarchy alpha is 4.
+	BDA_HALPHA_MAX,
+} HierarchyAlpha;
+
+ENUM TransmissionMode{
+	BDA_XMIT_MODE_NOT_SET = -1,
+	BDA_XMIT_MODE_NOT_DEFINED = 0,
+	BDA_XMIT_MODE_2K = 1, // Transmission uses 1705 carriers (use a 2K FFT)
+	BDA_XMIT_MODE_8K,     // Transmission uses 6817 carriers (use an 8K FFT)
+	BDA_XMIT_MODE_4K,
+	BDA_XMIT_MODE_2K_INTERLEAVED,
+	BDA_XMIT_MODE_4K_INTERLEAVED,
+	BDA_XMIT_MODE_1K,    //DVB-T2 (use 1K FFT)
+	BDA_XMIT_MODE_16K,   //DVB-T2 (use 16K FFT)
+	BDA_XMIT_MODE_32K,   //DVB-T2 (use 32K FFT)
+	BDA_XMIT_MODE_MAX,
+} TransmissionMode;
+
+ENUM RollOff{
+	BDA_ROLL_OFF_NOT_SET = -1,
+	BDA_ROLL_OFF_NOT_DEFINED = 0,
+	BDA_ROLL_OFF_20 = 1,         // .20 Roll Off (DVB-S2 Only)
+	BDA_ROLL_OFF_25,             // .25 Roll Off (DVB-S2 Only)
+	BDA_ROLL_OFF_35,             // .35 Roll Off (DVB-S2 Only)
+	BDA_ROLL_OFF_MAX,
+} RollOff;
+
+ENUM Pilot{
+	BDA_PILOT_NOT_SET = -1,
+	BDA_PILOT_NOT_DEFINED = 0,
+	BDA_PILOT_OFF = 1,           // Pilot Off (DVB-S2 Only)
+	BDA_PILOT_ON,                // Pilot On  (DVB-S2 Only)
+	BDA_PILOT_MAX,
+} Pilot;
+
+typedef struct _BDA_SIGNAL_TIMEOUTS
+{
+	ULONG      ulCarrierTimeoutMs;
+	ULONG      ulScanningTimeoutMs;
+	ULONG      ulTuningTimeoutMs;
+} BDA_SIGNAL_TIMEOUTS, *PBDA_SIGNAL_TIMEOUTS;
+
+//  Settings for Tuner Frequency
+//
+ENUM BDA_Frequency{
+	BDA_FREQUENCY_NOT_SET = -1,
+	BDA_FREQUENCY_NOT_DEFINED = 0
+} BDA_Frequency;
+
+//  Settings for Tuner Range
+//
+//  Tuner range refers to the setting of LNB High/Low as well as the
+//  selection of a satellite on a multiple satellite switch.
+//
+ENUM BDA_Range{
+	BDA_RANGE_NOT_SET = -1,
+	BDA_RANGE_NOT_DEFINED = 0
+} BDA_Range;
+
+//  Settings for Tuner Channel Bandwidth
+//
+ENUM BDA_Channel_Bandwidth{
+	BDA_CHAN_BANDWITH_NOT_SET = -1,
+	BDA_CHAN_BANDWITH_NOT_DEFINED = 0
+} BDA_Channel_Bandwidth;
+
+//  Settings for Tuner Frequency Multiplier
+//
+ENUM BDA_Frequency_Multiplier{
+	BDA_FREQUENCY_MULTIPLIER_NOT_SET = -1,
+	BDA_FREQUENCY_MULTIPLIER_NOT_DEFINED = 0
+} BDA_Frequency_Multiplier;
+
+FLAGS BDA_Comp_Flags{
+	// equiv comparison rule overrides, default behavior is type specific
+	BDACOMP_NOT_DEFINED = 0x00000000,
+	BDACOMP_EXCLUDE_TS_FROM_TR = 0x00000001,  // never put TS in TR equiv comparison
+	BDACOMP_INCLUDE_LOCATOR_IN_TR = 0x00000002,  // always include loc in TR equiv comparison
+	BDACOMP_INCLUDE_COMPONENTS_IN_TR = 0x00000004, // always include components in TR equiv comparison
+} BDA_Comp_Flags;
+
+ENUM ApplicationTypeType
+{
+	SCTE28_ConditionalAccess = 0,
+	SCTE28_POD_Host_Binding_Information,
+	SCTE28_IPService,
+	SCTE28_NetworkInterface_SCTE55_2,
+	SCTE28_NetworkInterface_SCTE55_1,
+	SCTE28_CopyProtection,
+	SCTE28_Diagnostic,
+	SCTE28_Undesignated,
+	SCTE28_Reserved,
+}ApplicationTypeType;
+
+
+ENUM BDA_CONDITIONALACCESS_REQUESTTYPE{
+	CONDITIONALACCESS_ACCESS_UNSPECIFIED = 0,
+	CONDITIONALACCESS_ACCESS_NOT_POSSIBLE,
+	CONDITIONALACCESS_ACCESS_POSSIBLE,
+	CONDITIONALACCESS_ACCESS_POSSIBLE_NO_STREAMING_DISRUPTION
+} BDA_CONDITIONALACCESS_REQUESTTYPE;
+
+ENUM BDA_CONDITIONALACCESS_MMICLOSEREASON{
+	CONDITIONALACCESS_UNSPECIFIED = 0,
+	CONDITIONALACCESS_CLOSED_ITSELF,
+	CONDITIONALACCESS_TUNER_REQUESTED_CLOSE,
+	CONDITIONALACCESS_DIALOG_TIMEOUT,
+	CONDITIONALACCESS_DIALOG_FOCUS_CHANGE,
+	CONDITIONALACCESS_DIALOG_USER_DISMISSED,
+	CONDITIONALACCESS_DIALOG_USER_NOT_AVAILABLE
+} BDA_CONDITIONALACCESS_MMICLOSEREASON;
+
+ENUM BDA_CONDITIONALACCESS_SESSION_RESULT{
+	CONDITIONALACCESS_SUCCESSFULL = 0,
+	CONDITIONALACCESS_ENDED_NOCHANGE,
+	CONDITIONALACCESS_ABORTED
+} BDA_CONDITIONALACCESS_SESSION_RESULT;
+
+ENUM BDA_DISCOVERY_STATE{
+	BDA_DISCOVERY_UNSPECIFIED = 0,
+	BDA_DISCOVERY_REQUIRED,
+	BDA_DISCOVERY_COMPLETE
+} BDA_DISCOVERY_STATE;
+
+// Digital Demodulator for DVBT2 Physical Layer Pipe
+#define BDA_PLP_ID_NOT_SET -1       
+
+#include <unexposeenums2managed.h>
+
+
+
+#pragma endregion
+
+
+
+// end of file -- bdatypes.h
+
+/*************************************bdatypes.h**************************************/
+#pragma endregion bda
+
+
+#if !defined(_KSMEDIA_)
+#error KSMEDIA.H must be included before BDAMEDIA.H
+#endif // !defined(_KSMEDIA_)
+
+#if !defined(_BDATYPES_)
+#error BDATYPES.H must be included before BDAMEDIA.H
+#endif // !defined(_BDATYPES_)
+
+#if !defined(_BDAMEDIA_)
+#define _BDAMEDIA_
+
+#if defined(__cplusplus)
+extern "C" {
+#endif // defined(__cplusplus)
+
+
+
+	//===========================================================================
+	//
+	//  KSProperty Set Structure Definitions for BDA
+	//
+	//===========================================================================
+
+	typedef struct _KSP_BDA_NODE_PIN {
+		KSPROPERTY      Property;
+		ULONG           ulNodeType;
+		ULONG           ulInputPinId;
+		ULONG           ulOutputPinId;
+	} KSP_BDA_NODE_PIN, *PKSP_BDA_NODE_PIN;
+
+
+	typedef struct _KSM_BDA_PIN
+	{
+		KSMETHOD    Method;
+		union
+		{
+			ULONG       PinId;
+			ULONG       PinType;
+		};
+		ULONG       Reserved;
+	} KSM_BDA_PIN, *PKSM_BDA_PIN;
+
+
+	typedef struct _KSM_BDA_PIN_PAIR
+	{
+		KSMETHOD    Method;
+		union
+		{
+			ULONG       InputPinId;
+			ULONG       InputPinType;
+		};
+		union
+		{
+			ULONG       OutputPinId;
+			ULONG       OutputPinType;
+		};
+	} KSM_BDA_PIN_PAIR, *PKSM_BDA_PIN_PAIR;
+
+
+	typedef struct {
+		KSP_NODE        Property;
+		ULONG           EsPid;
+	} KSP_NODE_ESPID, *PKSP_NODE_ESPID;
+
+	typedef struct _KSM_BDA_DEBUG_LEVEL
+	{
+		KSMETHOD    Method;
+		UCHAR       ucDebugLevel;
+		ULONG       ulDebugStringSize;
+		BYTE        argbDebugString[MIN_DIMENSION];
+	} KSM_BDA_DEBUG_LEVEL, *PKSM_BDA_DEBUG_LEVEL;
+
+	typedef struct _BDA_DEBUG_DATA
+	{
+		PBDARESULT  lResult;
+		GUID        uuidDebugDataType;
+		ULONG       ulDataSize;
+		BYTE        argbDebugData[MIN_DIMENSION];
+	} BDA_DEBUG_DATA;
+
+	typedef struct _BDA_EVENT_DATA
+	{
+		PBDARESULT  lResult;
+		ULONG       ulEventID;
+		GUID        uuidEventType;
+		ULONG       ulEventDataLength;
+		BYTE        argbEventData[MIN_DIMENSION];
+	} BDA_EVENT_DATA, *PBDA_EVENT_DATA;
+
+	typedef struct _KSM_BDA_EVENT_COMPLETE {
+		KSMETHOD Method;
+		ULONG   ulEventID;
+		ULONG   ulEventResult;
+	} KSM_BDA_EVENT_COMPLETE, *PKSM_BDA_EVENT_COMPLETE;
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for DRM, WMDRM, WMDRMTUNER 
+	//
+	//===========================================================================
+
+	typedef struct _KSM_BDA_DRM_SETDRM
+	{
+		KSM_NODE    NodeMethod;
+		GUID        NewDRMuuid;
+	} KSM_BDA_DRM_SETDRM, *PKSM_BDA_DRM_SETDRM;
+
+	typedef struct _KSM_BDA_BUFFER
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulBufferSize;
+		BYTE        argbBuffer[MIN_DIMENSION];
+	} KSM_BDA_BUFFER, *PKSM_BDA_BUFFER;
+
+	typedef struct KSM_BDA_WMDRM_LICENSE
+	{
+		KSM_NODE    NodeMethod;
+		GUID        uuidKeyID;
+	} KSM_BDA_WMDRM_LICENSE, *PKSM_BDA_WMDRM_LICENSE;
+
+	typedef struct _KSM_BDA_WMDRM_RENEWLICENSE
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulXMRLicenseLength;
+		ULONG       ulEntitlementTokenLength;
+		BYTE        argbDataBuffer[MIN_DIMENSION]; //License and Entitlement Token Buffer 
+	} KSM_BDA_WMDRM_RENEWLICENSE, *PKSM_BDA_WMDRM_RENEWLICENSE;
+
+	typedef struct _KSM_BDA_WMDRMTUNER_PURCHASEENTITLEMENT
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulDialogRequest;
+		CHAR        cLanguage[12];
+		ULONG       ulPurchaseTokenLength;
+		BYTE        argbDataBuffer[MIN_DIMENSION]; //Language Buffer before PurchaseToken
+	} KSM_BDA_WMDRMTUNER_PURCHASEENTITLEMENT, *PKSM_BDA_WMDRMTUNER_PURCHASEENTITLEMENT;
+
+	typedef struct _KSM_BDA_WMDRMTUNER_SETPIDPROTECTION
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulPID;
+		GUID        uuidKeyID;
+	} KSM_BDA_WMDRMTUNER_SETPIDPROTECTION, *PKSM_BDA_WMDRMTUNER_SETPIDPROTECTION;
+
+	typedef struct _KSM_BDA_WMDRMTUNER_GETPIDPROTECTION
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulPID;
+	} KSM_BDA_WMDRMTUNER_GETPIDPROTECTION, *PKSM_BDA_WMDRMTUNER_GETPIDPROTECTION;
+
+	typedef struct _KSM_BDA_WMDRMTUNER_SYNCVALUE
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulSyncValue;
+	} KSM_BDA_WMDRMTUNER_SYNCVALUE, *PKSM_BDA_WMDRMTUNER_SYNCVALUE;
+
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for PBDA TUNER  
+	//
+	//===========================================================================
+
+	typedef struct _KSM_BDA_TUNER_TUNEREQUEST
+	{
+		KSMETHOD    Method;
+		ULONG       ulTuneLength;
+		BYTE        argbTuneData[MIN_DIMENSION];
+	} KSM_BDA_TUNER_TUNEREQUEST, *PKSM_BDA_TUNER_TUNEREQUEST;
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for PBDA GENERAL PURPOSE NAME VALUES  
+	//
+	//===========================================================================
+
+	typedef struct _KSM_BDA_GPNV_GETVALUE
+	{
+		KSMETHOD    Method;
+		ULONG       ulNameLength;
+		CHAR        cLanguage[12];
+		BYTE        argbData[MIN_DIMENSION];
+	} KSM_BDA_GPNV_GETVALUE, *PKSM_BDA_GPNV_GETVALUE;
+
+	typedef struct _KSM_BDA_GPNV_SETVALUE
+	{
+		KSMETHOD    Method;
+		ULONG       ulDialogRequest;
+		CHAR        cLanguage[12];
+		ULONG       ulNameLength;
+		ULONG       ulValueLength;
+		BYTE        argbName[MIN_DIMENSION];
+	} KSM_BDA_GPNV_SETVALUE, *PKSM_BDA_GPNV_SETVALUE;
+
+	typedef struct _KSM_BDA_GPNV_NAMEINDEX
+	{
+		KSMETHOD    Method;
+		ULONG       ulValueNameIndex;
+	} KSM_BDA_GPNV_NAMEINDEX, *PKSM_BDA_GPNV_NAMEINDEX;
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for PBDA SCANNING  
+	//
+	//===========================================================================
+	typedef struct _KSM_BDA_SCAN_CAPABILTIES
+	{
+		KSMETHOD    Method;
+		GUID        uuidBroadcastStandard;
+	} KSM_BDA_SCAN_CAPABILTIES, *PKSM_BDA_SCAN_CAPABILTIES;
+
+	typedef struct _KSM_BDA_SCAN_FILTER
+	{
+		KSMETHOD    Method;
+		ULONG       ulScanModulationTypeSize;
+		ULONG64     AnalogVideoStandards;
+		BYTE        argbScanModulationTypes[MIN_DIMENSION];
+	} KSM_BDA_SCAN_FILTER, *PKSM_BDA_SCAN_FILTER;
+
+	typedef struct _KSM_BDA_SCAN_START
+	{
+		KSMETHOD    Method;
+		ULONG       LowerFrequency;
+		ULONG       HigherFrequency;
+	} KSM_BDA_SCAN_START, *PKSM_BDA_SCAN_START;
+
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for PBDA GUIDE DATA  
+	//
+	//===========================================================================
+
+	typedef  struct _KSM_BDA_GDDS_TUNEXMLFROMIDX {
+		KSMETHOD    Method;
+		ULONG64     ulIdx;
+	} KSM_BDA_GDDS_TUNEXMLFROMIDX, *PKSM_BDA_GDDS_TUNEXMLFROMIDX;
+
+	typedef  struct _KSM_BDA_GDDS_SERVICEFROMTUNEXML
+	{
+		KSMETHOD    Method;
+		ULONG       ulTuneXmlLength;
+		BYTE        argbTuneXml[MIN_DIMENSION];
+	} KSM_BDA_GDDS_SERVICEFROMTUNEXML, *PKSM_BDA_GDDS_SERVICEFROMTUNEXML;
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for PBDA USER ACTIVITY   
+	//
+	//===========================================================================
+	typedef struct _KSM_BDA_USERACTIVITY_USEREASON
+	{
+		KSMETHOD    Method;
+		ULONG       ulUseReason;
+	} KSM_BDA_USERACTIVITY_USEREASON, *PKSM_BDA_USERACTIVITY_USEREASON;
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for PBDA CAS  
+	//
+	//===========================================================================
+	typedef struct _KSM_BDA_CAS_ENTITLEMENTTOKEN
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulDialogRequest;
+		CHAR        cLanguage[12];
+		ULONG       ulRequestType;
+		ULONG       ulEntitlementTokenLen;
+		BYTE        argbEntitlementToken[MIN_DIMENSION];
+	} KSM_BDA_CAS_ENTITLEMENTTOKEN, *PKSM_BDA_CAS_ENTITLEMENTTOKEN;
+
+	typedef struct _KSM_BDA_CAS_CAPTURETOKEN
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulTokenLength;
+		BYTE        argbToken[MIN_DIMENSION];
+	} KSM_BDA_CAS_CAPTURETOKEN, *PKSM_BDA_CAS_CAPTURETOKEN;
+
+	typedef struct _KSM_BDA_CAS_OPENBROADCASTMMI
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulDialogRequest;
+		CHAR        cLanguage[12];
+		ULONG       ulEventId;
+	} KSM_BDA_CAS_OPENBROADCASTMMI, *PKSM_BDA_CAS_OPENBROADCASTMMI;
+
+	typedef struct _KSM_BDA_CAS_CLOSEMMIDIALOG
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulDialogRequest;
+		CHAR        cLanguage[12];
+		ULONG       ulDialogNumber;
+		ULONG       ulReason;
+	} KSM_BDA_CAS_CLOSEMMIDIALOG, *PKSM_BDA_CAS_CLOSEMMIDIALOG;
+
+	typedef struct _KSM_BDA_ISDBCAS_REQUEST
+	{
+		KSM_NODE    NodeMethod;
+		ULONG       ulRequestID;
+		ULONG       ulIsdbCommandSize;
+		BYTE        argbIsdbCommandData[MIN_DIMENSION];
+	} KSM_BDA_ISDBCAS_REQUEST, *PKSM_BDA_ISDBCAS_REQUEST;
+
+	//===========================================================================
+	//
+	//  KSMethod Set Structure Definitions for Transprt Stream Selector  
+	//
+	//===========================================================================
+	typedef struct _KSM_BDA_TS_SELECTOR_SETTSID
+	{
+		KSM_NODE    NodeMethod;
+		USHORT      usTSID;
+	} KSM_BDA_TS_SELECTOR_SETTSID, *PKSM_BDA_TS_SELECTOR_SETTSID;
+
+
+	//===========================================================================
+	//
+	//  BDA Data Range definitions.  Includes specifier definitions.
+	//
+	//===========================================================================
+
+	//  Antenna Signal Formats
+	//
+
+	typedef struct tagKS_DATARANGE_BDA_ANTENNA {
+		KSDATARANGE                  DataRange;
+
+		//   Antenna specifier can go here if required
+		//
+	} KS_DATARANGE_BDA_ANTENNA, *PKS_DATARANGE_BDA_ANTENNA;
+
+
+
+	//  Transport Formats
+	//
+
+	typedef struct tagBDA_TRANSPORT_INFO {
+		ULONG           ulcbPhyiscalPacket; // Size, in bytes, of a physical packet
+											// (e.g. Satellite link payload size.
+		ULONG           ulcbPhyiscalFrame;  // Size, in bytes, of each physical frame
+											// 0 indicates no HW requirement
+		ULONG           ulcbPhyiscalFrameAlignment; // Capture buffer alignment in bytes
+													// 0 and 1 indicate no alignment requirements
+		REFERENCE_TIME  AvgTimePerFrame; // Normal ActiveMovie units (100 nS)
+
+	} BDA_TRANSPORT_INFO, *PBDA_TRANSPORT_INFO;
+
+	typedef struct tagKS_DATARANGE_BDA_TRANSPORT {
+		KSDATARANGE                  DataRange;
+		BDA_TRANSPORT_INFO           BdaTransportInfo;
+
+		//   Transport specifier can go here if required
+		//
+	} KS_DATARANGE_BDA_TRANSPORT, *PKS_DATARANGE_BDA_TRANSPORT;
+
+
+	//===========================================================================
+	//  BDA Event Guids
+	//
+	//      These are sent by the IBroadcastEvent service on the graph.
+	//      To receive,
+	//          0) Implement IBroadcastEvent in your receiving object - this has one Method on it: Fire()
+	//          1) QI the graphs service provider for SID_SBroadcastEventService
+	//                 for the IID_IBroadcastEvent object
+	//          2) OR create the event service (CLSID_BroadcastEventService) if not already there
+	//                 and register it
+	//          3) QI that object for it's IConnectionPoint interface (*pCP)
+	//          4) Advise your object on *pCP  (e.g. pCP->Advise(static_cast<IBroadCastEvent*>(this), &dwCookie)
+	//          5) Unadvise when done..
+	//          6) Implement IBroadcastEvent::Fire(GUID gEventID)
+	//             Check for relevant event below and deal with it appropriatly...
+	//===========================================================================
+
+	// {83183C03-C09E-45c4-A719-807A94952BF9}
+#define STATIC_EVENTID_TuningChanging \
+    0x83183c03, 0xc09e, 0x45c4, 0xa7, 0x19, 0x80, 0x7a, 0x94, 0x95, 0x2b, 0xf9
+	DEFINE_GUIDSTRUCT("83183C03-C09E-45c4-A719-807A94952BF9", EVENTID_TuningChanging);
+#define EVENTID_TuningChanging DEFINE_GUIDNAMED(EVENTID_TuningChanging)
+
+	// {9D7E6235-4B7D-425d-A6D1-D717C33B9C4C}
+#define STATIC_EVENTID_TuningChanged \
+    0x9d7e6235, 0x4b7d, 0x425d, 0xa6, 0xd1, 0xd7, 0x17, 0xc3, 0x3b, 0x9c, 0x4c
+	DEFINE_GUIDSTRUCT("9D7E6235-4B7D-425d-A6D1-D717C33B9C4C", EVENTID_TuningChanged);
+#define EVENTID_TuningChanged DEFINE_GUIDNAMED(EVENTID_TuningChanged)
+
+	// {9F02D3D0-9F06-4369-9F1E-3AD6CA19807E}
+#define STATIC_EVENTID_CandidatePostTuneData \
+    0x9F02D3D0, 0x9F06, 0x4369, 0x9F, 0x1E, 0x3A, 0xD6, 0xCA, 0x19, 0x80, 0x7E
+	DEFINE_GUIDSTRUCT("9F02D3D0-9F06-4369-9F1E-3AD6CA19807E", EVENTID_CandidatePostTuneData);
+#define EVENTID_CandidatePostTuneData DEFINE_GUIDNAMED(EVENTID_CandidatePostTuneData)
+
+	// {2A65C528-2249-4070-AC16-00390CDFB2DD}
+#define STATIC_EVENTID_CADenialCountChanged \
+    0x2a65c528, 0x2249, 0x4070, 0xac, 0x16, 0x0, 0x39, 0xc, 0xdf, 0xb2, 0xdd
+	DEFINE_GUIDSTRUCT("2A65C528-2249-4070-AC16-00390CDFB2DD", EVENTID_CADenialCountChanged);
+#define EVENTID_CADenialCountChanged DEFINE_GUIDNAMED(EVENTID_CADenialCountChanged)
+
+	// {6D9CFAF2-702D-4b01-8DFF-6892AD20D191}
+#define STATIC_EVENTID_SignalStatusChanged \
+    0x6d9cfaf2, 0x702d, 0x4b01, 0x8d, 0xff, 0x68, 0x92, 0xad, 0x20, 0xd1, 0x91
+	DEFINE_GUIDSTRUCT("6D9CFAF2-702D-4b01-8DFF-6892AD20D191", EVENTID_SignalStatusChanged);
+#define EVENTID_SignalStatusChanged DEFINE_GUIDNAMED(EVENTID_SignalStatusChanged)
+
+	// {C87EC52D-CD18-404a-A076-C02A273D3DE7}
+#define STATIC_EVENTID_NewSignalAcquired \
+    0xc87ec52d, 0xcd18, 0x404a, 0xa0, 0x76, 0xc0, 0x2a, 0x27, 0x3d, 0x3d, 0xe7
+	DEFINE_GUIDSTRUCT("C87EC52D-CD18-404a-A076-C02A273D3DE7", EVENTID_NewSignalAcquired);
+#define EVENTID_NewSignalAcquired DEFINE_GUIDNAMED(EVENTID_NewSignalAcquired)
+
+	// {D10DF9D5-C261-4b85-9E8A-517B3299CAB2}
+#define STATIC_EVENTID_EASMessageReceived \
+    0xd10df9d5, 0xc261, 0x4b85, 0x9e, 0x8a, 0x51, 0x7b, 0x32, 0x99, 0xca, 0xb2
+	DEFINE_GUIDSTRUCT("D10DF9D5-C261-4b85-9E8A-517B3299CAB2", EVENTID_EASMessageReceived);
+#define EVENTID_EASMessageReceived DEFINE_GUIDNAMED(EVENTID_EASMessageReceived)
+
+	// This event is broadcasted with FireEx when a table(currently, PAT, PMT, NIT 
+	// and SDT for DVB; PAT, PMT, MGT and VCT for ATSC). The four parameters are:
+	// dwPara1 - TSID, ONID|TSID for DVB EIT
+	// dwPara2 - TID|PID
+	// dwPara3 - dwHashedVersion
+	// dwPara4 - program number for PMT, Segment#|SID for EIT, but not used for others
+	// {1B9C3703-D447-4e16-97BB-01799FC031ED}
+#define STATIC_EVENTID_PSITable \
+    0x1b9c3703, 0xd447, 0x4e16, 0x97, 0xbb, 0x1, 0x79, 0x9f, 0xc0, 0x31, 0xed
+	DEFINE_GUIDSTRUCT("1B9C3703-D447-4e16-97BB-01799FC031ED", EVENTID_PSITable);
+#define EVENTID_PSITable DEFINE_GUIDNAMED(EVENTID_PSITable)
+
+	// This event is broadcasted with FireEx when the capture graph recognized that a
+	// current tuning channel has been terminated by broadcaster.
+	// The four parameters are:
+	// dwPara1 - TSID
+	// dwPara2 - ONID|SID
+	// dwPara3 - channel frequency
+	// dwPara4 - satellite orbital position (0xFFFFFFFF for non-satellite)
+	// {0A1D591C-E0D2-4f8e-8960-2335BEF45CCB}
+#define STATIC_EVENTID_ServiceTerminated \
+    0xa1d591c, 0xe0d2, 0x4f8e, 0x89, 0x60, 0x23, 0x35, 0xbe, 0xf4, 0x5c, 0xcb
+	DEFINE_GUIDSTRUCT("0A1D591C-E0D2-4f8e-8960-2335BEF45CCB", EVENTID_ServiceTerminated);
+#define EVENTID_ServiceTerminated DEFINE_GUIDNAMED(EVENTID_ServiceTerminated)
+
+	// {A265FAEA-F874-4b38-9FF7-C53D02969996}
+#define STATIC_EVENTID_CardStatusChanged\
+    0xa265faea, 0xf874, 0x4b38, 0x9f, 0xf7, 0xc5, 0x3d, 0x2, 0x96, 0x99, 0x96
+	DEFINE_GUIDSTRUCT("A265FAEA-F874-4b38-9FF7-C53D02969996", EVENTID_CardStatusChanged);
+#define EVENTID_CardStatusChanged DEFINE_GUIDNAMED(EVENTID_CardStatusChanged)
+#define DTV_CardStatus_Inserted      0
+#define DTV_CardStatus_Removed       1
+#define DTV_CardStatus_Error         2
+#define DTV_CardStatus_FirmwareDownload         3
+
+	// {000906F5-F0D1-41d6-A7DF-4028697669F6}
+#define STATIC_EVENTID_DRMParingStatusChanged \
+    0x906f5, 0xf0d1, 0x41d6, 0xa7, 0xdf, 0x40, 0x28, 0x69, 0x76, 0x69, 0xf6
+	DEFINE_GUIDSTRUCT("000906F5-F0D1-41d6-A7DF-4028697669F6", EVENTID_DRMParingStatusChanged);
+#define EVENTID_DRMParingStatusChanged DEFINE_GUIDNAMED(EVENTID_DRMParingStatusChanged)
+	// The 1st parameter to this event is a BDA_DRMPairingStatus and 2nd is the error code.
+
+	// {5B2EBF78-B752-4420-B41E-A472DC95828E}
+#define STATIC_EVENTID_DRMParingStepComplete \
+    0x5b2ebf78, 0xb752, 0x4420, 0xb4, 0x1e, 0xa4, 0x72, 0xdc, 0x95, 0x82, 0x8e
+	DEFINE_GUIDSTRUCT("5B2EBF78-B752-4420-B41E-A472DC95828E", EVENTID_DRMParingStepComplete);
+#define EVENTID_DRMParingStepComplete DEFINE_GUIDNAMED(EVENTID_DRMParingStepComplete)
+	// The 1st parameter is which pairing manager is generting the event
+	// The 2nd parameter is the step in the pairing process which is now complete
+	// The 3rd parameter is the result of the step
+#define OCUR_PAIRING_PROTOCOL_VERSION 2
+#define PBDA_PAIRING_PROTOCOL_VERSION 3
+
+	// {052C29AF-09A4-4b93-890F-BD6A348968A4}
+#define STATIC_EVENTID_MMIMessage \
+    0x52c29af, 0x9a4, 0x4b93, 0x89, 0xf, 0xbd, 0x6a, 0x34, 0x89, 0x68, 0xa4
+	DEFINE_GUIDSTRUCT("052C29AF-09A4-4b93-890F-BD6A348968A4", EVENTID_MMIMessage);
+#define EVENTID_MMIMessage DEFINE_GUIDNAMED(EVENTID_MMIMessage)
+#define DTV_MMIMessage_Open             0
+#define DTV_MMIMessage_Close            1
+
+	// {9071AD5D-2359-4c95-8694-AFA81D70BFD5}
+#define STATIC_EVENTID_EntitlementChanged \
+    0x9071ad5d, 0x2359, 0x4c95, 0x86, 0x94, 0xaf, 0xa8, 0x1d, 0x70, 0xbf, 0xd5
+	DEFINE_GUIDSTRUCT("9071AD5D-2359-4c95-8694-AFA81D70BFD5", EVENTID_EntitlementChanged);
+#define EVENTID_EntitlementChanged DEFINE_GUIDNAMED(EVENTID_EntitlementChanged)
+#define DTV_Entitlement_CanDecrypt          0
+#define DTV_Entitlement_NotEntitled         1
+#define DTV_Entitlement_TechnicalFailure    2
+
+
+	// This FireEx event is fired when tuning to a STB channel number
+	// the first parameter passed is the channel number the STB has been tuned to
+	// {17C4D730-D0F0-413a-8C99-500469DE35AD}
+#define STATIC_EVENTID_STBChannelNumber\
+    0x17c4d730, 0xd0f0, 0x413a, 0x8c, 0x99, 0x50, 0x04, 0x69, 0xde, 0x35, 0xad
+	DEFINE_GUIDSTRUCT("17C4D730-D0F0-413a-8C99-500469DE35AD", EVENTID_STBChannelNumber);
+#define EVENTID_STBChannelNumber DEFINE_GUIDNAMED(EVENTID_STBChannelNumber)
+
+	// {5CA51711-5DDC-41a6-9430-E41B8B3BBC5B}
+#define STATIC_EVENTID_BDAEventingServicePendingEvent \
+    0x5ca51711, 0x5ddc, 0x41a6, 0x94, 0x30, 0xe4, 0x1b, 0x8b, 0x3b, 0xbc, 0x5b	
+	DEFINE_GUIDSTRUCT("5CA51711-5DDC-41a6-9430-E41B8B3BBC5B", EVENTID_BDAEventingServicePendingEvent);
+#define EVENTID_BDAEventingServicePendingEvent DEFINE_GUIDNAMED(EVENTID_BDAEventingServicePendingEvent)
+
+	// {EFC3A459-AE8B-4b4a-8FE9-79A0D097F3EA}
+#define STATIC_EVENTID_BDAConditionalAccessTAG \
+	0xefc3a459, 0xae8b, 0x4b4a, 0x8f, 0xe9, 0x79, 0xa0, 0xd0, 0x97, 0xf3, 0xea
+	DEFINE_GUIDSTRUCT("EFC3A459-AE8B-4b4a-8FE9-79A0D097F3EA", EVENTID_BDAConditionalAccessTAG);
+#define EVENTID_BDAConditionalAccessTAG DEFINE_GUIDNAMED(EVENTID_BDAConditionalAccessTAG)
+
+	// {B2127D42-7BE5-4f4b-9130-6679899F4F4B}
+#define STATIC_EVENTTYPE_CASDescrambleFailureEvent \
+    0xb2127d42, 0x7be5, 0x4f4b, 0x91, 0x30, 0x66, 0x79, 0x89, 0x9f, 0x4f, 0x4b
+	DEFINE_GUIDSTRUCT("B2127D42-7BE5-4f4b-9130-6679899F4F4B", EVENTTYPE_CASDescrambleFailureEvent);
+#define EVENTTYPE_CASDescrambleFailureEvent DEFINE_GUIDNAMED(EVENTTYPE_CASDescrambleFailureEvent)
+
+	// {EAD831AE-5529-4d1f-AFCE-0D8CD1257D30}
+#define STATIC_EVENTID_CASFailureSpanningEvent \
+    0xead831ae, 0x5529, 0x4d1f, 0xaf, 0xce, 0xd, 0x8c, 0xd1, 0x25, 0x7d, 0x30
+	DEFINE_GUIDSTRUCT("EAD831AE-5529-4d1f-AFCE-0D8CD1257D30", EVENTID_CASFailureSpanningEvent);
+#define EVENTID_CASFailureSpanningEvent DEFINE_GUIDNAMED(EVENTID_CASFailureSpanningEvent)
+
+	typedef enum {
+		ChannelChangeSpanningEvent_Start = 0,   // Same as MSNP_EVENT_CHANGING defined in ehtraceguids.h
+		ChannelChangeSpanningEvent_End = 2      // Same as MSNP_EVENT_COMPLETED defined in ehtraceguids.h
+	} ChannelChangeSpanningEvent_State;
+
+	// {9067C5E5-4C5C-4205-86C8-7AFE20FE1EFA} same as __uuidof(EH_MSNP_TUNING_EVENT) defined in ehtraceguids.h
+#define STATIC_EVENTID_ChannelChangeSpanningEvent \
+    0x9067C5E5, 0x4C5C, 0x4205, 0x86, 0xc8, 0x7a, 0xfe, 0x20, 0xfe, 0x1e, 0xfa
+	DEFINE_GUIDSTRUCT("9067C5E5-4C5C-4205-86C8-7AFE20FE1EFA", EVENTID_ChannelChangeSpanningEvent);
+#define EVENTID_ChannelChangeSpanningEvent DEFINE_GUIDNAMED(EVENTID_ChannelChangeSpanningEvent)
+
+
+	typedef struct _ChannelChangeInfo
+	{
+		ChannelChangeSpanningEvent_State state;
+		ULONGLONG TimeStamp;
+	}ChannelChangeInfo;
+
+#define STATIC_EVENTID_ChannelTypeSpanningEvent \
+    0x72ab1d51, 0x87d2, 0x489b, 0xba, 0x11, 0xe, 0x8, 0xdc, 0x21, 0x2, 0x43
+	DEFINE_GUIDSTRUCT("72ab1d51-87d2-489b-ba11-0e08dc210243", EVENTID_ChannelTypeSpanningEvent);
+#define EVENTID_ChannelTypeSpanningEvent DEFINE_GUIDNAMED(EVENTID_ChannelTypeSpanningEvent)
+
+	typedef enum
+	{
+		ChannelTypeNone = 0x0000,
+		// bit flags, can be ORed
+		// type == 2 ^ ComponentCategory in bdatypes.h
+		ChannelTypeOther = 0x0001,
+		ChannelTypeVideo = 0x0002,
+		ChannelTypeAudio = 0x0004,
+		ChannelTypeText = 0x0008,
+		ChannelTypeSubtitles = 0x0010,
+		ChannelTypeCaptions = 0x0020,
+		ChannelTypeSuperimpose = 0x0040,
+		ChannelTypeData = 0x0080
+	} ChannelType;
+
+	typedef struct _ChannelTypeInfo
+	{
+		ChannelType channelType;
+		ULONGLONG timeStamp;
+	}ChannelTypeInfo;
+
+	typedef struct _ChannelInfo
+	{
+		LONG lFrequency;
+		union
+		{
+			struct
+			{
+				LONG lONID;
+				LONG lTSID;
+				LONG lSID;
+			} DVB;
+			struct
+			{
+				LONG lProgNumber;
+			} DC;
+			struct
+			{
+				LONG lProgNumber;
+			} ATSC;
+		};
+
+	} ChannelInfo;
+
+	// {41F36D80-4132-4cc2-B121-01A43219D81B}
+#define STATIC_EVENTID_ChannelInfoSpanningEvent \
+    0x41f36d80, 0x4132, 0x4cc2, 0xb1, 0x21, 0x1, 0xa4, 0x32, 0x19, 0xd8, 0x1b
+	DEFINE_GUIDSTRUCT("41F36D80-4132-4cc2-B121-01A43219D81B", EVENTID_ChannelInfoSpanningEvent);
+#define EVENTID_ChannelInfoSpanningEvent DEFINE_GUIDNAMED(EVENTID_ChannelInfoSpanningEvent)
+
+	// F6CFC8F4-DA93-4f2f-BFF8-BA1EE6FCA3A2 same as __uuidof(EH_RRT_EVENT) defined in ehtraceguids.h
+#define STATIC_EVENTID_RRTSpanningEvent \
+    0xf6cfc8f4, 0xda93, 0x4f2f, 0xbf, 0xf8, 0xba, 0x1e, 0xe6, 0xfc, 0xa3, 0xa2
+	DEFINE_GUIDSTRUCT("F6CFC8F4-DA93-4f2f-BFF8-BA1EE6FCA3A2", EVENTID_RRTSpanningEvent);
+#define EVENTID_RRTSpanningEvent DEFINE_GUIDNAMED(EVENTID_RRTSpanningEvent)
+
+	// Data sturcture for both CaptionServiceDescriptor and Content Advisory descriptor
+	typedef struct _SpanningEventDescriptor {
+		WORD wDataLen;          // Total length of the data(2*sizeof(WORD)+lengthof(bDescriptor))
+		WORD wProgNumber;       // Program numberassociated with this descriptor
+		WORD wSID;              // Source ID associated with this descriptor
+		BYTE bDescriptor[1];    // Raw descriptor data
+	} SpanningEventDescriptor;
+
+	// Caption Service descriptior spanning event
+	// {EFE779D9-97F0-4786-800D-95CF505DDC66} same as __uuidof(EH_CaptionService_EVENT) defined in ehtraceguids.h
+#define STATIC_EVENTID_CSDescriptorSpanningEvent \
+	0xefe779d9, 0x97f0, 0x4786, 0x80, 0xd, 0x95, 0xcf, 0x50, 0x5d, 0xdc, 0x66
+	DEFINE_GUIDSTRUCT("EFE779D9-97F0-4786-800D-95CF505DDC66", EVENTID_CSDescriptorSpanningEvent);
+#define EVENTID_CSDescriptorSpanningEvent DEFINE_GUIDNAMED(EVENTID_CSDescriptorSpanningEvent)
+
+	// Content Advisory descriptor spanning event
+	// {3AB4A2E6-4247-4b34-896C-30AFA5D21C24} same as __uuidof(EH_ContentAdvisory_EVENT) defined in ehtraceguids.h
+#define STATIC_EVENTID_CtxADescriptorSpanningEvent \
+	0x3ab4a2e6, 0x4247, 0x4b34, 0x89, 0x6c, 0x30, 0xaf, 0xa5, 0xd2, 0x1c, 0x24
+	DEFINE_GUIDSTRUCT("3AB4A2E6-4247-4b34-896C-30AFA5D21C24", EVENTID_CtxADescriptorSpanningEvent);
+#define EVENTID_CtxADescriptorSpanningEvent DEFINE_GUIDNAMED(EVENTID_CtxADescriptorSpanningEvent)
+
+	typedef struct _DVBScramblingControlSpanningEvent
+	{
+		ULONG ulPID;
+		BOOL fScrambled;
+	} DVBScramblingControlSpanningEvent;
+
+	// transport_scarmbling_control flag global event
+	// {4BD4E1C4-90A1-4109-8236-27F00E7DCC5B}
+#define STATIC_EVENTID_DVBScramblingControlSpanningEvent \
+    0x4bd4e1c4, 0x90a1, 0x4109, 0x82, 0x36, 0x27, 0xf0, 0xe, 0x7d, 0xcc, 0x5b
+	DEFINE_GUIDSTRUCT("4BD4E1C4-90A1-4109-8236-27F00E7DCC5B", EVENTID_DVBScramblingControlSpanningEvent);
+#define EVENTID_DVBScramblingControlSpanningEvent DEFINE_GUIDNAMED(EVENTID_DVBScramblingControlSpanningEvent)
+
+	typedef enum {
+		SignalAndServiceStatusSpanningEvent_None = -1,
+		SignalAndServiceStatusSpanningEvent_Clear = 0,    // same as MSNP_EVENT_SIGNALANDSERVICE_TYPE in ehtraceguids.h
+		SignalAndServiceStatusSpanningEvent_NoTVSignal = 1,
+		SignalAndServiceStatusSpanningEvent_ServiceOffAir = 2,
+		SignalAndServiceStatusSpanningEvent_WeakTVSignal = 3,
+		SignalAndServiceStatusSpanningEvent_NoSubscription = 4,
+		SignalAndServiceStatusSpanningEvent_AllAVScrambled = 5,
+	} SignalAndServiceStatusSpanningEvent_State;
+
+	// Signal and Service Status event
+	// {8068C5CB-3C04-492b-B47D-0308820DCE51} same as __uuidof(EH_MSNP_SIGNALANDSERVICE_EVENT) defined in ehtraceguids.h
+#define STATIC_EVENTID_SignalAndServiceStatusSpanningEvent \
+    0x8068c5cb, 0x3c04, 0x492b, 0xb4, 0x7d, 0x3, 0x8, 0x82, 0xd, 0xce, 0x51
+	DEFINE_GUIDSTRUCT("8068C5CB-3C04-492b-B47D-0308820DCE51", EVENTID_SignalAndServiceStatusSpanningEvent);
+#define EVENTID_SignalAndServiceStatusSpanningEvent DEFINE_GUIDNAMED(EVENTID_SignalAndServiceStatusSpanningEvent)
+
+#define EVENTID_SignalAndServiceStatusEvent EVENTID_SignalAndServiceStatusSpanningEvent 
+
+	// Data structure for EmmMessageSpanningEvent
+	typedef struct _SpanningEventEmmMessage {
+		BYTE bCAbroadcasterGroupId; // CA Broadcaster Group ID from CA_service_descriptor (ARIB STD-B25)
+		BYTE bMessageControl;       // Message Control from CA_service_descriptor (ARIB STD-B25)
+		WORD wServiceId;            // Service ID of ISDB bound with this
+		WORD wTableIdExtension;     // Zero means the followings are inoperable
+		BYTE bDeletionStatus;
+		BYTE bDisplayingDuration1;
+		BYTE bDisplayingDuration2;
+		BYTE bDisplayingDuration3;
+		BYTE bDisplayingCycle;
+		BYTE bFormatVersion;
+		BYTE bDisplayPosition;
+		WORD wMessageLength;
+		WCHAR szMessageArea[MIN_DIMENSION];
+	} SpanningEventEmmMessage;
+
+	// EMM Message spanning event
+	// {6BF00268-4F7E-4294-AA87-E9E953E43F14} same as __uuidof(EH_EmmMessage_EVENT) defined in ehtraceguids.h
+#define STATIC_EVENTID_EmmMessageSpanningEvent \
+    0x6bf00268, 0x4f7e, 0x4294, 0xaa, 0x87, 0xe9, 0xe9, 0x53, 0xe4, 0x3f, 0x14
+	DEFINE_GUIDSTRUCT("6BF00268-4F7E-4294-AA87-E9E953E43F14", EVENTID_EmmMessageSpanningEvent);
+#define EVENTID_EmmMessageSpanningEvent DEFINE_GUIDNAMED(EVENTID_EmmMessageSpanningEvent)
+
+	// {501CBFBE-B849-42ce-9BE9-3DB869FB82B3}
+#define STATIC_EVENTID_AudioTypeSpanningEvent \
+	0x501cbfbe, 0xb849, 0x42ce, 0x9b, 0xe9, 0x3d, 0xb8, 0x69, 0xfb, 0x82, 0xb3
+	DEFINE_GUIDSTRUCT("501CBFBE-B849-42ce-9BE9-3DB869FB82B3", EVENTID_AudioTypeSpanningEvent);
+#define EVENTID_AudioTypeSpanningEvent DEFINE_GUIDNAMED(EVENTID_AudioTypeSpanningEvent)
+	// AC 3 audio type and ISO639 language descriptor audio type are slight different. The 
+	// AudioType values defined here is for the convenience of the user of audio type info 
+	// and the conversion from the original spec to these values is done in capture.
+	//
+	// ISO639 language descriptor audio types:
+	// 0x00	undefined               (standard audio)
+	// 0x01	clean effects           
+	// 0x02	hearing impaired        
+	// 0x03	visual impaired commentary
+	// 0x04-0xFF	reserved
+	// 
+	// AC3 audio types
+	// 0 Complete Main (CM)
+	// 1 Music and Effects (ME)
+	// 2 Visually Impaired (VI)
+	// 3 Hearing Impaired (HI)
+	// 4 Dialogue (D)
+	// 5 Commentary (C)
+	// 6 Emergency (E)
+	// 7 Voiceover (VO)
+
+#define AudioType_Standard              0
+#define AudioType_Music_And_Effects     1
+#define AudioType_Visually_Impaired     2
+#define AudioType_Hearing_Impaired      3
+#define AudioType_Dialogue              4
+#define AudioType_Commentary            5
+#define AudioType_Emergency             6
+#define AudioType_Voiceover             7
+#define AudioType_Reserved              -1
+
+	// {82af2ebc-30a6-4264-a80b-ad2e1372ac60}
+#define STATIC_EVENTID_StreamTypeSpanningEvent \
+	0x82af2ebc, 0x30a6, 0x4264, 0xa8, 0x0b, 0xad, 0x2e, 0x13, 0x72, 0xac, 0x60
+	DEFINE_GUIDSTRUCT("82af2ebc-30a6-4264-a80b-ad2e1372ac60", EVENTID_StreamTypeSpanningEvent);
+#define EVENTID_StreamTypeSpanningEvent DEFINE_GUIDNAMED(EVENTID_StreamTypeSpanningEvent)
+
+	// {3A954083-93D0-463e-90B2-0742C496EDF0}
+#define STATIC_EVENTID_ARIBcontentSpanningEvent \
+	0x3a954083, 0x93d0, 0x463e, 0x90, 0xb2, 0x7, 0x42, 0xc4, 0x96, 0xed, 0xf0
+	DEFINE_GUIDSTRUCT("3A954083-93D0-463e-90B2-0742C496EDF0", EVENTID_ARIBcontentSpanningEvent);
+#define EVENTID_ARIBcontentSpanningEvent DEFINE_GUIDNAMED(EVENTID_ARIBcontentSpanningEvent)
+
+	// {E292666D-9C02-448d-AA8D-781A93FDC395}
+#define STATIC_EVENTID_LanguageSpanningEvent \
+	0xe292666d, 0x9c02, 0x448d, 0xaa, 0x8d, 0x78, 0x1a, 0x93, 0xfd, 0xc3, 0x95
+	DEFINE_GUIDSTRUCT("E292666D-9C02-448d-AA8D-781A93FDC395", EVENTID_LanguageSpanningEvent);
+#define EVENTID_LanguageSpanningEvent DEFINE_GUIDNAMED(EVENTID_LanguageSpanningEvent)
+	typedef struct _LanguageInfo
+	{
+		LANGID LangID;
+		LONG lISOLangCode;
+	} LanguageInfo;
+
+	// {A9A29B56-A84B-488c-89D5-0D4E7657C8CE}
+#define STATIC_EVENTID_DualMonoSpanningEvent \
+    0xa9a29b56, 0xa84b, 0x488c, 0x89, 0xd5, 0x0d, 0x4e, 0x76, 0x57, 0xc8, 0xce
+	DEFINE_GUIDSTRUCT("A9A29B56-A84B-488c-89D5-0D4E7657C8CE", EVENTID_DualMonoSpanningEvent);
+#define EVENTID_DualMonoSpanningEvent DEFINE_GUIDNAMED(EVENTID_DualMonoSpanningEvent)
+	typedef struct _DualMonoInfo
+	{
+		LANGID LangID1;
+		LANGID LangID2;
+		LONG lISOLangCode1;
+		LONG lISOLangCode2;
+	} DualMonoInfo;
+
+	// {47FC8F65-E2BB-4634-9CEF-FDBFE6261D5C}
+#define STATIC_EVENTID_PIDListSpanningEvent \
+	0x47fc8f65, 0xe2bb, 0x4634, 0x9c, 0xef, 0xfd, 0xbf, 0xe6, 0x26, 0x1d, 0x5c
+	DEFINE_GUIDSTRUCT("47FC8F65-E2BB-4634-9CEF-FDBFE6261D5C", EVENTID_PIDListSpanningEvent);
+#define EVENTID_PIDListSpanningEvent DEFINE_GUIDNAMED(EVENTID_PIDListSpanningEvent)
+	typedef struct _PIDListSpanningEvent
+	{
+		WORD wPIDCount;
+		ULONG pulPIDs[1];
+	} PIDListSpanningEvent;
+
+	// {107BD41C-A6DA-4691-8369-11B2CDAA288E}
+#define STATIC_EVENTID_AudioDescriptorSpanningEvent \
+    0x107bd41c, 0xa6da, 0x4691, 0x83, 0x69, 0x11, 0xb2, 0xcd, 0xaa, 0x28, 0x8e
+	DEFINE_GUIDSTRUCT("107BD41C-A6DA-4691-8369-11B2CDAA288E", EVENTID_AudioDescriptorSpanningEvent);
+#define EVENTID_AudioDescriptorSpanningEvent DEFINE_GUIDNAMED(EVENTID_AudioDescriptorSpanningEvent)
+
+	// {5DCEC048-D0B9-4163-872C-4F32223BE88A}
+#define STATIC_EVENTID_SubtitleSpanningEvent \
+	0x5dcec048, 0xd0b9, 0x4163, 0x87, 0x2c, 0x4f, 0x32, 0x22, 0x3b, 0xe8, 0x8a
+	DEFINE_GUIDSTRUCT("5DCEC048-D0B9-4163-872C-4F32223BE88A", EVENTID_SubtitleSpanningEvent);
+#define EVENTID_SubtitleSpanningEvent DEFINE_GUIDNAMED(EVENTID_SubtitleSpanningEvent)
+
+	// {9599D950-5F33-4617-AF7C-1E54B510DAA3}
+#define STATIC_EVENTID_TeletextSpanningEvent \
+	0x9599d950, 0x5f33, 0x4617, 0xaf, 0x7c, 0x1e, 0x54, 0xb5, 0x10, 0xda, 0xa3
+	DEFINE_GUIDSTRUCT("9599D950-5F33-4617-AF7C-1E54B510DAA3", EVENTID_TeletextSpanningEvent);
+#define EVENTID_TeletextSpanningEvent DEFINE_GUIDNAMED(EVENTID_TeletextSpanningEvent)
+
+	// {CAF1AB68-E153-4d41-A6B3-A7C998DB75EE}
+#define STATIC_EVENTID_StreamIDSpanningEvent \
+	0xcaf1ab68, 0xe153, 0x4d41, 0xa6, 0xb3, 0xa7, 0xc9, 0x98, 0xdb, 0x75, 0xee
+	DEFINE_GUIDSTRUCT("CAF1AB68-E153-4d41-A6B3-A7C998DB75EE", EVENTID_StreamIDSpanningEvent);
+#define EVENTID_StreamIDSpanningEvent DEFINE_GUIDNAMED(EVENTID_StreamIDSpanningEvent)
+
+	// {F947AA85-FB52-48e8-B9C5-E1E1F411A51A}
+#define STATIC_EVENTID_PBDAParentalControlEvent \
+	0xf947aa85, 0xfb52, 0x48e8, 0xb9, 0xc5, 0xe1, 0xe1, 0xf4, 0x11, 0xa5, 0x1a
+	DEFINE_GUIDSTRUCT("F947AA85-FB52-48e8-B9C5-E1E1F411A51A", EVENTID_PBDAParentalControlEvent);
+#define EVENTID_PBDAParentalControlEvent DEFINE_GUIDNAMED(EVENTID_PBDAParentalControlEvent)
+
+#pragma pack(push,1)
+
+#define MAX_COUNTRY_CODE_STRING 3
+
+	typedef struct {
+		DWORD rating_attribute_id;
+		DWORD rating_attribute_value;
+	} RATING_ATTRIBUTE, *LPRATING_ATTRIBUTE;
+
+	typedef struct {
+		GUID                rating_system_id;
+		BYTE                rating_system_is_age_type : 1;
+		BYTE                reserved : 7;
+		BYTE                country_code[MAX_COUNTRY_CODE_STRING];
+		DWORD               rating_attribute_count;
+		RATING_ATTRIBUTE    *lpratingattrib;
+	} RATING_SYSTEM, *LPRATING_SYSTEM;
+
+	typedef struct {
+		DWORD           rating_system_count;
+		RATING_SYSTEM   *lpratingsystem;
+
+	} RATING_INFO, *LPRATING_INFO;
+
+	// attribute_id
+#define PARENTAL_CONTROL_TIME_RANGE                  0x00000001  // Parental Control Time Range
+#define REQUIRED_PARENTAL_CONTROL_TIME_RANGE         0x00000002  // Required Parental Control Time Range
+#define PARENTAL_CONTROL_CONTENT_RATING     0x00000100  // Rating   (overall/primary content rating)
+#define PARENTAL_CONTROL_ATTRIB_VIOLENCE    0x00000200  // Violence
+#define PARENTAL_CONTROL_ATTRIB_LANGUAGE    0x00000201  // Language
+#define PARENTAL_CONTROL_ATTRIB_SEXUAL      0x00000202  // Sexual Content
+#define PARENTAL_CONTROL_ATTRIB_DIALOGUE    0x00000203  // Dialogue 
+#define PARENTAL_CONTROL_ATTRIB_FANTASY     0x00000204  // Fantasy Violence 
+
+#define PARENTAL_CONTROL_VALUE_UNDEFINED    0           // UNDEFINED 
+
+	typedef struct _PBDAParentalControl
+	{
+		ULONG               rating_system_count;    // number of rating systems in PBDA parenatl control table
+		RATING_SYSTEM *     rating_systems;         // PBDA unified rating systems
+	} PBDAParentalControl;
+
+#pragma pack(pop)
+
+	// {D97287B2-2DFD-436a-9485-99D7D4AB5A69}
+#define STATIC_EVENTID_TuneFailureEvent \
+    0xd97287b2, 0x2dfd, 0x436a, 0x94, 0x85, 0x99, 0xd7, 0xd4, 0xab, 0x5a, 0x69
+	DEFINE_GUIDSTRUCT("D97287B2-2DFD-436a-9485-99D7D4AB5A69", EVENTID_TuneFailureEvent);
+#define EVENTID_TuneFailureEvent DEFINE_GUIDNAMED(EVENTID_TuneFailureEvent)
+
+	// {6F8AA455-5EE1-48ab-A27C-4C8D70B9AEBA}
+#define STATIC_EVENTID_TuneFailureSpanningEvent \
+    0x6f8aa455, 0x5ee1, 0x48ab, 0xa2, 0x7c, 0x4c, 0x8d, 0x70, 0xb9, 0xae, 0xba
+	DEFINE_GUIDSTRUCT("6F8AA455-5EE1-48ab-A27C-4C8D70B9AEBA", EVENTID_TuneFailureSpanningEvent);
+#define EVENTID_TuneFailureSpanningEvent DEFINE_GUIDNAMED(EVENTID_TuneFailureSpanningEvent)
+
+	// {2A67A58D-ECA5-4eac-ABCB-E734D3776D0A}
+#define STATIC_EVENTID_DvbParentalRatingDescriptor \
+    0x2a67a58d, 0xeca5, 0x4eac, 0xab, 0xcb, 0xe7, 0x34, 0xd3, 0x77, 0x6d, 0x0a
+	DEFINE_GUIDSTRUCT("2A67A58D-ECA5-4eac-ABCB-E734D3776D0A", EVENTID_DvbParentalRatingDescriptor);
+#define EVENTID_DvbParentalRatingDescriptor DEFINE_GUIDNAMED(EVENTID_DvbParentalRatingDescriptor)
+	typedef struct
+	{
+		CHAR szCountryCode[4];  // 3-chars + null
+		BYTE bRating;           // rating
+	} DvbParentalRatingParam;
+	typedef struct
+	{
+		ULONG                   ulNumParams; // if zero, no rating
+		DvbParentalRatingParam pParams[1];
+	} DvbParentalRatingDescriptor;
+
+	// {F5689FFE-55F9-4bb3-96BE-AE971C63BAE0}
+#define STATIC_EVENTID_DFNWithNoActualAVData \
+    0xf5689ffe, 0x55f9, 0x4bb3, 0x96, 0xbe, 0xae, 0x97, 0x1c, 0x63, 0xba, 0xe0
+	DEFINE_GUIDSTRUCT("F5689FFE-55F9-4bb3-96BE-AE971C63BAE0", EVENTID_DFNWithNoActualAVData);
+#define EVENTID_DFNWithNoActualAVData DEFINE_GUIDNAMED(EVENTID_DFNWithNoActualAVData)
+
+	//===========================================================================
+	//
+	//  BDA Stream Format GUIDs
+	//
+	//===========================================================================
+
+#define STATIC_KSDATAFORMAT_TYPE_BDA_ANTENNA\
+    0x71985f41, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F41-1CA1-11d3-9CC8-00C04F7971E0", KSDATAFORMAT_TYPE_BDA_ANTENNA);
+#define KSDATAFORMAT_TYPE_BDA_ANTENNA DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_BDA_ANTENNA)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_BDA_MPEG2_TRANSPORT\
+    0xf4aeb342, 0x0329, 0x4fdd, 0xa8, 0xfd, 0x4a, 0xff, 0x49, 0x26, 0xc9, 0x78
+	DEFINE_GUIDSTRUCT("F4AEB342-0329-4fdd-A8FD-4AFF4926C978", KSDATAFORMAT_SUBTYPE_BDA_MPEG2_TRANSPORT);
+#define KSDATAFORMAT_SUBTYPE_BDA_MPEG2_TRANSPORT DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_BDA_MPEG2_TRANSPORT)
+
+
+#define STATIC_KSDATAFORMAT_SPECIFIER_BDA_TRANSPORT\
+    0x8deda6fd, 0xac5f, 0x4334, 0x8e, 0xcf, 0xa4, 0xba, 0x8f, 0xa7, 0xd0, 0xf0
+	DEFINE_GUIDSTRUCT("8DEDA6FD-AC5F-4334-8ECF-A4BA8FA7D0F0", KSDATAFORMAT_SPECIFIER_BDA_TRANSPORT);
+#define KSDATAFORMAT_SPECIFIER_BDA_TRANSPORT DEFINE_GUIDNAMED(KSDATAFORMAT_SPECIFIER_BDA_TRANSPORT)
+
+
+#define STATIC_KSDATAFORMAT_TYPE_BDA_IF_SIGNAL\
+    0x61be0b47, 0xa5eb, 0x499b, 0x9a, 0x85, 0x5b, 0x16, 0xc0, 0x7f, 0x12, 0x58
+	DEFINE_GUIDSTRUCT("61BE0B47-A5EB-499b-9A85-5B16C07F1258", KSDATAFORMAT_TYPE_BDA_IF_SIGNAL);
+#define KSDATAFORMAT_TYPE_BDA_IF_SIGNAL DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_BDA_IF_SIGNAL)
+
+
+#define STATIC_KSDATAFORMAT_TYPE_MPEG2_SECTIONS\
+    0x455f176c, 0x4b06, 0x47ce, 0x9a, 0xef, 0x8c, 0xae, 0xf7, 0x3d, 0xf7, 0xb5
+	DEFINE_GUIDSTRUCT("455F176C-4B06-47CE-9AEF-8CAEF73DF7B5", KSDATAFORMAT_TYPE_MPEG2_SECTIONS);
+#define KSDATAFORMAT_TYPE_MPEG2_SECTIONS DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_MPEG2_SECTIONS)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_ATSC_SI\
+    0xb3c7397c, 0xd303, 0x414d, 0xb3, 0x3c, 0x4e, 0xd2, 0xc9, 0xd2, 0x97, 0x33
+	DEFINE_GUIDSTRUCT("B3C7397C-D303-414D-B33C-4ED2C9D29733", KSDATAFORMAT_SUBTYPE_ATSC_SI);
+#define KSDATAFORMAT_SUBTYPE_ATSC_SI DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_ATSC_SI)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_DVB_SI\
+    0xe9dd31a3, 0x221d, 0x4adb, 0x85, 0x32, 0x9a, 0xf3, 0x9, 0xc1, 0xa4, 0x8
+	DEFINE_GUIDSTRUCT("e9dd31a3-221d-4adb-8532-9af309c1a408", KSDATAFORMAT_SUBTYPE_DVB_SI);
+#define KSDATAFORMAT_SUBTYPE_DVB_SI DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_DVB_SI)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_PSIP\
+    0x762e3f66, 0x336f, 0x48d1, 0xbf, 0x83, 0x2b, 0x0, 0x35, 0x2c, 0x11, 0xf0
+	DEFINE_GUIDSTRUCT("762E3F66-336F-48d1-BF83-2B00352C11F0", KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_PSIP);
+#define KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_PSIP DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_PSIP)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_OOB_PSIP\
+    0x951727db, 0xd2ce, 0x4528, 0x96, 0xf6, 0x33, 0x1, 0xfa, 0xbb, 0x2d, 0xe0
+	DEFINE_GUIDSTRUCT("951727DB-D2CE-4528-96F6-3301FABB2DE0", KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_OOB_PSIP);
+#define KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_OOB_PSIP DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_BDA_OPENCABLE_OOB_PSIP)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_ISDB_SI\
+    0x4a2eeb99, 0x6458, 0x4538, 0xb1, 0x87, 0x04, 0x01, 0x7c, 0x41, 0x41, 0x3f
+	DEFINE_GUIDSTRUCT("4a2eeb99-6458-4538-b187-04017c41413f", KSDATAFORMAT_SUBTYPE_ISDB_SI);
+#define KSDATAFORMAT_SUBTYPE_ISDB_SI DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_ISDB_SI)
+
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_PBDA_TRANSPORT_RAW\
+    0x0d7aed42, 0xcb9a, 0x11db, 0x97, 0x05, 0x00, 0x50, 0x56, 0xc0, 0x00, 0x08
+	DEFINE_GUIDSTRUCT("0d7AED42-CB9A-11DB-9705-005056C00008", KSDATAFORMAT_SUBTYPE_PBDA_TRANSPORT_RAW);
+#define KSDATAFORMAT_SUBTYPE_PBDA_TRANSPORT_RAW DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_PBDA_TRANSPORT_RAW)
+
+
+	//===========================================================================
+	//
+	//  KSPinName Definitions for BDA
+	//
+	//===========================================================================
+
+	//  Pin name for a BDA transport pin
+	//
+	// {78216A81-CFA8-493e-9711-36A61C08BD9D}
+	//
+#define STATIC_PINNAME_BDA_TRANSPORT \
+    0x78216a81, 0xcfa8, 0x493e, 0x97, 0x11, 0x36, 0xa6, 0x1c, 0x8, 0xbd, 0x9d
+	DEFINE_GUIDSTRUCT("78216A81-CFA8-493e-9711-36A61C08BD9D", PINNAME_BDA_TRANSPORT);
+#define PINNAME_BDA_TRANSPORT DEFINE_GUIDNAMED(PINNAME_BDA_TRANSPORT)
+
+
+	//  Pin name for a BDA analog video pin
+	//
+	// {5C0C8281-5667-486c-8482-63E31F01A6E9}
+	//
+#define STATIC_PINNAME_BDA_ANALOG_VIDEO \
+    0x5c0c8281, 0x5667, 0x486c, 0x84, 0x82, 0x63, 0xe3, 0x1f, 0x1, 0xa6, 0xe9
+	DEFINE_GUIDSTRUCT("5C0C8281-5667-486c-8482-63E31F01A6E9", PINNAME_BDA_ANALOG_VIDEO);
+#define PINNAME_BDA_ANALOG_VIDEO DEFINE_GUIDNAMED(PINNAME_BDA_ANALOG_VIDEO)
+
+
+	//  Pin name for a BDA analog audio pin
+	//
+	// {D28A580A-9B1F-4b0c-9C33-9BF0A8EA636B}
+	//
+#define STATIC_PINNAME_BDA_ANALOG_AUDIO \
+    0xd28a580a, 0x9b1f, 0x4b0c, 0x9c, 0x33, 0x9b, 0xf0, 0xa8, 0xea, 0x63, 0x6b
+	DEFINE_GUIDSTRUCT("D28A580A-9B1F-4b0c-9C33-9BF0A8EA636B", PINNAME_BDA_ANALOG_AUDIO);
+#define PINNAME_BDA_ANALOG_AUDIO DEFINE_GUIDNAMED(PINNAME_BDA_ANALOG_AUDIO)
+
+
+	//  Pin name for a BDA FM Radio pin
+	//
+	// {D2855FED-B2D3-4eeb-9BD0-193436A2F890}
+	//
+#define STATIC_PINNAME_BDA_FM_RADIO \
+    0xd2855fed, 0xb2d3, 0x4eeb, 0x9b, 0xd0, 0x19, 0x34, 0x36, 0xa2, 0xf8, 0x90
+	DEFINE_GUIDSTRUCT("D2855FED-B2D3-4eeb-9BD0-193436A2F890", PINNAME_BDA_FM_RADIO);
+#define PINNAME_BDA_FM_RADIO DEFINE_GUIDNAMED(PINNAME_BDA_FM_RADIO)
+
+
+	//  Pin name for a BDA Intermediate Frequency pin
+	//
+	// {1A9D4A42-F3CD-48a1-9AEA-71DE133CBE14}
+	//
+#define STATIC_PINNAME_BDA_IF_PIN \
+    0x1a9d4a42, 0xf3cd, 0x48a1, 0x9a, 0xea, 0x71, 0xde, 0x13, 0x3c, 0xbe, 0x14
+	DEFINE_GUIDSTRUCT("1A9D4A42-F3CD-48a1-9AEA-71DE133CBE14", PINNAME_BDA_IF_PIN);
+#define PINNAME_BDA_IF_PIN DEFINE_GUIDNAMED(PINNAME_BDA_IF_PIN)
+
+
+	//  Pin name for a BDA Open Cable PSIP pin
+	//
+	// {297BB104-E5C9-4ACE-B123-95C3CBB24D4F}
+	//
+#define STATIC_PINNAME_BDA_OPENCABLE_PSIP_PIN \
+    0x297bb104, 0xe5c9, 0x4ace, 0xb1, 0x23, 0x95, 0xc3, 0xcb, 0xb2, 0x4d, 0x4f
+	DEFINE_GUIDSTRUCT("297BB104-E5C9-4ACE-B123-95C3CBB24D4F", PINNAME_BDA_OPENCABLE_PSIP_PIN);
+#define PINNAME_BDA_OPENCABLE_PSIP_PIN DEFINE_GUIDNAMED(PINNAME_BDA_OPENCABLE_PSIP_PIN)
+
+
+	//===========================================================================
+	//
+	//  KSProperty Set Definitions for BDA
+	//
+	//===========================================================================
+
+
+	//------------------------------------------------------------
+	//
+	//  BDA Network Ethernet Filter Property Set
+	//
+	// {71985F43-1CA1-11d3-9CC8-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaEthernetFilter \
+    0x71985f43, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F43-1CA1-11d3-9CC8-00C04F7971E0", KSPROPSETID_BdaEthernetFilter);
+#define KSPROPSETID_BdaEthernetFilter DEFINE_GUIDNAMED(KSPROPSETID_BdaEthernetFilter)
+
+	typedef enum {
+		KSPROPERTY_BDA_ETHERNET_FILTER_MULTICAST_LIST_SIZE = 0,
+		KSPROPERTY_BDA_ETHERNET_FILTER_MULTICAST_LIST,
+		KSPROPERTY_BDA_ETHERNET_FILTER_MULTICAST_MODE
+	} KSPROPERTY_BDA_ETHERNET_FILTER;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_ETHERNET_FILTER_MULTICAST_LIST_SIZE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_ETHERNET_FILTER_MULTICAST_LIST_SIZE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(ULONG),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_ETHERNET_FILTER_MULTICAST_LIST(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_ETHERNET_FILTER_MULTICAST_LIST,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(BDA_ETHERNET_ADDRESS_LIST),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_ETHERNET_FILTER_MULTICAST_MODE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_ETHERNET_FILTER_MULTICAST_MODE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(BDA_MULTICAST_MODE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//  BDA Network IPv4 Filter Property Set
+	//
+	// {71985F44-1CA1-11d3-9CC8-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaIPv4Filter \
+    0x71985f44, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F44-1CA1-11d3-9CC8-00C04F7971E0", KSPROPSETID_BdaIPv4Filter);
+#define KSPROPSETID_BdaIPv4Filter DEFINE_GUIDNAMED(KSPROPSETID_BdaIPv4Filter)
+
+	typedef enum {
+		KSPROPERTY_BDA_IPv4_FILTER_MULTICAST_LIST_SIZE = 0,
+		KSPROPERTY_BDA_IPv4_FILTER_MULTICAST_LIST,
+		KSPROPERTY_BDA_IPv4_FILTER_MULTICAST_MODE
+	} KSPROPERTY_BDA_IPv4_FILTER;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_IPv4_FILTER_MULTICAST_LIST_SIZE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_IPv4_FILTER_MULTICAST_LIST_SIZE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(ULONG),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_IPv4_FILTER_MULTICAST_LIST(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_IPv4_FILTER_MULTICAST_LIST,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(BDA_IPv4_ADDRESS_LIST),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_IPv4_FILTER_MULTICAST_MODE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_IPv4_FILTER_MULTICAST_MODE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(BDA_MULTICAST_MODE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//  BDA Network IPv6 Filter Property Set
+	//
+	// {E1785A74-2A23-4fb3-9245-A8F88017EF33}
+	//
+#define STATIC_KSPROPSETID_BdaIPv6Filter \
+    0xe1785a74, 0x2a23, 0x4fb3, 0x92, 0x45, 0xa8, 0xf8, 0x80, 0x17, 0xef, 0x33
+	DEFINE_GUIDSTRUCT("E1785A74-2A23-4fb3-9245-A8F88017EF33", KSPROPSETID_BdaIPv6Filter);
+#define KSPROPSETID_BdaIPv6Filter DEFINE_GUIDNAMED(KSPROPSETID_BdaIPv6Filter)
+
+	typedef enum {
+		KSPROPERTY_BDA_IPv6_FILTER_MULTICAST_LIST_SIZE = 0,
+		KSPROPERTY_BDA_IPv6_FILTER_MULTICAST_LIST,
+		KSPROPERTY_BDA_IPv6_FILTER_MULTICAST_MODE
+	} KSPROPERTY_BDA_IPv6_FILTER;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_IPv6_FILTER_MULTICAST_LIST_SIZE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_IPv6_FILTER_MULTICAST_LIST_SIZE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(ULONG),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_IPv6_FILTER_MULTICAST_LIST(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_IPv6_FILTER_MULTICAST_LIST,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(BDA_IPv6_ADDRESS_LIST),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_IPv6_FILTER_MULTICAST_MODE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_IPv6_FILTER_MULTICAST_MODE,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof(BDA_MULTICAST_MODE),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Signal Statistics Property Set
+	//
+	//  Used to get signal statistics from a control node or a pin.
+	//  Set NodeId == -1 to get properties from the pin.
+	//
+	//  {1347D106-CF3A-428a-A5CB-AC0D9A2A4338}
+	//
+#define STATIC_KSPROPSETID_BdaSignalStats \
+    0x1347d106, 0xcf3a, 0x428a, 0xa5, 0xcb, 0xac, 0xd, 0x9a, 0x2a, 0x43, 0x38
+	DEFINE_GUIDSTRUCT("1347D106-CF3A-428a-A5CB-AC0D9A2A4338", KSPROPSETID_BdaSignalStats);
+#define KSPROPSETID_BdaSignalStats DEFINE_GUIDNAMED(KSPROPSETID_BdaSignalStats)
+
+	typedef enum {
+		KSPROPERTY_BDA_SIGNAL_STRENGTH = 0,
+		KSPROPERTY_BDA_SIGNAL_QUALITY,
+		KSPROPERTY_BDA_SIGNAL_PRESENT,
+		KSPROPERTY_BDA_SIGNAL_LOCKED,
+		KSPROPERTY_BDA_SAMPLE_TIME,
+		KSPROPERTY_BDA_SIGNAL_LOCK_CAPS,
+		KSPROPERTY_BDA_SIGNAL_LOCK_TYPE
+	} KSPROPERTY_BDA_SIGNAL_STATS;
+
+	typedef enum _BdaLockType {
+		Bda_LockType_None = 0x00,
+		Bda_LockType_PLL = 0x01,
+		Bda_LockType_DecoderDemod = 0x02,
+		Bda_LockType_Complete = 0x80
+	} BDA_LockType;
+
+	//  OPTIONAL
+	//  Carrier strength in mDb (1/1000 of a DB).
+	//
+	//  A strength of 0 is nominal strength as expected for the given
+	//  type of broadcast network.
+	//
+	//  Sub-nominal strengths are reported as positive mDb
+	//
+	//  Super-nominal strengths are reported as negative mDb
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNAL_STRENGTH(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNAL_STRENGTH,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(LONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//  OPTIONAL
+	//  Amount of data successfully extracted from the signal as a percent.
+	//
+	//  Signal Quality is usually reported by the demodulation node and is
+	//  a representation of how much of the original data could be extracted
+	//  from the signal.
+	//
+	//  In the case of Analog Signals, this percentage can be
+	//  computed by examining the timing of HSync and VSync as will as by
+	//  looking at information contained in HBlanking and VBlanking intervals.
+	//
+	//  In the case of Digital Signals, this percentage can be
+	//  computed by examining packet CRCs and FEC confidence values.
+	//
+	//  100 percent is ideal.
+	//  95 percent shows very little (almost unnoticable) artifacts when rendered.
+	//  90 percent contains few enough artifacts as to be easily viewable.
+	//  80 percent is the minimum level to be viewable.
+	//  60 percent is the minimum level to expect data services
+	//  (including EPG) to work.
+	//  20 percent indicates that the demodulator knows that a properly modulated
+	//  signal exists but can't produce enough data to be useful.
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNAL_QUALITY(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNAL_QUALITY,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(LONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//  REQUIRED
+	//  True if a signal carrier is present.
+	//
+	//  Should be returned by the RF tuner node.
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNAL_PRESENT(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNAL_PRESENT,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BOOL),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//  REQUIRED
+	//  True if the signal can be locked.
+	//
+	//  Ususally represents PLL lock when returned by the RF Tuner Node.
+	//
+	//  Represents Signal Quality of at least 20% when returned by the
+	//  demodulator node.
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNAL_LOCKED(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNAL_LOCKED,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BOOL),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//  OPTIONAL
+	//  Indicates the sample time overwhich signal level and quality are
+	//  averaged.
+	//
+	//  Each time a signal statistics property is requested, the node should
+	//  report the average value for the last n milliseconds where n is the
+	//  value set by this property.  If no value is set or if the driver does
+	//  not support this property, the driver should default to
+	//  100 millisecond sample times.
+	//
+	//  The driver may report values for the most recently completed sample
+	//  period.
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SAMPLE_TIME(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SAMPLE_TIME,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(LONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+	//  REQUIRED
+	//  returns a bitmask of supported BDA_LockType_ values
+	//
+	//  Should be returned by the RF tuner node.
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNAL_LOCK_CAPS(GetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNAL_LOCK_CAPS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BOOL),\
+        NULL,\
+        NULL, 0, NULL, NULL, 0)
+
+	//  REQUIRED
+	//  returns current BDA_LockType_ value
+	//
+	//  Should be returned by the RF tuner node.
+	//
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNAL_LOCK_TYPE(GetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNAL_LOCK_TYPE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_LockType),\
+        NULL,\
+        NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Change Sync Method Set
+	//
+	// {FD0A5AF3-B41D-11d2-9C95-00C04F7971E0}
+	//
+#define STATIC_KSMETHODSETID_BdaChangeSync \
+    0xfd0a5af3, 0xb41d, 0x11d2, 0x9c, 0x95, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("FD0A5AF3-B41D-11d2-9C95-00C04F7971E0", KSMETHODSETID_BdaChangeSync);
+#define KSMETHODSETID_BdaChangeSync DEFINE_GUIDNAMED(KSMETHODSETID_BdaChangeSync)
+
+	typedef enum {
+		KSMETHOD_BDA_START_CHANGES = 0,
+		KSMETHOD_BDA_CHECK_CHANGES,
+		KSMETHOD_BDA_COMMIT_CHANGES,
+		KSMETHOD_BDA_GET_CHANGE_STATE
+	} KSMETHOD_BDA_CHANGE_SYNC;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_START_CHANGES(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_START_CHANGES,\
+        KSMETHOD_TYPE_NONE,\
+        (MethodHandler),\
+        sizeof(KSMETHOD),\
+        0,\
+        SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CHECK_CHANGES(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_CHECK_CHANGES,\
+        KSMETHOD_TYPE_NONE,\
+        (MethodHandler),\
+        sizeof(KSMETHOD),\
+        0,\
+        SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_COMMIT_CHANGES(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_COMMIT_CHANGES,\
+        KSMETHOD_TYPE_NONE,\
+        (MethodHandler),\
+        sizeof(KSMETHOD),\
+        0,\
+        SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GET_CHANGE_STATE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_GET_CHANGE_STATE,\
+        KSMETHOD_TYPE_READ,\
+        (MethodHandler),\
+        sizeof(KSMETHOD),\
+        0,\
+        SupportHandler)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Device Configuration Method Set
+	//
+	// {71985F45-1CA1-11d3-9CC8-00C04F7971E0}
+	//
+#define STATIC_KSMETHODSETID_BdaDeviceConfiguration \
+    0x71985f45, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F45-1CA1-11d3-9CC8-00C04F7971E0", KSMETHODSETID_BdaDeviceConfiguration);
+#define KSMETHODSETID_BdaDeviceConfiguration DEFINE_GUIDNAMED(KSMETHODSETID_BdaDeviceConfiguration)
+
+	typedef enum {
+		KSMETHOD_BDA_CREATE_PIN_FACTORY = 0,
+		KSMETHOD_BDA_DELETE_PIN_FACTORY,
+		KSMETHOD_BDA_CREATE_TOPOLOGY
+	} KSMETHOD_BDA_DEVICE_CONFIGURATION;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CREATE_PIN_FACTORY(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_CREATE_PIN_FACTORY,\
+        KSMETHOD_TYPE_READ,\
+        (MethodHandler),\
+        sizeof(KSM_BDA_PIN),\
+        sizeof(ULONG),\
+        SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_DELETE_PIN_FACTORY(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_DELETE_PIN_FACTORY,\
+        KSMETHOD_TYPE_NONE,\
+        (MethodHandler),\
+        sizeof(KSM_BDA_PIN),\
+        0,\
+        SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CREATE_TOPOLOGY(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_CREATE_TOPOLOGY,\
+        KSMETHOD_TYPE_WRITE,\
+        (MethodHandler),\
+        sizeof(KSM_BDA_PIN_PAIR),\
+        0,\
+        SupportHandler)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Topology Property Set
+	//
+	// {A14EE835-0A23-11d3-9CC7-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaTopology \
+    0xa14ee835, 0x0a23, 0x11d3, 0x9c, 0xc7, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("A14EE835-0A23-11d3-9CC7-00C04F7971E0", KSPROPSETID_BdaTopology);
+#define KSPROPSETID_BdaTopology DEFINE_GUIDNAMED(KSPROPSETID_BdaTopology)
+
+	typedef enum {
+		KSPROPERTY_BDA_NODE_TYPES,
+		KSPROPERTY_BDA_PIN_TYPES,
+		KSPROPERTY_BDA_TEMPLATE_CONNECTIONS,
+		KSPROPERTY_BDA_NODE_METHODS,
+		KSPROPERTY_BDA_NODE_PROPERTIES,
+		KSPROPERTY_BDA_NODE_EVENTS,
+		KSPROPERTY_BDA_CONTROLLING_PIN_ID,
+		KSPROPERTY_BDA_NODE_DESCRIPTORS
+	}KSPROPERTY_BDA_TOPOLOGY;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NODE_TYPES(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NODE_TYPES,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PIN_TYPES(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PIN_TYPES,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_TEMPLATE_CONNECTIONS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_TEMPLATE_CONNECTIONS,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        sizeof( BDA_TEMPLATE_CONNECTION),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NODE_METHODS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NODE_METHODS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        0,\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NODE_PROPERTIES(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NODE_PROPERTIES,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        0,\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NODE_EVENTS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NODE_EVENTS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        0,\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_CONTROLLING_PIN_ID(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_CONTROLLING_PIN_ID,\
+        (GetHandler),\
+        sizeof(KSP_BDA_NODE_PIN),\
+        sizeof( ULONG),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NODE_DESCRIPTORS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NODE_DESCRIPTORS,\
+        (GetHandler),\
+        sizeof(KSPROPERTY),\
+        0,\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Pin Control Property Set
+	//
+	// {0DED49D5-A8B7-4d5d-97A1-12B0C195874D}
+	//
+#define STATIC_KSPROPSETID_BdaPinControl \
+    0xded49d5, 0xa8b7, 0x4d5d, 0x97, 0xa1, 0x12, 0xb0, 0xc1, 0x95, 0x87, 0x4d
+	DEFINE_GUIDSTRUCT("0DED49D5-A8B7-4d5d-97A1-12B0C195874D", KSPROPSETID_BdaPinControl);
+#define KSPROPSETID_BdaPinControl DEFINE_GUIDNAMED(KSPROPSETID_BdaPinControl)
+
+	typedef enum {
+		KSPROPERTY_BDA_PIN_ID = 0,
+		KSPROPERTY_BDA_PIN_TYPE
+	} KSPROPERTY_BDA_PIN_CONTROL;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PIN_ID(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PIN_ID,\
+        (GetHandler),\
+        sizeof( KSPROPERTY),\
+        sizeof( ULONG),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PIN_TYPE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PIN_TYPE,\
+        (GetHandler),\
+        sizeof( KSPROPERTY),\
+        sizeof( ULONG),\
+        FALSE,\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Pin Event Set
+	//
+	// {104781CD-50BD-40d5-95FB-087E0E86A591}
+	//
+#define STATIC_KSEVENTSETID_BdaPinEvent \
+    0x104781cd, 0x50bd, 0x40d5, 0x95, 0xfb, 0x08, 0x7e, 0xe, 0x86, 0xa5, 0x91
+	DEFINE_GUIDSTRUCT("104781CD-50BD-40d5-95FB-087E0E86A591", KSEVENTSETID_BdaPinEvent);
+#define KSEVENTSETID_BdaPinEvent DEFINE_GUIDNAMED(KSEVENTSETID_BdaPinEvent)
+
+	typedef enum {
+		KSEVENT_BDA_PIN_CONNECTED = 0,
+		KSEVENT_BDA_PIN_DISCONNECTED
+	} KSPROPERTY_BDA_PIN_EVENT;
+
+#define DEFINE_KSEVENT_ITEM_BDA_PIN_CONNECTED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_PIN_CONNECTED,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+#define DEFINE_KSEVENT_ITEM_BDA_PIN_DISCONNECTED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_PIN_DISCONNECTED,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Void Transform Property Set
+	//
+	// {71985F46-1CA1-11d3-9CC8-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaVoidTransform \
+    0x71985f46, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F46-1CA1-11d3-9CC8-00C04F7971E0", KSPROPSETID_BdaVoidTransform);
+#define KSPROPSETID_BdaVoidTransform DEFINE_GUIDNAMED(KSPROPSETID_BdaVoidTransform)
+
+	typedef enum {
+		KSPROPERTY_BDA_VOID_TRANSFORM_START = 0,
+		KSPROPERTY_BDA_VOID_TRANSFORM_STOP
+	} KSPROPERTY_BDA_VOID_TRANSFORM;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_VOID_TRANSFORM_START(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_VOID_TRANSFORM_START,\
+        FALSE,\
+        sizeof(KSPROPERTY),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_VOID_TRANSFORM_STOP(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_VOID_TRANSFORM_STOP,\
+        FALSE,\
+        sizeof(KSPROPERTY),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Null Transform Property Set
+	//
+	// {DDF15B0D-BD25-11d2-9CA0-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaNullTransform \
+    0xddf15b0d, 0xbd25, 0x11d2, 0x9c, 0xa0, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("DDF15B0D-BD25-11d2-9CA0-00C04F7971E0", KSPROPSETID_BdaNullTransform);
+#define KSPROPSETID_BdaNullTransform DEFINE_GUIDNAMED(KSPROPSETID_BdaNullTransform)
+
+	typedef enum {
+		KSPROPERTY_BDA_NULL_TRANSFORM_START = 0,
+		KSPROPERTY_BDA_NULL_TRANSFORM_STOP
+	} KSPROPERTY_BDA_NULL_TRANSFORM;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NULL_TRANSFORM_START(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NULL_TRANSFORM_START,\
+        FALSE,\
+        sizeof(KSPROPERTY),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_NULL_TRANSFORM_STOP(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_NULL_TRANSFORM_STOP,\
+        FALSE,\
+        sizeof(KSPROPERTY),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Frequency Filter Property Set
+	//
+	// {71985F47-1CA1-11d3-9CC8-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaFrequencyFilter \
+    0x71985f47, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F47-1CA1-11d3-9CC8-00C04F7971E0", KSPROPSETID_BdaFrequencyFilter);
+#define KSPROPSETID_BdaFrequencyFilter DEFINE_GUIDNAMED(KSPROPSETID_BdaFrequencyFilter)
+
+	typedef enum {
+		KSPROPERTY_BDA_RF_TUNER_FREQUENCY = 0,
+		KSPROPERTY_BDA_RF_TUNER_POLARITY,
+		KSPROPERTY_BDA_RF_TUNER_RANGE,
+		KSPROPERTY_BDA_RF_TUNER_TRANSPONDER,
+		KSPROPERTY_BDA_RF_TUNER_BANDWIDTH,
+		KSPROPERTY_BDA_RF_TUNER_FREQUENCY_MULTIPLIER,
+		KSPROPERTY_BDA_RF_TUNER_CAPS,
+		KSPROPERTY_BDA_RF_TUNER_SCAN_STATUS,
+		KSPROPERTY_BDA_RF_TUNER_STANDARD,
+		KSPROPERTY_BDA_RF_TUNER_STANDARD_MODE
+	} KSPROPERTY_BDA_FREQUENCY_FILTER;
+
+	typedef enum _BdaSignalType {
+		Bda_SignalType_Unknown = 0,
+		Bda_SignalType_Analog = 1,
+		Bda_SignalType_Digital = 2
+	} BDA_SignalType;
+
+	// 
+	// The BDA_DigitalSignalStandard enumeration is tentatively put out for Beta review
+	// Based on feedback, this may be updated or entirely removed in a later release
+	//
+	typedef enum
+	{
+		Bda_DigitalStandard_None = 0x00000000,
+		Bda_DigitalStandard_DVB_T = 0x00000001,
+		Bda_DigitalStandard_DVB_S = 0x00000002,
+		Bda_DigitalStandard_DVB_C = 0x00000004,
+		Bda_DigitalStandard_ATSC = 0x00000008,
+		Bda_DigitalStandard_ISDB_T = 0x00000010,
+		Bda_DigitalStandard_ISDB_S = 0x00000020,
+		Bda_DigitalStandard_ISDB_C = 0x00000040
+	} BDA_DigitalSignalStandard;
+
+	typedef struct {
+		KSP_NODE Property;
+		ULONG  Mode;                        // IN: KSPROPERTY_TUNER_MODE
+		ULONG  AnalogStandardsSupported;    // Bda_AnalogStandard_* (if TV or DSS)
+		ULONG  DigitalStandardsSupported;   // Bda_DigitalStandard_*
+		ULONG  MinFrequency;                // R - Hz
+		ULONG  MaxFrequency;                // R - Hz
+		ULONG  SettlingTime;                // R - milliSeconds to settle for any sort of update to the tuner
+		ULONG  AnalogSensingRange;          // R - max range (kHz) in which tuner can detect an analog signal 
+		ULONG  DigitalSensingRange;         // R - max range (kHz) in which tuner can detect an digital signal
+		ULONG  MilliSecondsPerMHz;          // R - max time to lock in to a signal 1MHz away assuming the signal has been detected, but its offset is unknown
+	} KSPROPERTY_BDA_RF_TUNER_CAPS_S, *PKSPROPERTY_BDA_RF_TUNER_CAPS_S;
+
+	typedef struct {
+		KSP_NODE Property;
+		ULONG CurrentFrequency;          // R - current frequency
+		ULONG FrequencyRangeMin;         // R - lower limit of range left to scan
+		ULONG FrequencyRangeMax;         // R - upper limit of range left to scan
+		ULONG MilliSecondsLeft;          // R - time left to complete scanning
+	} KSPROPERTY_BDA_RF_TUNER_SCAN_STATUS_S, *PKSPROPERTY_BDA_RF_TUNER_SCAN_STATUS_S;
+
+	typedef struct {
+		KSP_NODE Property;
+		BDA_SignalType SignalType;       // RW - specifies whether the signal is Analog or Digital. this is required to interpret the SignalStandard field
+		ULONG  SignalStandard;           // RW - current signal standard (KS_AnalogVideo_* or Bda_DigitalStandard_*) set by the application or detected by the device
+	} KSPROPERTY_BDA_RF_TUNER_STANDARD_S, *PKSPROPERTY_BDA_RF_TUNER_STANDARD_S;
+
+	typedef struct {
+		KSP_NODE Property;
+		BOOL AutoDetect;                 // RW - specifies whether the driver is in auto-detect mode for the signal standard
+	} KSPROPERTY_BDA_RF_TUNER_STANDARD_MODE_S, *PKSPROPERTY_BDA_RF_TUNER_STANDARD_MODE_S;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_RF_TUNER_FREQUENCY(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_RF_TUNER_FREQUENCY,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_RF_TUNER_POLARITY(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_RF_TUNER_POLARITY,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_RF_TUNER_RANGE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_RF_TUNER_RANGE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_RF_TUNER_TRANSPONDER(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_RF_TUNER_TRANSPONDER,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_RF_TUNER_BANDWIDTH(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_RF_TUNER_BANDWIDTH,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_RF_TUNER_FREQUENCY_MULTIPLIER(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_RF_TUNER_FREQUENCY_MULTIPLIER,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Tuner Event Set
+	//
+	// {AAB59E17-01C9-4ebf-93F2-FC3B79B46F91}
+	//
+#define STATIC_KSEVENTSETID_BdaTunerEvent \
+    0xaab59e17, 0x1c9, 0x4ebf, 0x93, 0xf2, 0xfc, 0x3b, 0x79, 0xb4, 0x6f, 0x91
+	DEFINE_GUIDSTRUCT("AAB59E17-01C9-4ebf-93F2-FC3B79B46F91", KSEVENTSETID_BdaTunerEvent);
+#define KSEVENTSETID_BdaTunerEvent DEFINE_GUIDNAMED(KSEVENTSETID_BdaTunerEvent)
+
+	typedef enum {
+		KSEVENT_BDA_TUNER_SCAN = 0
+	} KSEVENT_BDA_TUNER;
+
+	typedef struct {
+		KSEVENTDATA EventData;
+		ULONG StartFrequency;          // W - initial frequency for the scan
+		ULONG EndFrequency;            // W - final frequency for the scan, can be less than the initial value indicating a "scan down" is requested
+		BDA_LockType LockRequested;    // W - whether the device should look for just a PLL lock, decoder lock, etc. should be a supported lock type.
+	} KSEVENTDATA_BDA_RF_TUNER_SCAN_S, *PKSEVENTDATA_BDA_RF_TUNER_SCAN_S;
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA LNB Info Property Set
+	//
+	// {992CF102-49F9-4719-A664-C4F23E2408F4}
+	//
+#define STATIC_KSPROPSETID_BdaLNBInfo \
+    0x992cf102, 0x49f9, 0x4719, 0xa6, 0x64, 0xc4, 0xf2, 0x3e, 0x24, 0x8, 0xf4
+	DEFINE_GUIDSTRUCT("992CF102-49F9-4719-A664-C4F23E2408F4", KSPROPSETID_BdaLNBInfo);
+#define KSPROPSETID_BdaLNBInfo DEFINE_GUIDNAMED(KSPROPSETID_BdaLNBInfo)
+
+	typedef enum {
+		KSPROPERTY_BDA_LNB_LOF_LOW_BAND = 0,
+		KSPROPERTY_BDA_LNB_LOF_HIGH_BAND,
+		KSPROPERTY_BDA_LNB_SWITCH_FREQUENCY
+	} KSPROPERTY_BDA_LNB_INFO;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_LNB_LOF_LOW_BAND(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_LNB_LOF_LOW_BAND,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_LNB_LOF_HIGH_BAND(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_LNB_LOF_HIGH_BAND,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_LNB_SWITCH_FREQUENCY(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_LNB_SWITCH_FREQUENCY,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//DiseqC Specific commands and source selection
+	//DVB-S applications can use the commands to select there LNB Source
+	//or control there installation equipment (e.g. motor dish, switches) 
+	//
+	// {F84E2AB0-3C6B-45e3-A0FC-8669D4B81F11}
+	//
+#define STATIC_KSPROPSETID_BdaDiseqCommand \
+    0xf84e2ab0, 0x3c6b, 0x45e3, 0xa0, 0xfc, 0x86, 0x69, 0xd4, 0xb8, 0x1f, 0x11
+	DEFINE_GUIDSTRUCT("F84E2AB0-3C6B-45e3-A0FC-8669D4B81F11", KSPROPSETID_BdaDiseqCommand);
+#define KSPROPSETID_BdaDiseqCommand DEFINE_GUIDNAMED(KSPROPSETID_BdaDiseqCommand)
+
+	typedef enum {
+		KSPROPERTY_BDA_DISEQC_ENABLE = 0,
+		KSPROPERTY_BDA_DISEQC_LNB_SOURCE,
+		KSPROPERTY_BDA_DISEQC_USETONEBURST,
+		KSPROPERTY_BDA_DISEQC_REPEATS,
+		KSPROPERTY_BDA_DISEQC_SEND,
+		KSPROPERTY_BDA_DISEQC_RESPONSE
+	} KSPROPERTY_BDA_DISEQC_COMMAND;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_DISEQC_ENABLE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+    KSPROPERTY_BDA_DISEQC_ENABLE,\
+    (GetHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(BOOL),\
+    (SetHandler),\
+    NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_DISEQC_LNB_SOURCE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+    KSPROPERTY_BDA_DISEQC_LNB_SOURCE,\
+    (GetHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(ULONG),\
+    (SetHandler),\
+    NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_DISEQC_USETONEBURST(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+    KSPROPERTY_BDA_DISEQC_USETONEBURST,\
+    (GetHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(BOOL),\
+    (SetHandler),\
+    NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_DISEQC_REPEATS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+    KSPROPERTY_BDA_DISEQC_REPEATS,\
+    (GetHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(ULONG),\
+    (SetHandler),\
+    NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_DISEQC_SEND(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+    KSPROPERTY_BDA_DISEQC_SEND,\
+    (GetHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(BDA_DISEQC_SEND),\
+    (SetHandler),\
+    NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_DISEQC_RESPONSE(GetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+    KSPROPERTY_BDA_DISEQC_RESPONSE,\
+    (GetHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(BDA_DISEQC_RESPONSE),\
+    NULL,\
+    NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA DiseqC Event Set
+	//
+	// {8B19BBF0-4184-43ac-AD3C-0C889BE4C212}
+	//
+
+#define STATIC_KSEVENTSETID_BdaDiseqCEvent \
+    0x8b19bbf0, 0x4184, 0x43ac, 0xad, 0x3c, 0xc, 0x88, 0x9b, 0xe4, 0xc2, 0x12
+	DEFINE_GUIDSTRUCT("8B19BBF0-4184-43ac-AD3C-0C889BE4C212", KSEVENTSETID_BdaDiseqCEvent);
+#define KSEVENTSETID_BdaDiseqCEvent DEFINE_GUIDNAMED(KSEVENTSETID_BdaDiseqCEvent)
+
+	typedef enum {
+		KSEVENT_BDA_DISEQC_DATA_RECEIVED = 0
+	} KSPROPERTY_BDA_DISEQC_EVENT;
+
+#define DEFINE_KSEVENT_BDA_DISEQC_DATA_RECEIVED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+    KSEVENT_BDA_DISEQC_DATA_RECEIVED,\
+    sizeof( KSEVENTDATA), \
+    0, \
+    (AddHandler),\
+    (RemoveHandler),\
+    (SupportHandler)\
+    )
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Digital Demodulator Property Set
+	//
+	// {EF30F379-985B-4d10-B640-A79D5E04E1E0}
+	//
+#define STATIC_KSPROPSETID_BdaDigitalDemodulator \
+    0xef30f379, 0x985b, 0x4d10, 0xb6, 0x40, 0xa7, 0x9d, 0x5e, 0x4, 0xe1, 0xe0
+	DEFINE_GUIDSTRUCT("EF30F379-985B-4d10-B640-A79D5E04E1E0", KSPROPSETID_BdaDigitalDemodulator);
+#define KSPROPSETID_BdaDigitalDemodulator DEFINE_GUIDNAMED(KSPROPSETID_BdaDigitalDemodulator)
+
+	typedef enum {
+		KSPROPERTY_BDA_MODULATION_TYPE = 0,
+		KSPROPERTY_BDA_INNER_FEC_TYPE,
+		KSPROPERTY_BDA_INNER_FEC_RATE,
+		KSPROPERTY_BDA_OUTER_FEC_TYPE,
+		KSPROPERTY_BDA_OUTER_FEC_RATE,
+		KSPROPERTY_BDA_SYMBOL_RATE,
+		KSPROPERTY_BDA_SPECTRAL_INVERSION,
+		KSPROPERTY_BDA_GUARD_INTERVAL,
+		KSPROPERTY_BDA_TRANSMISSION_MODE,
+		KSPROPERTY_BDA_ROLL_OFF,
+		KSPROPERTY_BDA_PILOT,
+		KSPROPERTY_BDA_SIGNALTIMEOUTS,
+		KSPROPERTY_BDA_PLP_NUMBER
+	} KSPROPERTY_BDA_DIGITAL_DEMODULATOR;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_MODULATION_TYPE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_MODULATION_TYPE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ModulationType),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_INNER_FEC_TYPE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_INNER_FEC_TYPE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(FECMethod),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_INNER_FEC_RATE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_INNER_FEC_RATE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BinaryConvolutionCodeRate),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_OUTER_FEC_TYPE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_OUTER_FEC_TYPE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(FECMethod),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_OUTER_FEC_RATE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_OUTER_FEC_RATE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BinaryConvolutionCodeRate),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_SYMBOL_RATE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SYMBOL_RATE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_SPECTRAL_INVERSION(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SPECTRAL_INVERSION,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(SpectralInversion),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_GUARD_INTERVAL(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_GUARD_INTERVAL,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(GuardInterval),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_TRANSMISSION_MODE(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_TRANSMISSION_MODE,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(TransmissionMode),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_ROLL_OFF(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_ROLL_OFF,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(RollOff),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PILOT(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PILOT,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(Pilot),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_SIGNALTIMEOUTS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_SIGNALTIMEOUTS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_SIGNAL_TIMEOUTS),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PLP_NUMBER(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PLP_NUMBER,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Autodemodulate Property Set
+	//
+	// {DDF15B12-BD25-11d2-9CA0-00C04F7971E0}
+	//
+#define STATIC_KSPROPSETID_BdaAutodemodulate \
+    0xddf15b12, 0xbd25, 0x11d2, 0x9c, 0xa0, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("DDF15B12-BD25-11d2-9CA0-00C04F7971E0", KSPROPSETID_BdaAutodemodulate);
+#define KSPROPSETID_BdaAutodemodulate DEFINE_GUIDNAMED(KSPROPSETID_BdaAutodemodulate)
+
+	typedef enum {
+		KSPROPERTY_BDA_AUTODEMODULATE_START = 0,
+		KSPROPERTY_BDA_AUTODEMODULATE_STOP
+	} KSPROPERTY_BDA_AUTODEMODULATE;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_AUTODEMODULATE_START(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_AUTODEMODULATE_START,\
+        FALSE,\
+        sizeof(KSP_NODE),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_AUTODEMODULATE_STOP(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_AUTODEMODULATE_STOP,\
+        FALSE,\
+        sizeof(KSP_NODE),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Table Section Property Set
+	//
+	// {516B99C5-971C-4aaf-B3F3-D9FDA8A15E16}
+	//
+
+#define STATIC_KSPROPSETID_BdaTableSection \
+    0x516b99c5, 0x971c, 0x4aaf, 0xb3, 0xf3, 0xd9, 0xfd, 0xa8, 0xa1, 0x5e, 0x16
+	DEFINE_GUIDSTRUCT("516B99C5-971C-4aaf-B3F3-D9FDA8A15E16", KSPROPSETID_BdaTableSection);
+#define KSPROPSETID_BdaTableSection DEFINE_GUIDNAMED(KSPROPSETID_BdaTableSection)
+
+	typedef enum {
+		KSPROPERTY_BDA_TABLE_SECTION = 0,
+	} KSPROPERTY_IDS_BDA_TABLE;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_TABLE_SECTION(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_TABLE_SECTION,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_TABLE_SECTION),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA PID Filter Property Set
+	//
+	// {D0A67D65-08DF-4fec-8533-E5B550410B85}
+	//
+#define STATIC_KSPROPSETID_BdaPIDFilter \
+    0xd0a67d65, 0x8df, 0x4fec, 0x85, 0x33, 0xe5, 0xb5, 0x50, 0x41, 0xb, 0x85
+	DEFINE_GUIDSTRUCT("D0A67D65-08DF-4fec-8533-E5B550410B85", KSPROPSETID_BdaPIDFilter);
+#define KSPROPSETID_BdaPIDFilter DEFINE_GUIDNAMED(KSPROPSETID_BdaPIDFilter)
+
+	typedef enum {
+		KSPROPERTY_BDA_PIDFILTER_MAP_PIDS = 0,
+		KSPROPERTY_BDA_PIDFILTER_UNMAP_PIDS,
+		KSPROPERTY_BDA_PIDFILTER_LIST_PIDS
+	} KSPROPERTY_BDA_PIDFILTER;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PIDFILTER_MAP_PIDS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PIDFILTER_MAP_PIDS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_PID_MAP),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PIDFILTER_UNMAP_PIDS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PIDFILTER_UNMAP_PIDS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_PID_UNMAP),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_PIDFILTER_LIST_PIDS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_PIDFILTER_LIST_PIDS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        0,\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA CA Property Set
+	//
+	// {B0693766-5278-4ec6-B9E1-3CE40560EF5A}
+	//
+#define STATIC_KSPROPSETID_BdaCA \
+    0xb0693766, 0x5278, 0x4ec6, 0xb9, 0xe1, 0x3c, 0xe4, 0x5, 0x60, 0xef, 0x5a
+	DEFINE_GUIDSTRUCT("B0693766-5278-4ec6-B9E1-3CE40560EF5A", KSPROPSETID_BdaCA);
+#define KSPROPSETID_BdaCA DEFINE_GUIDNAMED(KSPROPSETID_BdaCA)
+
+	typedef enum {
+		KSPROPERTY_BDA_ECM_MAP_STATUS = 0,
+		KSPROPERTY_BDA_CA_MODULE_STATUS,
+		KSPROPERTY_BDA_CA_SMART_CARD_STATUS,
+		KSPROPERTY_BDA_CA_MODULE_UI,
+		KSPROPERTY_BDA_CA_SET_PROGRAM_PIDS,
+		KSPROPERTY_BDA_CA_REMOVE_PROGRAM
+	} KSPROPERTY_BDA_CA;
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_ECM_MAP_STATUS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_ECM_MAP_STATUS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_CA_MODULE_STATUS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_CA_MODULE_STATUS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_CA_SMART_CARD_STATUS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_CA_SMART_CARD_STATUS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_CA_MODULE_UI(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_CA_MODULE_UI,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_CA_MODULE_UI),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_CA_SET_PROGRAM_PIDS(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_CA_SET_PROGRAM_PIDS,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(BDA_PROGRAM_PID_LIST),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+#define DEFINE_KSPROPERTY_ITEM_BDA_CA_REMOVE_PROGRAM(GetHandler, SetHandler)\
+    DEFINE_KSPROPERTY_ITEM(\
+        KSPROPERTY_BDA_CA_REMOVE_PROGRAM,\
+        (GetHandler),\
+        sizeof(KSP_NODE),\
+        sizeof(ULONG),\
+        (SetHandler),\
+        NULL, 0, NULL, NULL, 0)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA CA Event Set
+	//
+	// {488C4CCC-B768-4129-8EB1-B00A071F9068}
+	//
+#define STATIC_KSEVENTSETID_BdaCAEvent \
+    0x488c4ccc, 0xb768, 0x4129, 0x8e, 0xb1, 0xb0, 0xa, 0x7, 0x1f, 0x90, 0x68
+	DEFINE_GUIDSTRUCT("488C4CCC-B768-4129-8EB1-B00A071F9068", KSEVENTSETID_BdaCAEvent);
+#define KSEVENTSETID_BdaCAEvent DEFINE_GUIDNAMED(KSEVENTSETID_BdaCAEvent)
+
+	typedef enum {
+		KSEVENT_BDA_PROGRAM_FLOW_STATUS_CHANGED = 0,
+		KSEVENT_BDA_CA_MODULE_STATUS_CHANGED,
+		KSEVENT_BDA_CA_SMART_CARD_STATUS_CHANGED,
+		KSEVENT_BDA_CA_MODULE_UI_REQUESTED
+	} KSPROPERTY_BDA_CA_EVENT;
+
+#define DEFINE_KSEVENT_BDA_PROGRAM_FLOW_STATUS_CHANGED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_PROGRAM_FLOW_STATUS_CHANGED,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+#define DEFINE_KSEVENT_BDA_CA_MODULE_STATUS_CHANGED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_CA_MODULE_STATUS_CHANGED,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+#define DEFINE_KSEVENT_BDA_CA_SMART_CARD_STATUS_CHANGED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_CA_SMART_CARD_STATUS_CHANGED,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+#define DEFINE_KSEVENT_BDA_CA_MODULE_UI_REQUESTED(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_CA_MODULE_UI_REQUESTED,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BdaDrmService Method Set
+	//
+	// {BFF6B5BB-B0AE-484c-9DCA-73528FB0B46E}
+	//
+#define STATIC_KSMETHODSETID_BdaDrmService \
+    0xbff6b5bb, 0xb0ae, 0x484c, 0x9d, 0xca, 0x73, 0x52, 0x8f, 0xb0, 0xb4, 0x6e
+	DEFINE_GUIDSTRUCT("BFF6B5BB-B0AE-484c-9DCA-73528FB0B46E", KSMETHODSETID_BdaDrmService);
+#define KSMETHODSETID_BdaDrmService DEFINE_GUIDNAMED(KSMETHODSETID_BdaDrmService)
+
+	typedef enum {
+		KSMETHOD_BDA_DRM_CURRENT = 0,
+		KSMETHOD_BDA_DRM_DRMSTATUS
+	} KSMETHOD_BDA_DRM;
+
+#define DEFINE_KSMETHOD_BDA_DRM_SETDRM(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_DRM_CURRENT,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_DRM_SETDRM),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_DRM_DRMSTATUS(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_DRM_DRMSTATUS,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_NODE),\
+    sizeof(BDA_DRM_DRMSTATUS),\
+    SupportHandler)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  PBDA WMDRM SESSION Method Set
+	//
+	// {4BE6FA3D-07CD-4139-8B80-8C18BA3AEC88}
+	//
+#define STATIC_KSMETHODSETID_BdaWmdrmSession \
+    0x4be6fa3d, 0x7cd, 0x4139, 0x8b, 0x80, 0x8c, 0x18, 0xba, 0x3a, 0xec, 0x88
+	DEFINE_GUIDSTRUCT("4BE6FA3D-07CD-4139-8B80-8C18BA3AEC88", KSMETHODSETID_BdaWmdrmSession);
+#define KSMETHODSETID_BdaWmdrmSession DEFINE_GUIDNAMED(KSMETHODSETID_BdaWmdrmSession)
+
+	typedef enum {
+		KSMETHOD_BDA_WMDRM_STATUS = 0,
+		KSMETHOD_BDA_WMDRM_REVINFO,
+		KSMETHOD_BDA_WMDRM_CRL,
+		KSMETHOD_BDA_WMDRM_MESSAGE,
+		KSMETHOD_BDA_WMDRM_REISSUELICENSE,
+		KSMETHOD_BDA_WMDRM_RENEWLICENSE,
+		KSMETHOD_BDA_WMDRM_LICENSE,
+		KSMETHOD_BDA_WMDRM_KEYINFO
+	} KSMETHOD_BDA_WMDRM;
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_STATUS(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_STATUS,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_NODE),\
+    sizeof(BDA_WMDRM_STATUS),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_REVINFO(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_REVINFO,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_BUFFER),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_CRL(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_CRL,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_BUFFER),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_TRANSACTMESSAGE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_MESSAGE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_BUFFER),\
+    sizeof(BDA_BUFFER),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_REISSUELICENSE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_REISSUELICENSE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRM_LICENSE),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_RENEWLICENSE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_RENEWLICENSE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRM_RENEWLICENSE),\
+    sizeof(BDA_WMDRM_RENEWLICENSE),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_GETLICENSE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_LICENSE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRM_LICENSE),\
+    sizeof(BDA_BUFFER),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRM_KEYINFO(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRM_KEYINFO,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_NODE),\
+    sizeof(BDA_WMDRM_KEYINFOLIST),\
+    SupportHandler)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  PBDA WMDRM Tuner Method Set
+	//
+	// {86D979CF-A8A7-4f94-B5FB-14C0ACA68FE6}
+	//
+#define STATIC_KSMETHODSETID_BdaWmdrmTuner \
+    0x86d979cf, 0xa8a7, 0x4f94, 0xb5, 0xfb, 0x14, 0xc0, 0xac, 0xa6, 0x8f, 0xe6
+	DEFINE_GUIDSTRUCT("86D979CF-A8A7-4f94-B5FB-14C0ACA68FE6", KSMETHODSETID_BdaWmdrmTuner);
+#define KSMETHODSETID_BdaWmdrmTuner DEFINE_GUIDNAMED(KSMETHODSETID_BdaWmdrmTuner)
+
+	typedef enum {
+		KSMETHOD_BDA_WMDRMTUNER_CANCELCAPTURETOKEN = 0,
+		KSMETHOD_BDA_WMDRMTUNER_SETPIDPROTECTION,
+		KSMETHOD_BDA_WMDRMTUNER_GETPIDPROTECTION,
+		KSMETHOD_BDA_WMDRMTUNER_SETSYNCVALUE,
+		KSMETHOD_BDA_WMDRMTUNER_STARTCODEPROFILE,
+		KSMETHOD_BDA_WMDRMTUNER_PURCHASE_ENTITLEMENT
+	} KSMETHOD_BDA_WMDRM_TUNER;
+
+#define DEFINE_KSMETHOD_BDA_WMDRMTUNER_CANCELCAPTURETOKEN(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRMTUNER_CANCELCAPTURETOKEN,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_BUFFER),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRMTUNER_SETPIDPROTECTION(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRMTUNER_SETPIDPROTECTION,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRMTUNER_SETPIDPROTECTION),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRMTUNER_GETPIDPROTECTION(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRMTUNER_GETPIDPROTECTION,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRMTUNER_GETPIDPROTECTION),\
+    sizeof(BDA_WMDRMTUNER_PIDPROTECTION),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRMTUNER_SETSYNCVALUE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRMTUNER_SETSYNCVALUE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRMTUNER_SYNCVALUE),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRMTUNER_STARTCODEPROFILE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRMTUNER_STARTCODEPROFILE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSP_NODE),\
+    sizeof(BDA_BUFFER),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_BDA_WMDRMTUNER_PURCHASE_ENTITLEMENT(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_WMDRMTUNER_PURCHASE_ENTITLEMENT,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE,\
+    (MethodHandler),\
+    sizeof(KSM_BDA_WMDRMTUNER_PURCHASEENTITLEMENT),\
+    sizeof(BDA_WMDRMTUNER_PURCHASEENTITLEMENT),\
+    SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Eventing Service Property Set
+	//
+	// {B0693766-5278-4ec6-B9E1-3CE40560EF5A}
+	//
+
+
+#define STATIC_KSMETHODSETID_BdaEventing \
+    0xf99492da, 0x6193, 0x4eb0, 0x86, 0x90, 0x66, 0x86, 0xcb, 0xff, 0x71, 0x3e
+	DEFINE_GUIDSTRUCT("f99492da-6193-4eb0-8690-6686cbff713e", KSMETHODSETID_BdaEventing);
+#define KSMETHODSETID_BdaEventing DEFINE_GUIDNAMED(KSMETHODSETID_BdaEventing)
+
+	typedef enum {
+		KSMETHOD_BDA_EVENT_DATA = 0,
+		KSMETHOD_BDA_EVENT_COMPLETE
+	} KSMETHOD_BDA_EVENTING_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_EVENT_DATA(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_EVENT_DATA,\
+        KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+        (MethodHandler),\
+        sizeof(KSMETHOD),\
+        sizeof(BDA_EVENT_DATA),\
+        SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_EVENT_COMPLETE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_EVENT_COMPLETE,\
+        KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+        (MethodHandler),\
+        sizeof(KSM_BDA_EVENT_COMPLETE),\
+        sizeof(LONG),\
+        SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Eventing Service Event 
+	//
+	// ae7e55b2-96d7-4e29-908f-62f95b2a1679
+	//
+#define STATIC_KSEVENTSETID_BdaEvent \
+    0xae7e55b2, 0x96d7, 0x4e29, 0x90, 0x8f, 0x62, 0xf9, 0x5b, 0x2a, 0x16, 0x79
+	DEFINE_GUIDSTRUCT("ae7e55b2-96d7-4e29-908f-62f95b2a1679", KSEVENTSETID_BdaEvent);
+#define KSEVENTSETID_BdaEvent DEFINE_GUIDNAMED(KSEVENTSETID_BdaEvent)
+
+	typedef enum {
+		KSEVENT_BDA_EVENT_PENDINGEVENT = 0
+	} KSEVENT_BDA_EVENT_TYPE;
+
+#define DEFINE_KSEVENT_ITEM_BDA_PENDINGEVENT(AddHandler, RemoveHandler, SupportHandler)\
+    DEFINE_KSEVENT_ITEM(\
+        KSEVENT_BDA_EVENT_PENDINGEVENT,\
+        sizeof( KSEVENTDATA), \
+        0, \
+        (AddHandler),\
+        (RemoveHandler),\
+        (SupportHandler)\
+        )
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Debug Service Property Set
+	//
+	// {0d4a90ec-c69d-4ee2-8c5a-fb1f63a50da1}
+	//
+
+#define STATIC_KSMETHODSETID_BdaDebug \
+    0x0d4a90ec, 0xc69d, 0x4ee2, 0x8c, 0x5a, 0xfb, 0x1f, 0x63, 0xa5, 0x0d, 0xa1
+	DEFINE_GUIDSTRUCT("0d4a90ec-c69d-4ee2-8c5a-fb1f63a50da1", KSMETHODSETID_BdaDebug);
+#define KSMETHODSETID_BdaDebug DEFINE_GUIDNAMED(KSMETHODSETID_BdaDebug)
+
+	typedef enum {
+		KSMETHOD_BDA_DEBUG_LEVEL = 0,
+		KSMETHOD_BDA_DEBUG_DATA
+	} KSMETHOD_BDA_DEBUG_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_DEBUG_LEVEL(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_DEBUG_LEVEL,\
+        KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+        (MethodHandler),\
+        sizeof(KSM_BDA_DEBUG_LEVEL),\
+        sizeof(LONG),\
+        SupportHandler)
+
+
+#define DEFINE_KSMETHOD_ITEM_BDA_DEBUG_DATA(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+        KSMETHOD_BDA_DEBUG_DATA,\
+        KSMETHOD_TYPE_MODIFY, \
+        (MethodHandler),\
+        sizeof(KSMETHOD),\
+        0,\
+        SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Tuner Service Method Set
+	//
+	// {B774102F-AC07-478a-8228-2742D961FA7E}
+	//
+
+#define STATIC_KSMETHODSETID_BdaTuner \
+    0xb774102f, 0xac07, 0x478a, 0x82, 0x28, 0x27, 0x42, 0xd9, 0x61, 0xfa, 0x7e
+	DEFINE_GUIDSTRUCT("b774102f-ac07-478a-8228-2742d961fa7e", KSMETHODSETID_BdaTuner);
+#define KSMETHODSETID_BdaTuner DEFINE_GUIDNAMED(KSMETHODSETID_BdaTuner)
+
+	typedef enum {
+		KSMETHOD_BDA_TUNER_SETTUNER = 0,
+		KSMETHOD_BDA_TUNER_GETTUNERSTATE,
+		KSMETHOD_BDA_TUNER_SIGNALNOISERATIO
+	} KSMETHOD_BDA_TUNER_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_TUNER_SETTUNER(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_TUNER_SETTUNER,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_TUNER_TUNEREQUEST),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_TUNER_GETTUNERSTATE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_TUNER_GETTUNERSTATE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_TUNER_TUNERSTATE),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_TUNER_SIGNALNOISERATIO(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_TUNER_SIGNALNOISERATIO,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_TUNER_DIAGNOSTICS),\
+    SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA General Purpose Name Value Service Method Set
+	//
+	// {0c24096d-5ff5-47de-a856-062e587e3727}//8bit string
+	// {36e07304-9f0d-4e88-9118-ac0ba317b7f2}//unicode version
+	//
+
+#define STATIC_KSMETHODSETID_BdaNameValueA \
+    0xc24096d, 0x5ff5, 0x47de, 0xa8, 0x56, 0x6, 0x2e, 0x58, 0x7e, 0x37, 0x27
+	DEFINE_GUIDSTRUCT("0c24096d-5ff5-47de-a856-062e587e3727", KSMETHODSETID_BdaNameValueA);
+#define KSMETHODSETID_BdaNameValueA DEFINE_GUIDNAMED(KSMETHODSETID_BdaNameValueA)
+
+#define STATIC_KSMETHODSETID_BdaNameValue \
+    0x36e07304, 0x9f0d, 0x4e88, 0x91, 0x18, 0xac, 0xb, 0xa3, 0x17, 0xb7, 0xf2
+	DEFINE_GUIDSTRUCT("36e07304-9f0d-4e88-9118-ac0ba317b7f2", KSMETHODSETID_BdaNameValue);
+#define KSMETHODSETID_BdaNameValue DEFINE_GUIDNAMED(KSMETHODSETID_BdaNameValue)
+
+	typedef enum {
+		KSMETHOD_BDA_GPNV_GETVALUE = 0,
+		KSMETHOD_BDA_GPNV_SETVALUE,
+		KSMETHOD_BDA_GPNV_NAMEFROMINDEX,
+		KSMETHOD_BDA_GPNV_GETVALUEUPDATENAME
+	} KSMETHOD_BDA_GPNV_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GPNV_GETVALUE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GPNV_GETVALUE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_GPNV_GETVALUE),\
+    sizeof(BDA_STRING),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GPNV_SETVALUE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GPNV_SETVALUE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_GPNV_SETVALUE),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GPNV_NAMEFROMINDEX(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GPNV_NAMEFROMINDEX,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_GPNV_NAMEINDEX),\
+    sizeof(BDA_STRING),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GPNV_GETVALUEUPDATENAME(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GPNV_GETVALUEUPDATENAME,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_STRING),\
+    SupportHandler)
+
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Mux Service Method Set
+	//
+	// {942AAFEC-4C05-4c74-B8EB-8706C2A4943F}
+	//
+
+#define STATIC_KSMETHODSETID_BdaMux \
+    0x942aafec, 0x4c05, 0x4c74, 0xb8, 0xeb, 0x87, 0x6, 0xc2, 0xa4, 0x94, 0x3f
+	DEFINE_GUIDSTRUCT("942AAFEC-4C05-4c74-B8EB-8706C2A4943F", KSMETHODSETID_BdaMux);
+#define KSMETHODSETID_BdaMux DEFINE_GUIDNAMED(KSMETHODSETID_BdaMux)
+
+	typedef enum {
+		KSMETHOD_BDA_MUX_GETPIDLIST = 0,
+		KSMETHOD_BDA_MUX_SETPIDLIST
+	} KSMETHOD_BDA_MUX_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_MUX_GETPIDLIST(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_MUX_GETPIDLIST,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_NODE),\
+    sizeof(BDA_BUFFER),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_MUX_SETPIDLIST(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_MUX_SETPIDLIST,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_BUFFER),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Scanning Service Method Set
+	//
+	// {12EB49DF-6249-47f3-B190-E21E6E2F8A9C}
+	//
+
+#define STATIC_KSMETHODSETID_BdaScanning \
+    0x12eb49df, 0x6249, 0x47f3, 0xb1, 0x90, 0xe2, 0x1e, 0x6e, 0x2f, 0x8a, 0x9c
+	DEFINE_GUIDSTRUCT("12EB49DF-6249-47f3-B190-E21E6E2F8A9C", KSMETHODSETID_BdaScanning);
+#define KSMETHODSETID_BdaScanning DEFINE_GUIDNAMED(KSMETHODSETID_BdaScanning)
+
+	typedef enum {
+		KSMETHOD_BDA_SCAN_CAPABILTIES = 0,
+		KSMETHOD_BDA_SCANNING_STATE,
+		KSMETHOD_BDA_SCAN_FILTER,
+		KSMETHOD_BDA_SCAN_START,
+		KSMETHOD_BDA_SCAN_RESUME,
+		KSMETHOD_BDA_SCAN_STOP
+	} KSMETHOD_BDA_SCAN_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_SCAN_CAPABILTIES(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_SCAN_CAPABILTIES,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_SCAN_CAPABILTIES),\
+    sizeof(BDA_SCAN_CAPABILTIES),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_SCANNING_STATE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_SCANNING_STATE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_SCAN_STATE),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_SCAN_FILTER(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_SCAN_FILTER,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_SCAN_FILTER),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_SCAN_START(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_SCAN_START,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_SCAN_START),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_SCAN_RESUME(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_SCAN_RESUME,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_SCAN_STOP(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_SCAN_STOP,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Guide Data Delivery Service Method Set
+	//
+	// {8D9D5562-1589-417d-99CE-AC531DDA19F9}
+	//
+
+#define STATIC_KSMETHODSETID_BdaGuideDataDeliveryService \
+    0x8d9d5562, 0x1589, 0x417d, 0x99, 0xce, 0xac, 0x53, 0x1d, 0xda, 0x19, 0xf9
+	DEFINE_GUIDSTRUCT("8D9D5562-1589-417d-99CE-AC531DDA19F9", KSMETHODSETID_BdaGuideDataDeliveryService);
+#define KSMETHODSETID_BdaGuideDataDeliveryService DEFINE_GUIDNAMED(KSMETHODSETID_BdaGuideDataDeliveryService)
+
+	typedef enum {
+		KSMETHOD_BDA_GDDS_DATATYPE = 0,
+		KSMETHOD_BDA_GDDS_DATA,
+		KSMETHOD_BDA_GDDS_TUNEXMLFROMIDX,
+		KSMETHOD_BDA_GDDS_GETSERVICES,
+		KSMETHOD_BDA_GDDS_SERVICEFROMTUNEXML,
+		KSMETHOD_BDA_GDDS_DATAUPDATE
+	} KSMETHOD_BDA_GDDS_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GDDS_DATATYPE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GDDS_DATATYPE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_GDDS_DATATYPE),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GDDS_DATA(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GDDS_DATA,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_GDDS_DATA),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GDDS_TUNEXMLFROMIDX(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GDDS_TUNEXMLFROMIDX,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_GDDS_TUNEXMLFROMIDX),\
+    sizeof(BDA_STRING),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GDDS_GETSERVICES(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GDDS_GETSERVICES,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_BUFFER),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GDDS_SERVICEFROMTUNEXML(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GDDS_SERVICEFROMTUNEXML,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_GDDS_SERVICEFROMTUNEXML),\
+    sizeof(BDA_STRING),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_GDDS_DATAUPDATE(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_GDDS_DATAUPDATE,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA CAS Core Service Method Set
+	//
+	// {10CED3B4-320B-41bf-9824-1B2E68E71EB9}
+	//
+
+#define STATIC_KSMETHODSETID_BdaConditionalAccessService \
+    0x10ced3b4, 0x320b, 0x41bf, 0x98, 0x24, 0x1b, 0x2e, 0x68, 0xe7, 0x1e, 0xb9
+	DEFINE_GUIDSTRUCT("10CED3B4-320B-41bf-9824-1B2E68E71EB9", KSMETHODSETID_BdaConditionalAccessService);
+#define KSMETHODSETID_BdaConditionalAccessService DEFINE_GUIDNAMED(KSMETHODSETID_BdaConditionalAccessService)
+
+	typedef enum {
+		KSMETHOD_BDA_CAS_CHECKENTITLEMENTTOKEN = 0,
+		KSMETHOD_BDA_CAS_SETCAPTURETOKEN,
+		KSMETHOD_BDA_CAS_OPENBROADCASTMMI,
+		KSMETHOD_BDA_CAS_CLOSEMMIDIALOG
+	} KSMETHOD_BDA_CAS_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CAS_CHECKENTITLEMENTTOKEN(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_CAS_CHECKENTITLEMENTTOKEN,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_CAS_ENTITLEMENTTOKEN),\
+    sizeof(BDA_CAS_CHECK_ENTITLEMENTTOKEN),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CAS_SETCAPTURETOKEN(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_CAS_SETCAPTURETOKEN,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_CAS_CAPTURETOKEN),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CAS_OPENBROADCASTMMI(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_CAS_OPENBROADCASTMMI,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_CAS_OPENBROADCASTMMI),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_CAS_CLOSEMMIDIALOG(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_CAS_CLOSEMMIDIALOG,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_CAS_CLOSEMMIDIALOG),\
+    sizeof(BDA_CAS_CLOSE_MMIDIALOG),\
+    SupportHandler)
+
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA ISDB CAS Service Method Set
+	//
+	// {5E68C627-16C2-4e6c-B1E2-D00170CDAA0F}
+	//
+
+#define STATIC_KSMETHODSETID_BdaIsdbConditionalAccess \
+    0x5e68c627, 0x16c2, 0x4e6c, 0xb1, 0xe2, 0xd0, 0x1, 0x70, 0xcd, 0xaa, 0xf
+	DEFINE_GUIDSTRUCT("5E68C627-16C2-4e6c-B1E2-D00170CDAA0F", KSMETHODSETID_BdaIsdbConditionalAccess);
+#define KSMETHODSETID_BdaIsdbConditionalAccess DEFINE_GUIDNAMED(KSMETHODSETID_BdaIsdbConditionalAccess)
+
+	typedef enum {
+		KSMETHOD_BDA_ISDBCAS_SETREQUEST = 0,
+		KSMETHOD_BDA_ISDBCAS_RESPONSEDATA
+	} KSMETHOD_BDA_ISDB_CAS;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_ISDBCAS_SETREQUEST(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_ISDBCAS_SETREQUEST,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_ISDBCAS_REQUEST),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_ISDBCAS_RESPONSEDATA(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_ISDBCAS_RESPONSEDATA,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_NODE),\
+    sizeof(BDA_ISDBCAS_RESPONSEDATA),\
+    SupportHandler)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA Transprt Stream Selector Service Method Set
+	//
+	// {1DCFAFE9-B45E-41b3-BB2A-561EB129AE98}
+	//
+
+#define STATIC_KSMETHODSETID_BdaTSSelector \
+    0x1dcfafe9, 0xb45e, 0x41b3, 0xbb, 0x2a, 0x56, 0x1e, 0xb1, 0x29, 0xae, 0x98
+	DEFINE_GUIDSTRUCT("1DCFAFE9-B45E-41b3-BB2A-561EB129AE98", KSMETHODSETID_BdaTSSelector);
+#define KSMETHODSETID_BdaTSSelector DEFINE_GUIDNAMED(KSMETHODSETID_BdaTSSelector)
+
+	typedef enum {
+		KSMETHOD_BDA_TS_SELECTOR_SETTSID = 0,
+		KSMETHOD_BDA_TS_SELECTOR_GETTSINFORMATION,
+	} KSMETHOD_BDA_TS_SELECTOR;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_TS_SELECTOR_SETTSID(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_TS_SELECTOR_SETTSID,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_TS_SELECTOR_SETTSID),\
+    sizeof(ULONG),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_TS_SELECTOR_GETTSINFORMATION(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_TS_SELECTOR_GETTSINFORMATION,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_NODE),\
+    sizeof(BDA_TS_SELECTORINFO),\
+    SupportHandler)
+
+	//------------------------------------------------------------
+	//
+	//
+	//  BDA User Activity Service Method Set
+	//
+	// {EDA5C834-4531-483c-BE0A-94E6C96FF396}
+	//
+
+#define STATIC_KSMETHODSETID_BdaUserActivity \
+    0xeda5c834, 0x4531, 0x483c, 0xbe, 0xa, 0x94, 0xe6, 0xc9, 0x6f, 0xf3, 0x96
+	DEFINE_GUIDSTRUCT("EDA5C834-4531-483c-BE0A-94E6C96FF396", KSMETHODSETID_BdaUserActivity);
+#define KSMETHODSETID_BdaUserActivity DEFINE_GUIDNAMED(KSMETHODSETID_BdaUserActivity)
+
+	typedef enum {
+		KSMETHOD_BDA_USERACTIVITY_USEREASON = 0,
+		KSMETHOD_BDA_USERACTIVITY_INTERVAL,
+		KSMETHOD_BDA_USERACTIVITY_DETECTED
+	} KSMETHOD_BDA_USERACTIVITY_SERVICE;
+
+#define DEFINE_KSMETHOD_ITEM_BDA_USERACTIVITY_USEREASON(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_USERACTIVITY_USEREASON,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSM_BDA_USERACTIVITY_USEREASON),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_USERACTIVITY_INTERVAL(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_USERACTIVITY_INTERVAL,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(BDA_USERACTIVITY_INTERVAL),\
+    SupportHandler)
+
+#define DEFINE_KSMETHOD_ITEM_BDA_USERACTIVITY_DETECTED(MethodHandler, SupportHandler)\
+    DEFINE_KSMETHOD_ITEM(\
+    KSMETHOD_BDA_USERACTIVITY_DETECTED,\
+    KSMETHOD_TYPE_MODIFY | KSMETHOD_TYPE_SOURCE, \
+    (MethodHandler),\
+    sizeof(KSMETHOD),\
+    sizeof(PBDARESULT),\
+    SupportHandler)
+
+	//===========================================================================
+	//
+	// BDA Filter Categories
+	//
+	//===========================================================================
+
+#define STATIC_KSCATEGORY_BDA_RECEIVER_COMPONENT \
+    0xFD0A5AF4, 0xB41D, 0x11d2, 0x9c, 0x95, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("FD0A5AF4-B41D-11d2-9C95-00C04F7971E0", KSCATEGORY_BDA_RECEIVER_COMPONENT);
+#define KSCATEGORY_BDA_RECEIVER_COMPONENT DEFINE_GUIDNAMED(KSCATEGORY_BDA_RECEIVER_COMPONENT)
+
+
+#define STATIC_KSCATEGORY_BDA_NETWORK_TUNER \
+    0x71985f48, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F48-1CA1-11d3-9CC8-00C04F7971E0", KSCATEGORY_BDA_NETWORK_TUNER);
+#define KSCATEGORY_BDA_NETWORK_TUNER DEFINE_GUIDNAMED(KSCATEGORY_BDA_NETWORK_TUNER)
+
+
+#define STATIC_KSCATEGORY_BDA_NETWORK_EPG \
+    0x71985f49, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F49-1CA1-11d3-9CC8-00C04F7971E0", KSCATEGORY_BDA_NETWORK_EPG);
+#define KSCATEGORY_BDA_NETWORK_EPG DEFINE_GUIDNAMED(KSCATEGORY_BDA_NETWORK_EPG)
+
+
+#define STATIC_KSCATEGORY_BDA_IP_SINK \
+    0x71985f4aL, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x00, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F4A-1CA1-11d3-9CC8-00C04F7971E0", KSCATEGORY_BDA_IP_SINK);
+#define KSCATEGORY_IP_SINK DEFINE_GUIDNAMED(KSCATEGORY_BDA_IP_SINK)
+
+
+#define STATIC_KSCATEGORY_BDA_NETWORK_PROVIDER \
+    0x71985f4b, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F4B-1CA1-11d3-9CC8-00C04F7971E0", KSCATEGORY_BDA_NETWORK_PROVIDER);
+#define KSCATEGORY_BDA_NETWORK_PROVIDER DEFINE_GUIDNAMED(KSCATEGORY_BDA_NETWORK_PROVIDER)
+
+	// {A2E3074F-6C3D-11d3-B653-00C04F79498E}
+#define STATIC_KSCATEGORY_BDA_TRANSPORT_INFORMATION \
+        0xa2e3074f, 0x6c3d, 0x11d3, 0xb6, 0x53, 0x0, 0xc0, 0x4f, 0x79, 0x49, 0x8e
+	DEFINE_GUIDSTRUCT("A2E3074F-6C3D-11d3-B653-00C04F79498E", KSCATEGORY_BDA_TRANSPORT_INFORMATION);
+#define KSCATEGORY_BDA_TRANSPORT_INFORMATION DEFINE_GUIDNAMED(KSCATEGORY_BDA_TRANSPORT_INFORMATION)
+
+	//===========================================================================
+	//
+	// BDA Node Categories
+	//
+	//===========================================================================
+
+	//
+	// Typical usage of the node categories to define supported tuner device standards.
+	//
+	// Analog (only)
+	//   KSNODE_BDA_RF_TUNER
+	//
+	// ATSC (only):
+	//   KSNODE_BDA_8VSB_DEMODULATOR node
+	//
+	// DVB-T (only):
+	//   KSNODE_BDA_COFDM_DEMODULATOR
+	//
+	// DVB-S (only)
+	//   KSNODE_BDA_QPSK_DEMODULATOR
+	//
+	// DVB-S2 (only)
+	//   KSNODE_BDA_8PSK_DEMODULATOR
+	//
+	// Digital Cable (both DVB-C and US):
+	//   KSNODE_BDA_QAM_DEMODULATOR node
+	//
+	// Hybrid Analog/ATSC:
+	//   KSNODE_BDA_RF_TUNER & KSNODE_BDA_8VSB_DEMODULATOR nodes
+	//
+	// Hybrid Analog/Digital Cable:
+	//   KSNODE_BDA_RF_TUNER & KSNODE_BDA_QAM_DEMODULATOR nodes
+	//
+	// Hybrid Analog and Digital Cable w/ CableCard:
+	//   KSNODE_BDA_RF_TUNER & KSNODE_BDA_QAM_DEMODULATOR & KSNODE_BDA_OPENCABLE_POD nodes
+	//
+	// Hybrid Analog and DVB-T:
+	//   KSNODE_BDA_RF_TUNER & KSNODE_BDA_COFDM_DEMODULATOR
+	//
+	// ISDB-S (only)
+	//   KSNODE_BDA_ISDB_S_DEMODULATOR & KSNODE_BDA_TS_SELECTOR
+	//
+
+#define STATIC_KSNODE_BDA_RF_TUNER \
+    0x71985f4c, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F4C-1CA1-11d3-9CC8-00C04F7971E0", KSNODE_BDA_RF_TUNER);
+#define KSNODE_BDA_RF_TUNER DEFINE_GUIDNAMED(KSNODE_BDA_RF_TUNER)
+
+#define STATIC_KSNODE_BDA_ANALOG_DEMODULATOR \
+    0x634db199, 0x27dd, 0x46b8, 0xac, 0xfb, 0xec, 0xc9, 0x8e, 0x61, 0xa2, 0xad
+	DEFINE_GUIDSTRUCT("634DB199-27DD-46b8-ACFB-ECC98E61A2AD", KSNODE_BDA_ANALOG_DEMODULATOR);
+#define  KSNODE_BDA_ANALOG_DEMODULATOR DEFINE_GUIDNAMED( KSNODE_BDA_ANALOG_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_QAM_DEMODULATOR \
+    0x71985f4d, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F4D-1CA1-11d3-9CC8-00C04F7971E0", KSNODE_BDA_QAM_DEMODULATOR);
+#define KSNODE_BDA_QAM_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_QAM_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_QPSK_DEMODULATOR \
+    0x6390c905, 0x27c1, 0x4d67, 0xbd, 0xb7, 0x77, 0xc5, 0xd, 0x7, 0x93, 0x0
+	DEFINE_GUIDSTRUCT("6390C905-27C1-4d67-BDB7-77C50D079300", KSNODE_BDA_QPSK_DEMODULATOR);
+#define KSNODE_BDA_QPSK_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_QPSK_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_8VSB_DEMODULATOR \
+    0x71985f4f, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F4F-1CA1-11d3-9CC8-00C04F7971E0", KSNODE_BDA_8VSB_DEMODULATOR);
+#define KSNODE_BDA_8VSB_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_8VSB_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_COFDM_DEMODULATOR \
+    0x2dac6e05, 0xedbe, 0x4b9c, 0xb3, 0x87, 0x1b, 0x6f, 0xad, 0x7d, 0x64, 0x95
+	DEFINE_GUIDSTRUCT("2DAC6E05-EDBE-4b9c-B387-1B6FAD7D6495", KSNODE_BDA_COFDM_DEMODULATOR);
+#define KSNODE_BDA_COFDM_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_COFDM_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_8PSK_DEMODULATOR \
+    0xe957a0e7, 0xdd98, 0x4a3c, 0x81, 0x0b, 0x35, 0x25, 0x15, 0x7a, 0xb6, 0x2e
+	DEFINE_GUIDSTRUCT("E957A0E7-DD98-4A3C-810B-3525157AB62E", KSNODE_BDA_8PSK_DEMODULATOR);
+#define KSNODE_BDA_8PSK_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_8PSK_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_ISDB_T_DEMODULATOR \
+    0xfcea3ae3, 0x2cb2, 0x464d, 0x8f, 0x5d, 0x30, 0x5c, 0x0b, 0xb7, 0x78, 0xa2
+	DEFINE_GUIDSTRUCT("fcea3ae3-2cb2-464d-8f5d-305c0bb778a2", KSNODE_BDA_ISDB_T_DEMODULATOR);
+#define KSNODE_BDA_ISDB_T_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_ISDB_T_DEMODULATOR)
+
+#define STATIC_KSNODE_BDA_ISDB_S_DEMODULATOR \
+    0xedde230a, 0x9086, 0x432d, 0xb8, 0xa5, 0x66, 0x70, 0x26, 0x38, 0x07, 0xe9
+	DEFINE_GUIDSTRUCT("edde230a-9086-432d-b8a5-6670263807e9", KSNODE_BDA_ISDB_S_DEMODULATOR);
+#define KSNODE_BDA_ISDB_S_DEMODULATOR DEFINE_GUIDNAMED(KSNODE_BDA_ISDB_S_DEMODULATOR)
+
+
+#define STATIC_KSNODE_BDA_OPENCABLE_POD \
+    0x345812a0, 0xfb7c, 0x4790, 0xaa, 0x7e, 0xb1, 0xdb, 0x88, 0xac, 0x19, 0xc9
+	DEFINE_GUIDSTRUCT("345812A0-FB7C-4790-AA7E-B1DB88AC19C9", KSNODE_BDA_OPENCABLE_POD);
+#define KSNODE_BDA_OPENCABLE_POD DEFINE_GUIDNAMED(KSNODE_BDA_OPENCABLE_POD)
+
+#define STATIC_KSNODE_BDA_COMMON_CA_POD \
+    0xd83ef8fc, 0xf3b8, 0x45ab, 0x8b, 0x71, 0xec, 0xf7, 0xc3, 0x39, 0xde, 0xb4
+	DEFINE_GUIDSTRUCT("D83EF8FC-F3B8-45ab-8B71-ECF7C339DEB4", KSNODE_BDA_COMMON_CA_POD);
+#define KSNODE_BDA_COMMON_CA_POD DEFINE_GUIDNAMED(KSNODE_BDA_COMMON_CA_POD)
+
+
+#define STATIC_KSNODE_BDA_PID_FILTER \
+    0xf5412789, 0xb0a0, 0x44e1, 0xae, 0x4f, 0xee, 0x99, 0x9b, 0x1b, 0x7f, 0xbe
+	DEFINE_GUIDSTRUCT("F5412789-B0A0-44e1-AE4F-EE999B1B7FBE", KSNODE_BDA_PID_FILTER);
+#define KSNODE_BDA_PID_FILTER DEFINE_GUIDNAMED(KSNODE_BDA_PID_FILTER)
+
+
+#define STATIC_KSNODE_BDA_IP_SINK \
+    0x71985f4e, 0x1ca1, 0x11d3, 0x9c, 0xc8, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe0
+	DEFINE_GUIDSTRUCT("71985F4E-1CA1-11d3-9CC8-00C04F7971E0", KSNODE_BDA_IP_SINK);
+#define KSNODE_IP_SINK DEFINE_GUIDNAMED(KSNODE_BDA_IP_SINK)
+
+#define STATIC_KSNODE_BDA_VIDEO_ENCODER \
+    0xd98429e3, 0x65c9, 0x4ac4, 0x93, 0xaa, 0x76, 0x67, 0x82, 0x83, 0x3b, 0x7a 
+	DEFINE_GUIDSTRUCT("d98429e3-65c9-4ac4-93aa-766782833b7a", KSNODE_BDA_VIDEO_ENCODER);
+#define KSNODE_BDA_VIDEO_ENCODER DEFINE_GUIDNAMED(KSNODE_BDA_VIDEO_ENCODER)
+
+#define STATIC_KSNODE_BDA_PBDA_CAS \
+    0xc026869f, 0x7129, 0x4e71, 0x86, 0x96, 0xec, 0x8f, 0x75, 0x29, 0x9b, 0x77
+	DEFINE_GUIDSTRUCT("C026869F-7129-4e71-8696-EC8F75299B77", KSNODE_BDA_PBDA_CAS);
+#define KSNODE_BDA_PBDA_CAS DEFINE_GUIDNAMED(KSNODE_BDA_PBDA_CAS)
+
+#define STATIC_KSNODE_BDA_PBDA_ISDBCAS \
+    0xf2cf2ab3, 0x5b9d, 0x40ae, 0xab, 0x7c, 0x4e, 0x7a, 0xd0, 0xbd, 0x1c, 0x52
+	DEFINE_GUIDSTRUCT("F2CF2AB3-5B9D-40ae-AB7C-4E7AD0BD1C52", KSNODE_BDA_PBDA_ISDBCAS);
+#define KSNODE_BDA_PBDA_ISDBCAS DEFINE_GUIDNAMED(KSNODE_BDA_PBDA_ISDBCAS)
+
+#define STATIC_KSNODE_BDA_PBDA_TUNER \
+    0xaa5e8286, 0x593c, 0x4979, 0x94, 0x94, 0x46, 0xa2, 0xa9, 0xdf, 0xe0, 0x76
+	DEFINE_GUIDSTRUCT("AA5E8286-593C-4979-9494-46A2A9DFE076", KSNODE_BDA_PBDA_TUNER);
+#define KSNODE_BDA_PBDA_TUNER DEFINE_GUIDNAMED(KSNODE_BDA_PBDA_TUNER)
+
+#define STATIC_KSNODE_BDA_PBDA_MUX \
+    0xf88c7787, 0x6678, 0x4f4b, 0xa1, 0x3e, 0xda, 0x9, 0x86, 0x1d, 0x68, 0x2b
+	DEFINE_GUIDSTRUCT("F88C7787-6678-4f4b-A13E-DA09861D682B", KSNODE_BDA_PBDA_MUX);
+#define KSNODE_BDA_PBDA_MUX DEFINE_GUIDNAMED(KSNODE_BDA_PBDA_MUX)
+
+#define STATIC_KSNODE_BDA_PBDA_DRM \
+    0x9eeebd03, 0xeea1, 0x450f, 0x96, 0xae, 0x63, 0x3e, 0x6d, 0xe6, 0x3c, 0xce
+	DEFINE_GUIDSTRUCT("9EEEBD03-EEA1-450f-96AE-633E6DE63CCE", KSNODE_BDA_PBDA_DRM);
+#define KSNODE_BDA_PBDA_DRM DEFINE_GUIDNAMED(KSNODE_BDA_PBDA_DRM)
+
+#define STATIC_KSNODE_BDA_DRI_DRM \
+    0x4f95ad74, 0xcefb, 0x42d2, 0x94, 0xa9, 0x68, 0xc5, 0xb2, 0xc1, 0xaa, 0xbe
+	DEFINE_GUIDSTRUCT("4F95AD74-CEFB-42d2-94A9-68C5B2C1AABE", KSNODE_BDA_DRI_DRM);
+#define KSNODE_BDA_DRI_DRM DEFINE_GUIDNAMED(KSNODE_BDA_DRI_DRM)
+
+#define STATIC_KSNODE_BDA_TS_SELECTOR \
+    0x5eddf185, 0xfed1, 0x4f45, 0x96, 0x85, 0xbb, 0xb7, 0x3c, 0x32, 0x3c, 0xfc
+	DEFINE_GUIDSTRUCT("5EDDF185-FED1-4f45-9685-BBB73C323CFC", KSNODE_BDA_TS_SELECTOR);
+#define KSNODE_BDA_TS_SELECTOR DEFINE_GUIDNAMED(KSNODE_BDA_TS_SELECTOR)
+
+
+	//===========================================================================
+	//
+	// IPSink PINNAME GUID
+	//
+	//===========================================================================
+
+#define STATIC_PINNAME_IPSINK_INPUT \
+    0x3fdffa70L, 0xac9a, 0x11d2, 0x8f, 0x17, 0x00, 0xc0, 0x4f, 0x79, 0x71, 0xe2
+	DEFINE_GUIDSTRUCT("3fdffa70-ac9a-11d2-8f17-00c04f7971e2", PINNAME_IPSINK_INPUT);
+#define PINNAME_IPSINK_INPUT   DEFINE_GUIDNAMED(PINNAME_IPSINK_INPUT)
+
+
+	//===========================================================================
+	//
+	// BDA IPSink Categories/Types
+	//
+	//===========================================================================
+
+
+#define STATIC_KSDATAFORMAT_TYPE_BDA_IP\
+    0xe25f7b8e, 0xcccc, 0x11d2, 0x8f, 0x25, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe2
+	DEFINE_GUIDSTRUCT("e25f7b8e-cccc-11d2-8f25-00c04f7971e2", KSDATAFORMAT_TYPE_BDA_IP);
+#define KSDATAFORMAT_TYPE_BDA_IP  DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_BDA_IP)
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_BDA_IP\
+    0x5a9a213c, 0xdb08, 0x11d2, 0x8f, 0x32, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe2
+	DEFINE_GUIDSTRUCT("5a9a213c-db08-11d2-8f32-00c04f7971e2", KSDATAFORMAT_SUBTYPE_BDA_IP);
+#define KSDATAFORMAT_SUBTYPE_BDA_IP  DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_BDA_IP)
+
+#define STATIC_KSDATAFORMAT_SPECIFIER_BDA_IP\
+    0x6b891420, 0xdb09, 0x11d2, 0x8f, 0x32, 0x0, 0xc0, 0x4f, 0x79, 0x71, 0xe2
+	DEFINE_GUIDSTRUCT("6B891420-DB09-11d2-8F32-00C04F7971E2", KSDATAFORMAT_SPECIFIER_BDA_IP);
+#define KSDATAFORMAT_SPECIFIER_BDA_IP  DEFINE_GUIDNAMED(KSDATAFORMAT_SPECIFIER_BDA_IP)
+
+
+
+#define STATIC_KSDATAFORMAT_TYPE_BDA_IP_CONTROL\
+    0xdadd5799, 0x7d5b, 0x4b63, 0x80, 0xfb, 0xd1, 0x44, 0x2f, 0x26, 0xb6, 0x21
+	DEFINE_GUIDSTRUCT("DADD5799-7D5B-4b63-80FB-D1442F26B621", KSDATAFORMAT_TYPE_BDA_IP_CONTROL);
+#define KSDATAFORMAT_TYPE_BDA_IP_CONTROL  DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_BDA_IP_CONTROL)
+
+#define STATIC_KSDATAFORMAT_SUBTYPE_BDA_IP_CONTROL\
+    0x499856e8, 0xe85b, 0x48ed, 0x9b, 0xea, 0x41, 0xd, 0xd, 0xd4, 0xef, 0x81
+	DEFINE_GUIDSTRUCT("499856E8-E85B-48ed-9BEA-410D0DD4EF81", KSDATAFORMAT_SUBTYPE_BDA_IP_CONTROL);
+#define KSDATAFORMAT_SUBTYPE_BDA_IP_CONTROL  DEFINE_GUIDNAMED(KSDATAFORMAT_SUBTYPE_BDA_IP_CONTROL)
+
+
+	//===========================================================================
+	//
+	// MPE PINNAME GUID
+	//
+	//===========================================================================
+
+#define STATIC_PINNAME_MPE \
+    0xc1b06d73L, 0x1dbb, 0x11d3, 0x8f, 0x46, 0x00, 0xC0, 0x4f, 0x79, 0x71, 0xE2
+	DEFINE_GUIDSTRUCT("C1B06D73-1DBB-11d3-8F46-00C04F7971E2", PINNAME_MPE);
+#define PINNAME_MPE   DEFINE_GUIDNAMED(PINNAME_MPE)
+
+
+	/////////////////////////////////////////////////////////////
+	//
+	// BDA MPE Categories/Types
+	//
+#define STATIC_KSDATAFORMAT_TYPE_MPE \
+    0x455f176c, 0x4b06, 0x47ce, 0x9a, 0xef, 0x8c, 0xae, 0xf7, 0x3d, 0xf7, 0xb5
+	DEFINE_GUIDSTRUCT("455F176C-4B06-47ce-9AEF-8CAEF73DF7B5", KSDATAFORMAT_TYPE_MPE);
+#define KSDATAFORMAT_TYPE_MPE  DEFINE_GUIDNAMED(KSDATAFORMAT_TYPE_MPE)
+
+
+	//===========================================================================
+	//
+	// BDA NETWORK TYPE GUID
+	//
+	//===========================================================================
+
+#define STATIC_DIGITAL_CABLE_NETWORK_TYPE \
+    0x143827AB, 0xF77B, 0x498d, 0x81, 0xCA, 0x5A, 0x00, 0x7A, 0xEC, 0x28, 0xBF
+	DEFINE_GUIDSTRUCT("143827AB-F77B-498d-81CA-5A007AEC28BF", DIGITAL_CABLE_NETWORK_TYPE);
+#define DIGITAL_CABLE_NETWORK_TYPE   DEFINE_GUIDNAMED(DIGITAL_CABLE_NETWORK_TYPE)
+
+#define STATIC_ANALOG_TV_NETWORK_TYPE \
+    0xb820d87e, 0xe0e3, 0x478f, 0x8a, 0x38, 0x4e, 0x13, 0xf7, 0xb3, 0xdf, 0x42
+	DEFINE_GUIDSTRUCT("B820D87E-E0E3-478f-8A38-4E13F7B3DF42", ANALOG_TV_NETWORK_TYPE);
+#define ANALOG_TV_NETWORK_TYPE   DEFINE_GUIDNAMED(ANALOG_TV_NETWORK_TYPE)
+
+#define STATIC_ANALOG_AUXIN_NETWORK_TYPE \
+    0x742EF867, 0x9E1, 0x40A3, 0x82, 0xD3, 0x96, 0x69, 0xBA, 0x35, 0x32, 0x5F
+	DEFINE_GUIDSTRUCT("742EF867-09E1-40A3-82D3-9669BA35325F", ANALOG_AUXIN_NETWORK_TYPE);
+#define ANALOG_AUXIN_NETWORK_TYPE   DEFINE_GUIDNAMED(ANALOG_AUXIN_NETWORK_TYPE)
+
+#define STATIC_ANALOG_FM_NETWORK_TYPE \
+    0x7728087b, 0x2bb9, 0x4e30, 0x80, 0x78, 0x44, 0x94, 0x76, 0xe5, 0x9d, 0xbb
+	DEFINE_GUIDSTRUCT("7728087B-2BB9-4E30-8078-449476E59DBB", ANALOG_FM_NETWORK_TYPE);
+#define ANALOG_FM_NETWORK_TYPE   DEFINE_GUIDNAMED(ANALOG_FM_NETWORK_TYPE)
+
+#define STATIC_ISDB_TERRESTRIAL_TV_NETWORK_TYPE \
+    0x95037f6f, 0x3ac7, 0x4452, 0xb6, 0xc4, 0x45, 0xa9, 0xce, 0x92, 0x92, 0xa2
+	DEFINE_GUIDSTRUCT("95037F6F-3AC7-4452-B6C4-45A9CE9292A2", ISDB_TERRESTRIAL_TV_NETWORK_TYPE);
+#define ISDB_TERRESTRIAL_TV_NETWORK_TYPE DEFINE_GUIDNAMED(ISDB_TERRESTRIAL_TV_NETWORK_TYPE) 
+#define STATIC_ISDB_T_NETWORK_TYPE \
+    0xfc3855a6, 0xc901, 0x4f2e, 0xab, 0xa8, 0x90, 0x81, 0x5a, 0xfc, 0x6c, 0x83
+	DEFINE_GUIDSTRUCT("fc3855a6-c901-4f2e-aba8-90815afc6c83", ISDB_T_NETWORK_TYPE);
+#define ISDB_T_NETWORK_TYPE   DEFINE_GUIDNAMED(ISDB_T_NETWORK_TYPE)
+
+#define STATIC_ISDB_SATELLITE_TV_NETWORK_TYPE \
+    0xb0a4e6a0, 0x6a1a, 0x4b83, 0xbb, 0x5b, 0x90, 0x3e, 0x1d, 0x90, 0xe6, 0xb6 
+	DEFINE_GUIDSTRUCT("B0A4E6A0-6A1A-4B83-BB5B-903E1D90E6B6", ISDB_SATELLITE_TV_NETWORK_TYPE);
+#define ISDB_SATELLITE_TV_NETWORK_TYPE DEFINE_GUIDNAMED(ISDB_SATELLITE_TV_NETWORK_TYPE)
+#define STATIC_ISDB_S_NETWORK_TYPE \
+    0xa1e78202, 0x1459, 0x41b1, 0x9c, 0xa9, 0x2a, 0x92, 0x58, 0x7a, 0x42, 0xcc
+	DEFINE_GUIDSTRUCT("a1e78202-1459-41b1-9ca9-2a92587a42cc", ISDB_S_NETWORK_TYPE);
+#define ISDB_S_NETWORK_TYPE   DEFINE_GUIDNAMED(ISDB_S_NETWORK_TYPE)
+
+#define STATIC_ISDB_CABLE_TV_NETWORK_TYPE \
+    0xc974ddb5, 0x41fe, 0x4b25, 0x97, 0x41, 0x92, 0xf0, 0x49, 0xf1, 0xd5, 0xd1 
+	DEFINE_GUIDSTRUCT("C974DDB5-41FE-4B25-9741-92F049F1D5D1", ISDB_CABLE_TV_NETWORK_TYPE);
+#define ISDB_CABLE_TV_NETWORK_TYPE DEFINE_GUIDNAMED(ISDB_CABLE_TV_NETWORK_TYPE)
+
+#define STATIC_DIRECT_TV_SATELLITE_TV_NETWORK_TYPE \
+    0x93b66fb5, 0x93d4, 0x4323, 0x92, 0x1c, 0xc1, 0xf5, 0x2d, 0xf6, 0x1d, 0x3f 
+	DEFINE_GUIDSTRUCT("93B66FB5-93D4-4323-921C-C1F52DF61D3F", DIRECT_TV_SATELLITE_TV_NETWORK_TYPE);
+#define DIRECT_TV_SATELLITE_TV_NETWORK_TYPE DEFINE_GUIDNAMED(DIRECT_TV_SATELLITE_TV_NETWORK_TYPE)
+
+#define STATIC_ECHOSTAR_SATELLITE_TV_NETWORK_TYPE \
+    0xc4f6b31b, 0xc6bf, 0x4759, 0x88, 0x6f, 0xa7, 0x38, 0x6d, 0xca, 0x27, 0xa0 
+	DEFINE_GUIDSTRUCT("C4F6B31B-C6BF-4759-886F-A7386DCA27A0", ECHOSTAR_SATELLITE_TV_NETWORK_TYPE);
+#define ECHOSTAR_SATELLITE_TV_NETWORK_TYPE DEFINE_GUIDNAMED(ECHOSTAR_SATELLITE_TV_NETWORK_TYPE)
+
+	// Same as CLSID_ATSCNetworkProvider in uuids.h
+#define STATIC_ATSC_TERRESTRIAL_TV_NETWORK_TYPE \
+    0x0dad2fdd, 0x5fd7, 0x11d3, 0x8f, 0x50, 0x00, 0xc0, 0x4f, 0x79, 0x71, 0xe2
+	DEFINE_GUIDSTRUCT("0DAD2FDD-5FD7-11D3-8F50-00C04F7971E2", ATSC_TERRESTRIAL_TV_NETWORK_TYPE);
+#define ATSC_TERRESTRIAL_TV_NETWORK_TYPE DEFINE_GUIDNAMED(ATSC_TERRESTRIAL_TV_NETWORK_TYPE) 
+
+	// Same as CLSID_DVBTNetworkProvider in uuids.h
+#define STATIC_DVB_TERRESTRIAL_TV_NETWORK_TYPE \
+    0x216c62df, 0x6d7f, 0x4e9a, 0x85, 0x71, 0x05, 0xf1, 0x4e, 0xdb, 0x76, 0x6a
+	DEFINE_GUIDSTRUCT("216C62DF-6D7F-4E9A-8571-05F14EDB766A", DVB_TERRESTRIAL_TV_NETWORK_TYPE);
+#define DVB_TERRESTRIAL_TV_NETWORK_TYPE DEFINE_GUIDNAMED(DVB_TERRESTRIAL_TV_NETWORK_TYPE) 
+
+	// Same as CLSID_DVBSNetworkProvider in uuids.h
+#define STATIC_BSKYB_TERRESTRIAL_TV_NETWORK_TYPE \
+    0x9E9E46C6, 0x3ABA, 0x4f08, 0xAD, 0x0E, 0xCC, 0x5A, 0xC8, 0x14, 0x8C, 0x2B
+	DEFINE_GUIDSTRUCT("9E9E46C6-3ABA-4f08-AD0E-CC5AC8148C2B", BSKYB_TERRESTRIAL_TV_NETWORK_TYPE);
+#define BSKYB_TERRESTRIAL_TV_NETWORK_TYPE DEFINE_GUIDNAMED(BSKYB_TERRESTRIAL_TV_NETWORK_TYPE)
+
+	// Same as CLSID_DVBSNetworkProvider in uuids.h
+#define STATIC_DVB_SATELLITE_TV_NETWORK_TYPE \
+    0xfa4b375a, 0x45b4, 0x4d45, 0x84, 0x40, 0x26, 0x39, 0x57, 0xb1, 0x16, 0x23 
+	DEFINE_GUIDSTRUCT("FA4B375A-45B4-4D45-8440-263957B11623", DVB_SATELLITE_TV_NETWORK_TYPE);
+#define DVB_SATELLITE_TV_NETWORK_TYPE DEFINE_GUIDNAMED(DVB_SATELLITE_TV_NETWORK_TYPE)
+
+	// Same as CLSID_DVBCNetworkProvider in uuids.h
+#define STATIC_DVB_CABLE_TV_NETWORK_TYPE \
+    0xdc0c0fe7, 0x485, 0x4266, 0xb9, 0x3f, 0x68, 0xfb, 0xf8, 0x0e, 0xd8, 0x34 
+	DEFINE_GUIDSTRUCT("DC0C0FE7-0485-4266-B93F-68FBF80ED834", DVB_CABLE_TV_NETWORK_TYPE);
+#define DVB_CABLE_TV_NETWORK_TYPE DEFINE_GUIDNAMED(DVB_CABLE_TV_NETWORK_TYPE) 
+
+
+	//===========================================================================
+	//
+	// PBDA EVENT GUIDS
+	//
+	//===========================================================================
+#define STATIC_BDA_DEBUG_DATA_AVAILABLE \
+    0x69C24F54, 0x9983, 0x497e, 0xb4, 0x15, 0x28, 0x2b, 0xe4, 0xc5, 0x55, 0xfb 
+	DEFINE_GUIDSTRUCT("69C24F54-9983-497e-B415-282BE4C555FB", BDA_DEBUG_DATA_AVAILABLE);
+#define BDA_DEBUG_DATA_AVAILABLE  DEFINE_GUIDNAMED(BDA_DEBUG_DATA_AVAILABLE) 
+
+
+#define STATIC_BDA_DEBUG_DATA_TYPE_STRING \
+    0xa806e767, 0xde5c, 0x430c, 0x80, 0xbf, 0xa2, 0x1e, 0xbe, 0x06, 0xc7, 0x48 
+	DEFINE_GUIDSTRUCT("a806e767-de5c-430c-80bf-a21ebe06c748", BDA_DEBUG_DATA_TYPE_STRING);
+#define BDA_DEBUG_DATA_TYPE_STRING  DEFINE_GUIDNAMED(BDA_DEBUG_DATA_TYPE_STRING) 
+
+
+#define STATIC_EVENTID_BDA_IsdbCASResponse \
+    0xd4cb1966, 0x41bc, 0x4ced, 0x9a, 0x20, 0xfd, 0xce, 0xac, 0x78, 0xf7, 0x0d	
+	DEFINE_GUIDSTRUCT("D4CB1966-41BC-4ced-9A20-FDCEAC78F70D", EVENTID_BDA_IsdbCASResponse);
+#define EVENTID_BDA_IsdbCASResponse DEFINE_GUIDNAMED(EVENTID_BDA_IsdbCASResponse)
+
+
+#define STATIC_EVENTID_BDA_CASRequestTuner \
+    0xcf39a9d8, 0xf5d3, 0x4685, 0xbe, 0x57, 0xed, 0x81, 0xdb, 0xa4, 0x6b, 0x27	
+	DEFINE_GUIDSTRUCT("CF39A9D8-F5D3-4685-BE57-ED81DBA46B27", EVENTID_BDA_CASRequestTuner);
+#define EVENTID_BDA_CASRequestTuner DEFINE_GUIDNAMED(EVENTID_BDA_CASRequestTuner)
+
+
+#define STATIC_EVENTID_BDA_CASReleaseTuner \
+    0x20c1a16b, 0x441f, 0x49a5, 0xbb, 0x5c, 0xe9, 0xa0, 0x44, 0x95, 0xc6, 0xc1	
+	DEFINE_GUIDSTRUCT("20C1A16B-441F-49a5-BB5C-E9A04495C6C1", EVENTID_BDA_CASReleaseTuner);
+#define EVENTID_BDA_CASReleaseTuner DEFINE_GUIDNAMED(EVENTID_BDA_CASReleaseTuner)
+
+
+#define STATIC_EVENTID_BDA_CASOpenMMI \
+    0x85dac915, 0xe593, 0x410d, 0x84, 0x71, 0xd6, 0x81, 0x21, 0x05, 0xf2, 0x8e	
+	DEFINE_GUIDSTRUCT("85DAC915-E593-410d-8471-D6812105F28E", EVENTID_BDA_CASOpenMMI);
+#define EVENTID_BDA_CASOpenMMI DEFINE_GUIDNAMED(EVENTID_BDA_CASOpenMMI)
+
+
+#define STATIC_EVENTID_BDA_CASCloseMMI \
+    0x5d0f550f, 0xde2e, 0x479d, 0x83, 0x45, 0xec, 0x0e, 0x95, 0x57, 0xe8, 0xa2	
+	DEFINE_GUIDSTRUCT("5D0F550F-DE2E-479d-8345-EC0E9557E8A2", EVENTID_BDA_CASCloseMMI);
+#define EVENTID_BDA_CASCloseMMI DEFINE_GUIDNAMED(EVENTID_BDA_CASCloseMMI)
+
+
+#define STATIC_EVENTID_BDA_CASBroadcastMMI \
+    0x676876f0, 0x1132, 0x404c, 0xa7, 0xca, 0xe7, 0x20, 0x69, 0xa9, 0xd5, 0x4f	
+	DEFINE_GUIDSTRUCT("676876F0-1132-404c-A7CA-E72069A9D54F", EVENTID_BDA_CASBroadcastMMI);
+#define EVENTID_BDA_CASBroadcastMMI DEFINE_GUIDNAMED(EVENTID_BDA_CASBroadcastMMI)
+
+
+#define STATIC_EVENTID_BDA_TunerSignalLock \
+    0x1872e740, 0xf573, 0x429b, 0xa0, 0x0e, 0xd9, 0xc1, 0xe4, 0x08, 0xaf, 0x09	
+	DEFINE_GUIDSTRUCT("1872E740-F573-429b-A00E-D9C1E408AF09", EVENTID_BDA_TunerSignalLock);
+#define EVENTID_BDA_TunerSignalLock DEFINE_GUIDNAMED(EVENTID_BDA_TunerSignalLock)
+
+#define STATIC_EVENTID_BDA_TunerNoSignal \
+    0xe29b382b, 0x1edd, 0x4930, 0xbc, 0x46, 0x68, 0x2f, 0xd7, 0x2d, 0x2d, 0xfb	
+	DEFINE_GUIDSTRUCT("E29B382B-1EDD-4930-BC46-682FD72D2DFB", EVENTID_BDA_TunerNoSignal);
+#define EVENTID_BDA_TunerNoSignal DEFINE_GUIDNAMED(EVENTID_BDA_TunerNoSignal)
+
+#define STATIC_EVENTID_BDA_GPNVValueUpdate \
+    0xff75c68c, 0xf416, 0x4e7e, 0xbf, 0x17, 0x6d, 0x55, 0xc5, 0xdf, 0x15, 0x75	
+	DEFINE_GUIDSTRUCT("FF75C68C-F416-4e7e-BF17-6D55C5DF1575", EVENTID_BDA_GPNVValueUpdate);
+#define EVENTID_BDA_GPNVValueUpdate DEFINE_GUIDNAMED(EVENTID_BDA_GPNVValueUpdate)
+
+
+#define STATIC_EVENTID_BDA_UpdateDrmStatus \
+    0x65a6f681, 0x1462, 0x473b, 0x88, 0xce, 0xcb, 0x73, 0x14, 0x27, 0xbd, 0xb5	
+	DEFINE_GUIDSTRUCT("65A6F681-1462-473b-88CE-CB731427BDB5", EVENTID_BDA_UpdateDrmStatus);
+#define EVENTID_BDA_UpdateDrmStatus DEFINE_GUIDNAMED(EVENTID_BDA_UpdateDrmStatus)
+
+
+#define STATIC_EVENTID_BDA_UpdateScanState \
+    0x55702B50, 0x7B49, 0x42B8, 0xA8, 0x2F, 0x4A, 0xFB, 0x69, 0x1B, 0x06, 0x28	
+	DEFINE_GUIDSTRUCT("55702B50-7B49-42B8-A82F-4AFB691B0628", EVENTID_BDA_UpdateScanState);
+#define EVENTID_BDA_UpdateScanState DEFINE_GUIDNAMED(EVENTID_BDA_UpdateScanState)
+
+
+#define STATIC_EVENTID_BDA_GuideDataAvailable \
+    0x98db717a, 0x478a, 0x4cd4, 0x92, 0xd0, 0x95, 0xf6, 0x6b, 0x89, 0xe5, 0xb1	
+	DEFINE_GUIDSTRUCT("98DB717A-478A-4cd4-92D0-95F66B89E5B1", EVENTID_BDA_GuideDataAvailable);
+#define EVENTID_BDA_GuideDataAvailable DEFINE_GUIDNAMED(EVENTID_BDA_GuideDataAvailable)
+
+
+#define STATIC_EVENTID_BDA_GuideServiceInformationUpdated \
+    0xa1c3ea2b, 0x175f, 0x4458, 0xb7, 0x35, 0x50, 0x7d, 0x22, 0xdb, 0x23, 0xa6	
+	DEFINE_GUIDSTRUCT("A1C3EA2B-175F-4458-B735-507D22DB23A6", EVENTID_BDA_GuideServiceInformationUpdated);
+#define EVENTID_BDA_GuideServiceInformationUpdated DEFINE_GUIDNAMED(EVENTID_BDA_GuideServiceInformationUpdated)
+
+
+#define STATIC_EVENTID_BDA_GuideDataError \
+    0xAC33C448, 0x6F73, 0x4fd7, 0xB3, 0x41, 0x59, 0x4C, 0x36, 0x0D, 0x8D, 0x74	
+	DEFINE_GUIDSTRUCT("AC33C448-6F73-4fd7-B341-594C360D8D74", EVENTID_BDA_GuideDataError);
+#define EVENTID_BDA_GuideDataError DEFINE_GUIDNAMED(EVENTID_BDA_GuideDataError)
+
+
+#define STATIC_EVENTID_BDA_DiseqCResponseAvailable \
+    0xefa628f8, 0x1f2c, 0x4b67, 0x9e, 0xa5, 0xac, 0xf6, 0xfa, 0x9a, 0x1f, 0x36	
+	DEFINE_GUIDSTRUCT("EFA628F8-1F2C-4b67-9EA5-ACF6FA9A1F36", EVENTID_BDA_DiseqCResponseAvailable);
+#define EVENTID_BDA_DiseqCResponseAvailable DEFINE_GUIDNAMED(EVENTID_BDA_DiseqCResponseAvailable)
+
+#define STATIC_EVENTID_BDA_LbigsOpenConnection \
+    0x356207B2, 0x6F31, 0x4eb0, 0xa2, 0x71, 0xb3, 0xfa, 0x6b, 0xb7, 0x68, 0x0f	
+	DEFINE_GUIDSTRUCT("356207B2-6F31-4eb0-A271-B3FA6BB7680F", EVENTID_BDA_LbigsOpenConnection);
+#define EVENTID_BDA_LbigsOpenConnection DEFINE_GUIDNAMED(EVENTID_BDA_LbigsOpenConnection)
+
+#define STATIC_EVENTID_BDA_LbigsSendData \
+    0x1123277B, 0xF1C6, 0x4154, 0x8b, 0x0d, 0x48, 0xe6, 0x15, 0x70, 0x59, 0xaa	
+	DEFINE_GUIDSTRUCT("1123277B-F1C6-4154-8B0D-48E6157059AA", EVENTID_BDA_LbigsSendData);
+#define EVENTID_BDA_LbigsSendData DEFINE_GUIDNAMED(EVENTID_BDA_LbigsSendData)
+
+#define STATIC_EVENTID_BDA_LbigsCloseConnectionHandle \
+    0xC2F08B99, 0x65EF, 0x4314, 0x96, 0x71, 0xe9, 0x9d, 0x4c, 0xce, 0x0b, 0xae	
+	DEFINE_GUIDSTRUCT("C2F08B99-65EF-4314-9671-E99D4CCE0BAE", EVENTID_BDA_LbigsCloseConnectionHandle);
+#define EVENTID_BDA_LbigsCloseConnectionHandle DEFINE_GUIDNAMED(EVENTID_BDA_LbigsCloseConnectionHandle)
+
+#define STATIC_EVENTID_BDA_EncoderSignalLock \
+    0x5ec90eb9, 0x39fa, 0x4cfc, 0xb9, 0x3f, 0x00, 0xbb, 0x11, 0x07, 0x7f, 0x5e
+	DEFINE_GUIDSTRUCT("5EC90EB9-39FA-4CFC-B93F-00BB11077F5E", EVENTID_BDA_EncoderSignalLock);
+#define EVENTID_BDA_EncoderSignalLock DEFINE_GUIDNAMED(EVENTID_BDA_EncoderSignalLock)
+
+
+#define STATIC_EVENTID_BDA_FdcStatus \
+    0x05f25366, 0xd0eb, 0x43d2, 0xbc, 0x3c, 0x68, 0x2b, 0x86, 0x3d, 0xf1, 0x42
+	DEFINE_GUIDSTRUCT("05F25366-D0EB-43d2-BC3C-682B863DF142", EVENTID_BDA_FdcStatus);
+#define EVENTID_BDA_FdcStatus DEFINE_GUIDNAMED(EVENTID_BDA_FdcStatus)
+
+
+#define STATIC_EVENTID_BDA_FdcTableSection \
+    0x6a0cD757, 0x4ce3,0x4e5b, 0x94, 0x44, 0x71, 0x87, 0xb8, 0x71, 0x52, 0xc5
+	DEFINE_GUIDSTRUCT("6A0CD757-4CE3-4e5b-9444-7187B87152C5", EVENTID_BDA_FdcTableSection);
+#define EVENTID_BDA_FdcTableSection DEFINE_GUIDNAMED(EVENTID_BDA_FdcTableSection)
+
+
+#define STATIC_EVENTID_BDA_TransprtStreamSelectorInfo \
+    0xc40f9f85, 0x9d0, 0x489c, 0x9e, 0x9c, 0x0a, 0xbb, 0xb5, 0x69, 0x51, 0xb0
+	DEFINE_GUIDSTRUCT("C40F9F85-09D0-489c-9E9C-0ABBB56951B0", EVENTID_BDA_TransprtStreamSelectorInfo);
+#define EVENTID_BDA_TransprtStreamSelectorInfo DEFINE_GUIDNAMED(EVENTID_BDA_TransprtStreamSelectorInfo)
+
+
+#define STATIC_EVENTID_BDA_RatingPinReset \
+    0xc6e048c0, 0xc574, 0x4c26, 0xbc, 0xda, 0x2f, 0x4d, 0x35, 0xeb, 0x5e, 0x85
+	DEFINE_GUIDSTRUCT("C6E048C0-C574-4C26-BCDA-2F4D35EB5E85", EVENTID_BDA_RatingPinReset);
+#define EVENTID_BDA_RatingPinReset DEFINE_GUIDNAMED(EVENTID_BDA_RatingPinReset)
+
+
+	//===========================================================================
+	//
+	// PBDA COMMON USE GUIDs
+	//
+	//===========================================================================
+
+#define STATIC_PBDA_ALWAYS_TUNE_IN_MUX \
+    0x1E1D7141, 0x583F, 0x4ac2, 0xB0, 0x19, 0x1F, 0x43, 0x0E, 0xDA, 0x0F, 0x4C	
+	DEFINE_GUIDSTRUCT("1E1D7141-583F-4ac2-B019-1F430EDA0F4C", PBDA_ALWAYS_TUNE_IN_MUX);
+#define PBDA_ALWAYS_TUNE_IN_MUX DEFINE_GUIDNAMED(PBDA_ALWAYS_TUNE_IN_MUX) 
+
+
+
+#if defined(__cplusplus)
+}
+#endif // defined(__cplusplus)
+
+#endif // !defined(_BDAMEDIA_)
+
+
+
+
+
+
+/*************************************bdamedia.h**************************************/
+
+
+
+
+
+
+
+/*************************************uuids.h**************************************/
+
+
+#ifndef OUR_GUID_ENTRY
+#define OUR_GUID_ENTRY(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+    DEFINE_GUID(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
+#endif
+
+
+// -- to allow consistent labeling of Media types and subtypes --
+
+#define MEDIATYPE_NULL       GUID_NULL
+#define MEDIASUBTYPE_NULL    GUID_NULL
+
+// -- Use this subtype if you don't have a use for a subtype for your type
+// e436eb8e-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_None
+OUR_GUID_ENTRY(MEDIASUBTYPE_None,
+	0xe436eb8e, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+
+	// -- major types ---
+
+
+	// 73646976-0000-0010-8000-00AA00389B71  'vids' == MEDIATYPE_Video
+	OUR_GUID_ENTRY(MEDIATYPE_Video,
+		0x73646976, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 73647561-0000-0010-8000-00AA00389B71  'auds' == MEDIATYPE_Audio
+	OUR_GUID_ENTRY(MEDIATYPE_Audio,
+		0x73647561, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 73747874-0000-0010-8000-00AA00389B71  'txts' == MEDIATYPE_Text
+	OUR_GUID_ENTRY(MEDIATYPE_Text,
+		0x73747874, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 7364696D-0000-0010-8000-00AA00389B71  'mids' == MEDIATYPE_Midi
+	OUR_GUID_ENTRY(MEDIATYPE_Midi,
+		0x7364696D, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// e436eb83-524f-11ce-9f53-0020af0ba770            MEDIATYPE_Stream
+	OUR_GUID_ENTRY(MEDIATYPE_Stream,
+		0xe436eb83, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// 73(s)76(v)61(a)69(i)-0000-0010-8000-00AA00389B71  'iavs' == MEDIATYPE_Interleaved
+	OUR_GUID_ENTRY(MEDIATYPE_Interleaved,
+		0x73766169, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 656c6966-0000-0010-8000-00AA00389B71  'file' == MEDIATYPE_File
+	OUR_GUID_ENTRY(MEDIATYPE_File,
+		0x656c6966, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 73636d64-0000-0010-8000-00AA00389B71  'scmd' == MEDIATYPE_ScriptCommand
+	OUR_GUID_ENTRY(MEDIATYPE_ScriptCommand,
+		0x73636d64, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 670AEA80-3A82-11d0-B79B-00AA003767A7            MEDIATYPE_AUXLine21Data
+	OUR_GUID_ENTRY(MEDIATYPE_AUXLine21Data,
+		0x670aea80, 0x3a82, 0x11d0, 0xb7, 0x9b, 0x0, 0xaa, 0x0, 0x37, 0x67, 0xa7)
+
+	// {11264ACB-37DE-4eba-8C35-7F04A1A68332}
+	OUR_GUID_ENTRY(MEDIATYPE_AUXTeletextPage,
+		0x11264acb, 0x37de, 0x4eba, 0x8c, 0x35, 0x7f, 0x4, 0xa1, 0xa6, 0x83, 0x32)
+
+	// AEB312E9-3357-43ca-B701-97EC198E2B62            MEDIATYPE_CC_CONTAINER
+	OUR_GUID_ENTRY(MEDIATYPE_CC_CONTAINER,
+		0xaeb312e9, 0x3357, 0x43ca, 0xb7, 0x1, 0x97, 0xec, 0x19, 0x8e, 0x2b, 0x62)
+
+	// FB77E152-53B2-499c-B46B-509FC33EDFD7             MEDIATYPE_DTVCCData
+	OUR_GUID_ENTRY(MEDIATYPE_DTVCCData,
+		0xfb77e152, 0x53b2, 0x499c, 0xb4, 0x6b, 0x50, 0x9f, 0xc3, 0x3e, 0xdf, 0xd7)
+
+	// B88B8A89-B049-4C80-ADCF-5898985E22C1             MEDIATYPE_MSTVCaption
+	OUR_GUID_ENTRY(MEDIATYPE_MSTVCaption,
+		0xB88B8A89, 0xB049, 0x4C80, 0xAD, 0xCF, 0x58, 0x98, 0x98, 0x5E, 0x22, 0xC1)
+
+	// F72A76E1-EB0A-11D0-ACE4-0000C0CC16BA            MEDIATYPE_VBI
+	OUR_GUID_ENTRY(MEDIATYPE_VBI,
+		0xf72a76e1, 0xeb0a, 0x11d0, 0xac, 0xe4, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// 34FFCBC3-D5B3-4171-9002-D4C60301697F             DVB_SUBTITLES
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVB_SUBTITLES,
+		0x34FFCBC3, 0xD5B3, 0x4171, 0x90, 0x02, 0xD4, 0xC6, 0x03, 0x01, 0x69, 0x7F)
+
+	// 059DD67D-2E55-4d41-8D1B-01F5E4F50607            ISDB_CAPTIONS
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ISDB_CAPTIONS,
+		0x059dd67d, 0x2e55, 0x4d41, 0x8d, 0x1b, 0x01, 0xf5, 0xe4, 0xf5, 0x06, 0x07)
+
+	// 36dc6d28-f1a6-4216-9048-9cfcefeb5eba            ISDB_SUPERIMPOSE
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ISDB_SUPERIMPOSE,
+		0x36dc6d28, 0xf1a6, 0x4216, 0x90, 0x48, 0x9c, 0xfc, 0xef, 0xeb, 0x5e, 0xba)
+
+	// 0482DEE3-7817-11cf-8a03-00aa006ecb65            MEDIATYPE_Timecode
+	OUR_GUID_ENTRY(MEDIATYPE_Timecode,
+		0x482dee3, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 74726c6d-0000-0010-8000-00AA00389B71  'lmrt' == MEDIATYPE_LMRT
+	OUR_GUID_ENTRY(MEDIATYPE_LMRT,
+		0x74726c6d, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 74726c6d-0000-0010-8000-00AA00389B71  'urls' == MEDIATYPE_URL_STREAM
+	OUR_GUID_ENTRY(MEDIATYPE_URL_STREAM,
+		0x736c7275, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// -- sub types ---
+
+	// 4C504C43-0000-0010-8000-00AA00389B71  'CLPL' == MEDIASUBTYPE_CLPL
+	OUR_GUID_ENTRY(MEDIASUBTYPE_CLPL,
+		0x4C504C43, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 56595559-0000-0010-8000-00AA00389B71  'YUYV' == MEDIASUBTYPE_YUYV
+	OUR_GUID_ENTRY(MEDIASUBTYPE_YUYV,
+		0x56595559, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 56555949-0000-0010-8000-00AA00389B71  'IYUV' == MEDIASUBTYPE_IYUV
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IYUV,
+		0x56555949, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 39555659-0000-0010-8000-00AA00389B71  'YVU9' == MEDIASUBTYPE_YVU9
+	OUR_GUID_ENTRY(MEDIASUBTYPE_YVU9,
+		0x39555659, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 31313459-0000-0010-8000-00AA00389B71  'Y411' == MEDIASUBTYPE_Y411
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Y411,
+		0x31313459, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 50313459-0000-0010-8000-00AA00389B71  'Y41P' == MEDIASUBTYPE_Y41P
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Y41P,
+		0x50313459, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 32595559-0000-0010-8000-00AA00389B71  'YUY2' == MEDIASUBTYPE_YUY2
+	OUR_GUID_ENTRY(MEDIASUBTYPE_YUY2,
+		0x32595559, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 55595659-0000-0010-8000-00AA00389B71  'YVYU' == MEDIASUBTYPE_YVYU
+	OUR_GUID_ENTRY(MEDIASUBTYPE_YVYU,
+		0x55595659, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 59565955-0000-0010-8000-00AA00389B71  'UYVY' ==  MEDIASUBTYPE_UYVY
+	OUR_GUID_ENTRY(MEDIASUBTYPE_UYVY,
+		0x59565955, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 31313259-0000-0010-8000-00AA00389B71  'Y211' ==  MEDIASUBTYPE_Y211
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Y211,
+		0x31313259, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 524a4c43-0000-0010-8000-00AA00389B71  'CLJR' ==  MEDIASUBTYPE_CLJR
+	OUR_GUID_ENTRY(MEDIASUBTYPE_CLJR,
+		0x524a4c43, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 39304649-0000-0010-8000-00AA00389B71  'IF09' ==  MEDIASUBTYPE_IF09
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IF09,
+		0x39304649, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 414c5043-0000-0010-8000-00AA00389B71  'CPLA' ==  MEDIASUBTYPE_CPLA
+	OUR_GUID_ENTRY(MEDIASUBTYPE_CPLA,
+		0x414c5043, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 47504A4D-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_MJPG
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MJPG,
+		0x47504A4D, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 4A4D5654-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_TVMJ
+	OUR_GUID_ENTRY(MEDIASUBTYPE_TVMJ,
+		0x4A4D5654, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 454B4157-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_WAKE
+	OUR_GUID_ENTRY(MEDIASUBTYPE_WAKE,
+		0x454B4157, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 43434643-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_CFCC
+	OUR_GUID_ENTRY(MEDIASUBTYPE_CFCC,
+		0x43434643, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 47504A49-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_IJPG
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IJPG,
+		0x47504A49, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 6D756C50-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_Plum
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Plum,
+		0x6D756C50, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// FAST DV-Master
+	// 53435644-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_DVCS
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVCS,
+		0x53435644, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// H.264 compressed video stream
+	// 34363248-0000-0010-8000-00AA00389B71  'H264' == MEDIASUBTYPE_H264
+	OUR_GUID_ENTRY(MEDIASUBTYPE_H264,
+		0x34363248, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// FAST DV-Master
+	// 44535644-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_DVSD
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DVSD,
+		0x44535644, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// MIROVideo DV
+	// 4656444D-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_MDVF
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MDVF,
+		0x4656444D, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// e436eb78-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB1
+	// e436eb78-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB1
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB1,
+		0xe436eb78, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb79-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB4
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB4,
+		0xe436eb79, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb7a-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB8
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB8,
+		0xe436eb7a, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb7b-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB565
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB565,
+		0xe436eb7b, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb7c-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB555
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB555,
+		0xe436eb7c, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb7d-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB24
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB24,
+		0xe436eb7d, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb7e-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_RGB32
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB32,
+		0xe436eb7e, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+
+	//
+	// RGB surfaces that contain per pixel alpha values.
+	//
+
+	// 297C55AF-E209-4cb3-B757-C76D6B9C88A8            MEDIASUBTYPE_ARGB1555
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB1555,
+		0x297c55af, 0xe209, 0x4cb3, 0xb7, 0x57, 0xc7, 0x6d, 0x6b, 0x9c, 0x88, 0xa8)
+
+	// 6E6415E6-5C24-425f-93CD-80102B3D1CCA            MEDIASUBTYPE_ARGB4444
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB4444,
+		0x6e6415e6, 0x5c24, 0x425f, 0x93, 0xcd, 0x80, 0x10, 0x2b, 0x3d, 0x1c, 0xca)
+
+	// 773c9ac0-3274-11d0-B724-00aa006c1A01            MEDIASUBTYPE_ARGB32
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB32,
+		0x773c9ac0, 0x3274, 0x11d0, 0xb7, 0x24, 0x0, 0xaa, 0x0, 0x6c, 0x1a, 0x1)
+
+
+	// 2f8bb76d-b644-4550-acf3-d30caa65d5c5            MEDIASUBTYPE_A2R10G10B10
+	OUR_GUID_ENTRY(MEDIASUBTYPE_A2R10G10B10,
+		0x2f8bb76d, 0xb644, 0x4550, 0xac, 0xf3, 0xd3, 0x0c, 0xaa, 0x65, 0xd5, 0xc5)
+
+	// 576f7893-bdf6-48c4-875f-ae7b81834567            MEDIASUBTYPE_A2B10G10R10
+	OUR_GUID_ENTRY(MEDIASUBTYPE_A2B10G10R10,
+		0x576f7893, 0xbdf6, 0x48c4, 0x87, 0x5f, 0xae, 0x7b, 0x81, 0x83, 0x45, 0x67)
+
+
+	// 56555941-0000-0010-8000-00AA00389B71  'AYUV' == MEDIASUBTYPE_AYUV
+	//
+	// See the DX-VA header and documentation for a description of this format.
+	//
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AYUV,
+		0x56555941, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 34344941-0000-0010-8000-00AA00389B71  'AI44' == MEDIASUBTYPE_AI44
+	//
+	// See the DX-VA header and documentation for a description of this format.
+	//
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AI44,
+		0x34344941, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 34344149-0000-0010-8000-00AA00389B71  'IA44' == MEDIASUBTYPE_IA44
+	//
+	// See the DX-VA header and documentation for a description of this format.
+	//
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IA44,
+		0x34344149, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+
+	//
+	// DirectX7 D3D Render Target media subtypes.
+	//
+
+	// 32335237-0000-0010-8000-00AA00389B71  '7R32' == MEDIASUBTYPE_RGB32_D3D_DX7_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB32_D3D_DX7_RT,
+		0x32335237, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 36315237-0000-0010-8000-00AA00389B71  '7R16' == MEDIASUBTYPE_RGB16_D3D_DX7_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB16_D3D_DX7_RT,
+		0x36315237, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38384137-0000-0010-8000-00AA00389B71  '7A88' == MEDIASUBTYPE_ARGB32_D3D_DX7_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB32_D3D_DX7_RT,
+		0x38384137, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 34344137-0000-0010-8000-00AA00389B71  '7A44' == MEDIASUBTYPE_ARGB4444_D3D_DX7_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB4444_D3D_DX7_RT,
+		0x34344137, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 35314137-0000-0010-8000-00AA00389B71  '7A15' == MEDIASUBTYPE_ARGB1555_D3D_DX7_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB1555_D3D_DX7_RT,
+		0x35314137, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+
+	//
+	// DirectX9 D3D Render Target media subtypes.
+	//
+
+	// 32335239-0000-0010-8000-00AA00389B71  '9R32' == MEDIASUBTYPE_RGB32_D3D_DX9_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB32_D3D_DX9_RT,
+		0x32335239, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 36315239-0000-0010-8000-00AA00389B71  '9R16' == MEDIASUBTYPE_RGB16_D3D_DX9_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RGB16_D3D_DX9_RT,
+		0x36315239, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38384139-0000-0010-8000-00AA00389B71  '9A88' == MEDIASUBTYPE_ARGB32_D3D_DX9_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB32_D3D_DX9_RT,
+		0x38384139, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 34344139-0000-0010-8000-00AA00389B71  '9A44' == MEDIASUBTYPE_ARGB4444_D3D_DX9_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB4444_D3D_DX9_RT,
+		0x34344139, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 35314139-0000-0010-8000-00AA00389B71  '9A15' == MEDIASUBTYPE_ARGB1555_D3D_DX9_RT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_ARGB1555_D3D_DX9_RT,
+		0x35314139, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+
+#define MEDIASUBTYPE_HASALPHA(mt) ( ((mt).subtype == MEDIASUBTYPE_ARGB4444)            || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB32)              || \
+                                    ((mt).subtype == MEDIASUBTYPE_AYUV)                || \
+                                    ((mt).subtype == MEDIASUBTYPE_AI44)                || \
+                                    ((mt).subtype == MEDIASUBTYPE_IA44)                || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB1555)            || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB32_D3D_DX7_RT)   || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB4444_D3D_DX7_RT) || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB1555_D3D_DX7_RT) || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB32_D3D_DX9_RT)   || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB4444_D3D_DX9_RT) || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB1555_D3D_DX9_RT) )
+
+#define MEDIASUBTYPE_HASALPHA7(mt) (((mt).subtype == MEDIASUBTYPE_ARGB32_D3D_DX7_RT)   || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB4444_D3D_DX7_RT) || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB1555_D3D_DX7_RT) )
+
+#define MEDIASUBTYPE_D3D_DX7_RT(mt) (((mt).subtype == MEDIASUBTYPE_ARGB32_D3D_DX7_RT)   || \
+                                     ((mt).subtype == MEDIASUBTYPE_ARGB4444_D3D_DX7_RT) || \
+                                     ((mt).subtype == MEDIASUBTYPE_ARGB1555_D3D_DX7_RT) || \
+                                     ((mt).subtype == MEDIASUBTYPE_RGB32_D3D_DX7_RT)    || \
+                                     ((mt).subtype == MEDIASUBTYPE_RGB16_D3D_DX7_RT))
+
+#define MEDIASUBTYPE_HASALPHA9(mt) (((mt).subtype == MEDIASUBTYPE_ARGB32_D3D_DX9_RT)   || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB4444_D3D_DX9_RT) || \
+                                    ((mt).subtype == MEDIASUBTYPE_ARGB1555_D3D_DX9_RT) )
+
+
+#define MEDIASUBTYPE_D3D_DX9_RT(mt) (((mt).subtype == MEDIASUBTYPE_ARGB32_D3D_DX9_RT)   || \
+                                     ((mt).subtype == MEDIASUBTYPE_ARGB4444_D3D_DX9_RT) || \
+                                     ((mt).subtype == MEDIASUBTYPE_ARGB1555_D3D_DX9_RT) || \
+                                     ((mt).subtype == MEDIASUBTYPE_RGB32_D3D_DX9_RT)    || \
+                                     ((mt).subtype == MEDIASUBTYPE_RGB16_D3D_DX9_RT))
+
+
+	//
+	// DX-VA uncompressed surface formats
+	//
+
+	// 32315659-0000-0010-8000-00AA00389B71  'YV12' ==  MEDIASUBTYPE_YV12
+	OUR_GUID_ENTRY(MEDIASUBTYPE_YV12,
+		0x32315659, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 3231564E-0000-0010-8000-00AA00389B71  'NV12' ==  MEDIASUBTYPE_NV12
+	OUR_GUID_ENTRY(MEDIASUBTYPE_NV12,
+		0x3231564E, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 3131564E-0000-0010-8000-00AA00389B71  'NV11' ==  MEDIASUBTYPE_NV11
+#ifndef MEDIASUBTYPE_NV11_DEFINED
+#define MEDIASUBTYPE_NV11_DEFINED
+	OUR_GUID_ENTRY(MEDIASUBTYPE_NV11,
+		0x3131564E, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+#endif
+
+	// 38303250-0000-0010-8000-00AA00389B71  'P208' ==  MEDIASUBTYPE_P208
+	OUR_GUID_ENTRY(MEDIASUBTYPE_P208,
+		'802P', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303250-0000-0010-8000-00AA00389B71  'P210' ==  MEDIASUBTYPE_P210
+	OUR_GUID_ENTRY(MEDIASUBTYPE_P210,
+		'012P', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303250-0000-0010-8000-00AA00389B71  'P216' ==  MEDIASUBTYPE_P216
+	OUR_GUID_ENTRY(MEDIASUBTYPE_P216,
+		'612P', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303250-0000-0010-8000-00AA00389B71  'P010' ==  MEDIASUBTYPE_P010
+	OUR_GUID_ENTRY(MEDIASUBTYPE_P010,
+		'010P', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303250-0000-0010-8000-00AA00389B71  'P016' ==  MEDIASUBTYPE_P016
+	OUR_GUID_ENTRY(MEDIASUBTYPE_P016,
+		'610P', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303250-0000-0010-8000-00AA00389B71  'Y210' ==  MEDIASUBTYPE_Y210
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Y210,
+		'012Y', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303250-0000-0010-8000-00AA00389B71  'Y216' ==  MEDIASUBTYPE_Y216
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Y216,
+		'612Y', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 38303450-0000-0010-8000-00AA00389B71  'P408' ==  MEDIASUBTYPE_P408
+	OUR_GUID_ENTRY(MEDIASUBTYPE_P408,
+		'804P', 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 3432564E-0000-0010-8000-00AA00389B71  'NV24' ==  MEDIASUBTYPE_NV24
+	OUR_GUID_ENTRY(MEDIASUBTYPE_NV24,
+		0x3432564E, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 4F303234-0000-0010-8000-00AA00389B71  '420O' ==  MEDIASUBTYPE_420O
+	OUR_GUID_ENTRY(MEDIASUBTYPE_420O,
+		0x4F303234, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 31434D49-0000-0010-8000-00AA00389B71  'IMC1' ==  MEDIASUBTYPE_IMC1
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IMC1,
+		0x31434D49, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 32434d49-0000-0010-8000-00AA00389B71  'IMC2' ==  MEDIASUBTYPE_IMC2
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IMC2,
+		0x32434D49, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 33434d49-0000-0010-8000-00AA00389B71  'IMC3' ==  MEDIASUBTYPE_IMC3
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IMC3,
+		0x33434D49, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 34434d49-0000-0010-8000-00AA00389B71  'IMC4' ==  MEDIASUBTYPE_IMC4
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IMC4,
+		0x34434D49, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 30343353-0000-0010-8000-00AA00389B71  'S340' ==  MEDIASUBTYPE_S340
+	OUR_GUID_ENTRY(MEDIASUBTYPE_S340,
+		0x30343353, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 32343353-0000-0010-8000-00AA00389B71  'S342' ==  MEDIASUBTYPE_S342
+	OUR_GUID_ENTRY(MEDIASUBTYPE_S342,
+		0x32343353, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+
+	// e436eb7f-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_Overlay
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Overlay,
+		0xe436eb7f, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb80-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEGPacket
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1Packet,
+		0xe436eb80, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb81-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEG1Payload
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1Payload,
+		0xe436eb81, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// 00000050-0000-0010-8000-00AA00389B71         MEDIASUBTYPE_MPEG1AudioPayload
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1AudioPayload,
+		0x00000050, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71)
+
+	// e436eb82-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEG1SystemStream
+	OUR_GUID_ENTRY(MEDIATYPE_MPEG1SystemStream,
+		0xe436eb82, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// the next consecutive number is assigned to MEDIATYPE_Stream and appears higher up
+	// e436eb84-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEG1System
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1System,
+		0xe436eb84, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb85-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEG1VideoCD
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1VideoCD,
+		0xe436eb85, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb86-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEG1Video
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1Video,
+		0xe436eb86, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb87-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_MPEG1Audio
+	OUR_GUID_ENTRY(MEDIASUBTYPE_MPEG1Audio,
+		0xe436eb87, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb88-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_Avi
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Avi,
+		0xe436eb88, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// {3DB80F90-9412-11d1-ADED-0000F8754B99}          MEDIASUBTYPE_Asf
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Asf,
+		0x3db80f90, 0x9412, 0x11d1, 0xad, 0xed, 0x0, 0x0, 0xf8, 0x75, 0x4b, 0x99)
+
+	// e436eb89-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_QTMovie
+	OUR_GUID_ENTRY(MEDIASUBTYPE_QTMovie,
+		0xe436eb89, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// 617a7072-0000-0010-8000-00AA00389B71         MEDIASUBTYPE_Rpza
+	OUR_GUID_ENTRY(MEDIASUBTYPE_QTRpza,
+		0x617a7072, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 20636d73-0000-0010-8000-00AA00389B71         MEDIASUBTYPE_Smc
+	OUR_GUID_ENTRY(MEDIASUBTYPE_QTSmc,
+		0x20636d73, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 20656c72-0000-0010-8000-00AA00389B71        MEDIASUBTYPE_Rle
+	OUR_GUID_ENTRY(MEDIASUBTYPE_QTRle,
+		0x20656c72, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 6765706a-0000-0010-8000-00AA00389B71        MEDIASUBTYPE_Jpeg
+	OUR_GUID_ENTRY(MEDIASUBTYPE_QTJpeg,
+		0x6765706a, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// e436eb8a-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_PCMAudio_Obsolete
+	OUR_GUID_ENTRY(MEDIASUBTYPE_PCMAudio_Obsolete,
+		0xe436eb8a, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// 00000001-0000-0010-8000-00AA00389B71            MEDIASUBTYPE_PCM
+	OUR_GUID_ENTRY(MEDIASUBTYPE_PCM,
+		0x00000001, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71)
+
+	// e436eb8b-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_WAVE
+	OUR_GUID_ENTRY(MEDIASUBTYPE_WAVE,
+		0xe436eb8b, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb8c-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_AU
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AU,
+		0xe436eb8c, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436eb8d-524f-11ce-9f53-0020af0ba770            MEDIASUBTYPE_AIFF
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AIFF,
+		0xe436eb8d, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// 64(d)73(s)76(v)64(d)-0000-0010-8000-00AA00389B71  'dvsd' == MEDIASUBTYPE_dvsd
+	OUR_GUID_ENTRY(MEDIASUBTYPE_dvsd,
+		0x64737664, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 64(d)68(h)76(v)64(d)-0000-0010-8000-00AA00389B71  'dvhd' == MEDIASUBTYPE_dvhd
+	OUR_GUID_ENTRY(MEDIASUBTYPE_dvhd,
+		0x64687664, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 6c(l)73(s)76(v)64(d)-0000-0010-8000-00AA00389B71  'dvsl' == MEDIASUBTYPE_dvsl
+	OUR_GUID_ENTRY(MEDIASUBTYPE_dvsl,
+		0x6c737664, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 35(5)32(2)76(v)64(d)-0000-0010-8000-00AA00389B71  'dv25' ==  MEDIASUBTYPE_dv25
+	OUR_GUID_ENTRY(MEDIASUBTYPE_dv25,
+		0x35327664, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 30(0)35(5)76(v)64(d)-0000-0010-8000-00AA00389B71  'dv50' ==  MEDIASUBTYPE_dv50
+	OUR_GUID_ENTRY(MEDIASUBTYPE_dv50,
+		0x30357664, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 31(1)68(h)76(v)64(d)-0000-0010-8000-00AA00389B71  'dvh1' ==  MEDIASUBTYPE_dvh1
+	OUR_GUID_ENTRY(MEDIASUBTYPE_dvh1,
+		0x31687664, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// 6E8D4A22-310C-11d0-B79A-00AA003767A7         MEDIASUBTYPE_Line21_BytePair
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Line21_BytePair,
+		0x6e8d4a22, 0x310c, 0x11d0, 0xb7, 0x9a, 0x0, 0xaa, 0x0, 0x37, 0x67, 0xa7)
+
+	// 6E8D4A23-310C-11d0-B79A-00AA003767A7         MEDIASUBTYPE_Line21_GOPPacket
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Line21_GOPPacket,
+		0x6e8d4a23, 0x310c, 0x11d0, 0xb7, 0x9a, 0x0, 0xaa, 0x0, 0x37, 0x67, 0xa7)
+
+	// 6E8D4A24-310C-11d0-B79A-00AA003767A7         MEDIASUBTYPE_Line21_VBIRawData
+	OUR_GUID_ENTRY(MEDIASUBTYPE_Line21_VBIRawData,
+		0x6e8d4a24, 0x310c, 0x11d0, 0xb7, 0x9a, 0x0, 0xaa, 0x0, 0x37, 0x67, 0xa7)
+
+	//0AF414BC-4ED2-445e-9839-8F095568AB3C          MEDIASUBTYPE_708_608Data
+	OUR_GUID_ENTRY(MEDIASUBTYPE_708_608Data,
+		0xaf414bc, 0x4ed2, 0x445e, 0x98, 0x39, 0x8f, 0x9, 0x55, 0x68, 0xab, 0x3c)
+
+	// F52ADDAA-36F0-43F5-95EA-6D866484262A         MEDIASUBTYPE_DtvCcData
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DtvCcData,
+		0xF52ADDAA, 0x36F0, 0x43F5, 0x95, 0xEA, 0x6D, 0x86, 0x64, 0x84, 0x26, 0x2A)
+
+	// 7EA626DB-54DA-437b-BE9F-F73073ADFA3C         MEDIASUBTYPE_CC_CONTAINER
+	OUR_GUID_ENTRY(MEDIASUBTYPE_CC_CONTAINER,
+		0x7ea626db, 0x54da, 0x437b, 0xbe, 0x9f, 0xf7, 0x30, 0x73, 0xad, 0xfa, 0x3c)
+
+	// F72A76E3-EB0A-11D0-ACE4-0000C0CC16BA         MEDIASUBTYPE_TELETEXT
+	OUR_GUID_ENTRY(MEDIASUBTYPE_TELETEXT,
+		0xf72a76e3, 0xeb0a, 0x11d0, 0xac, 0xe4, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// 663DA43C-03E8-4e9a-9CD5-BF11ED0DEF76         MEDIASUBTYPE_VBI
+	OUR_GUID_ENTRY(MEDIASUBTYPE_VBI,
+		0x663da43c, 0x3e8, 0x4e9a, 0x9c, 0xd5, 0xbf, 0x11, 0xed, 0xd, 0xef, 0x76)
+
+	// 2791D576-8E7A-466F-9E90-5D3F3083738B         MEDIASUBTYPE_WSS
+	OUR_GUID_ENTRY(MEDIASUBTYPE_WSS,
+		0x2791D576, 0x8E7A, 0x466F, 0x9E, 0x90, 0x5D, 0x3F, 0x30, 0x83, 0x73, 0x8B)
+
+	// 01CA73E3-DCE6-4575-AFE1-2BF1C902CAF3         MEDIASUBTYPE_XDS
+	OUR_GUID_ENTRY(MEDIASUBTYPE_XDS,
+		0x1ca73e3, 0xdce6, 0x4575, 0xaf, 0xe1, 0x2b, 0xf1, 0xc9, 0x2, 0xca, 0xf3)
+
+	// A1B3F620-9792-4d8d-81A4-86AF25772090         MEDIASUBTYPE_VPS
+	OUR_GUID_ENTRY(MEDIASUBTYPE_VPS,
+		0xa1b3f620, 0x9792, 0x4d8d, 0x81, 0xa4, 0x86, 0xaf, 0x25, 0x77, 0x20, 0x90)
+
+	// derived from WAVE_FORMAT_DRM
+	// 00000009-0000-0010-8000-00aa00389b71
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DRM_Audio,
+		0x00000009, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// derived from WAVE_FORMAT_IEEE_FLOAT
+	// 00000003-0000-0010-8000-00aa00389b71
+	OUR_GUID_ENTRY(MEDIASUBTYPE_IEEE_FLOAT,
+		0x00000003, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// derived from WAVE_FORMAT_DOLBY_AC3_SPDIF
+	// 00000092-0000-0010-8000-00aa00389b71
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DOLBY_AC3_SPDIF,
+		0x00000092, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// derived from WAVE_FORMAT_RAW_SPORT
+	// 00000240-0000-0010-8000-00aa00389b71
+	OUR_GUID_ENTRY(MEDIASUBTYPE_RAW_SPORT,
+		0x00000240, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+	// derived from wave format tag 0x241, call it SPDIF_TAG_241h for now
+	// 00000241-0000-0010-8000-00aa00389b71
+	OUR_GUID_ENTRY(MEDIASUBTYPE_SPDIF_TAG_241h,
+		0x00000241, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71)
+
+
+
+	// DirectShow DSS definitions
+
+	// A0AF4F81-E163-11d0-BAD9-00609744111A
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DssVideo,
+		0xa0af4f81, 0xe163, 0x11d0, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// A0AF4F82-E163-11d0-BAD9-00609744111A
+	OUR_GUID_ENTRY(MEDIASUBTYPE_DssAudio,
+		0xa0af4f82, 0xe163, 0x11d0, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// 5A9B6A40-1A22-11D1-BAD9-00609744111A
+	OUR_GUID_ENTRY(MEDIASUBTYPE_VPVideo,
+		0x5a9b6a40, 0x1a22, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// 5A9B6A41-1A22-11D1-BAD9-00609744111A
+	OUR_GUID_ENTRY(MEDIASUBTYPE_VPVBI,
+		0x5a9b6a41, 0x1a22, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// BF87B6E0-8C27-11d0-B3F0-00AA003761C5     Capture graph building
+	OUR_GUID_ENTRY(CLSID_CaptureGraphBuilder,
+		0xBF87B6E0, 0x8C27, 0x11d0, 0xB3, 0xF0, 0x0, 0xAA, 0x00, 0x37, 0x61, 0xC5)
+
+	// BF87B6E1-8C27-11d0-B3F0-00AA003761C5     New Capture graph building
+	OUR_GUID_ENTRY(CLSID_CaptureGraphBuilder2,
+		0xBF87B6E1, 0x8C27, 0x11d0, 0xB3, 0xF0, 0x0, 0xAA, 0x00, 0x37, 0x61, 0xC5)
+
+	// e436ebb0-524f-11ce-9f53-0020af0ba770            Prototype filtergraph
+	OUR_GUID_ENTRY(CLSID_ProtoFilterGraph,
+		0xe436ebb0, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436ebb1-524f-11ce-9f53-0020af0ba770            Reference clock
+	OUR_GUID_ENTRY(CLSID_SystemClock,
+		0xe436ebb1, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436ebb2-524f-11ce-9f53-0020af0ba770           Filter Mapper
+	OUR_GUID_ENTRY(CLSID_FilterMapper,
+		0xe436ebb2, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436ebb3-524f-11ce-9f53-0020af0ba770           Filter Graph
+	OUR_GUID_ENTRY(CLSID_FilterGraph,
+		0xe436ebb3, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// e436ebb8-524f-11ce-9f53-0020af0ba770           Filter Graph no thread
+	OUR_GUID_ENTRY(CLSID_FilterGraphNoThread,
+		0xe436ebb8, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// a3ecbc41-581a-4476-b693-a63340462d8b
+	OUR_GUID_ENTRY(CLSID_FilterGraphPrivateThread,
+		0xa3ecbc41, 0x581a, 0x4476, 0xb6, 0x93, 0xa6, 0x33, 0x40, 0x46, 0x2d, 0x8b)
+
+	// e4bbd160-4269-11ce-838d-00aa0055595a           MPEG System stream
+	OUR_GUID_ENTRY(CLSID_MPEG1Doc,
+		0xe4bbd160, 0x4269, 0x11ce, 0x83, 0x8d, 0x0, 0xaa, 0x0, 0x55, 0x59, 0x5a)
+
+	// 701722e0-8ae3-11ce-a85c-00aa002feab5           MPEG file reader
+	OUR_GUID_ENTRY(CLSID_FileSource,
+		0x701722e0, 0x8ae3, 0x11ce, 0xa8, 0x5c, 0x00, 0xaa, 0x00, 0x2f, 0xea, 0xb5)
+
+	// 26C25940-4CA9-11ce-A828-00AA002FEAB5           Takes MPEG1 packets as input
+	OUR_GUID_ENTRY(CLSID_MPEG1PacketPlayer,
+		0x26c25940, 0x4ca9, 0x11ce, 0xa8, 0x28, 0x0, 0xaa, 0x0, 0x2f, 0xea, 0xb5)
+
+	// 336475d0-942a-11ce-a870-00aa002feab5           MPEG splitter
+	OUR_GUID_ENTRY(CLSID_MPEG1Splitter,
+		0x336475d0, 0x942a, 0x11ce, 0xa8, 0x70, 0x00, 0xaa, 0x00, 0x2f, 0xea, 0xb5)
+
+	// feb50740-7bef-11ce-9bd9-0000e202599c           MPEG video decoder
+	OUR_GUID_ENTRY(CLSID_CMpegVideoCodec,
+		0xfeb50740, 0x7bef, 0x11ce, 0x9b, 0xd9, 0x0, 0x0, 0xe2, 0x2, 0x59, 0x9c)
+
+	// 4a2286e0-7bef-11ce-9bd9-0000e202599c           MPEG audio decoder
+	OUR_GUID_ENTRY(CLSID_CMpegAudioCodec,
+		0x4a2286e0, 0x7bef, 0x11ce, 0x9b, 0xd9, 0x0, 0x0, 0xe2, 0x2, 0x59, 0x9c)
+
+	// e30629d3-27e5-11ce-875d-00608cb78066           Text renderer
+	OUR_GUID_ENTRY(CLSID_TextRender,
+		0xe30629d3, 0x27e5, 0x11ce, 0x87, 0x5d, 0x0, 0x60, 0x8c, 0xb7, 0x80, 0x66)
+
+
+
+	// {F8388A40-D5BB-11d0-BE5A-0080C706568E}
+	OUR_GUID_ENTRY(CLSID_InfTee,
+		0xf8388a40, 0xd5bb, 0x11d0, 0xbe, 0x5a, 0x0, 0x80, 0xc7, 0x6, 0x56, 0x8e)
+
+	// 1b544c20-fd0b-11ce-8c63-00aa0044b51e           Avi Stream Splitter
+	OUR_GUID_ENTRY(CLSID_AviSplitter,
+		0x1b544c20, 0xfd0b, 0x11ce, 0x8c, 0x63, 0x0, 0xaa, 0x00, 0x44, 0xb5, 0x1e)
+
+	// 1b544c21-fd0b-11ce-8c63-00aa0044b51e           Avi File Reader
+	OUR_GUID_ENTRY(CLSID_AviReader,
+		0x1b544c21, 0xfd0b, 0x11ce, 0x8c, 0x63, 0x0, 0xaa, 0x00, 0x44, 0xb5, 0x1e)
+
+	// 1b544c22-fd0b-11ce-8c63-00aa0044b51e           Vfw 2.0 Capture Driver
+	OUR_GUID_ENTRY(CLSID_VfwCapture,
+		0x1b544c22, 0xfd0b, 0x11ce, 0x8c, 0x63, 0x0, 0xaa, 0x00, 0x44, 0xb5, 0x1e)
+
+	OUR_GUID_ENTRY(CLSID_CaptureProperties,
+		0x1B544c22, 0xFD0B, 0x11ce, 0x8C, 0x63, 0x00, 0xAA, 0x00, 0x44, 0xB5, 0x1F)
+
+	//e436ebb4-524f-11ce-9f53-0020af0ba770            Control Distributor
+	OUR_GUID_ENTRY(CLSID_FGControl,
+		0xe436ebb4, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// 44584800-F8EE-11ce-B2D4-00DD01101B85           .MOV reader (old)
+	OUR_GUID_ENTRY(CLSID_MOVReader,
+		0x44584800, 0xf8ee, 0x11ce, 0xb2, 0xd4, 0x00, 0xdd, 0x1, 0x10, 0x1b, 0x85)
+
+	// D51BD5A0-7548-11cf-A520-0080C77EF58A           QT Splitter
+	OUR_GUID_ENTRY(CLSID_QuickTimeParser,
+		0xd51bd5a0, 0x7548, 0x11cf, 0xa5, 0x20, 0x0, 0x80, 0xc7, 0x7e, 0xf5, 0x8a)
+
+	// FDFE9681-74A3-11d0-AFA7-00AA00B67A42           QT Decoder
+	OUR_GUID_ENTRY(CLSID_QTDec,
+		0xfdfe9681, 0x74a3, 0x11d0, 0xaf, 0xa7, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// D3588AB0-0781-11ce-B03A-0020AF0BA770           AVIFile-based reader
+	OUR_GUID_ENTRY(CLSID_AVIDoc,
+		0xd3588ab0, 0x0781, 0x11ce, 0xb0, 0x3a, 0x00, 0x20, 0xaf, 0xb, 0xa7, 0x70)
+
+	// 70e102b0-5556-11ce-97c0-00aa0055595a           Video renderer
+	OUR_GUID_ENTRY(CLSID_VideoRenderer,
+		0x70e102b0, 0x5556, 0x11ce, 0x97, 0xc0, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 1643e180-90f5-11ce-97d5-00aa0055595a           Colour space convertor
+	OUR_GUID_ENTRY(CLSID_Colour,
+		0x1643e180, 0x90f5, 0x11ce, 0x97, 0xd5, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 1da08500-9edc-11cf-bc10-00aa00ac74f6           VGA 16 color ditherer
+	OUR_GUID_ENTRY(CLSID_Dither,
+		0x1da08500, 0x9edc, 0x11cf, 0xbc, 0x10, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6)
+
+	// 07167665-5011-11cf-BF33-00AA0055595A           Modex video renderer
+	OUR_GUID_ENTRY(CLSID_ModexRenderer,
+		0x7167665, 0x5011, 0x11cf, 0xbf, 0x33, 0x0, 0xaa, 0x0, 0x55, 0x59, 0x5a)
+
+	// e30629d1-27e5-11ce-875d-00608cb78066           Waveout audio renderer
+	OUR_GUID_ENTRY(CLSID_AudioRender,
+		0xe30629d1, 0x27e5, 0x11ce, 0x87, 0x5d, 0x0, 0x60, 0x8c, 0xb7, 0x80, 0x66)
+
+	// 05589faf-c356-11ce-bf01-00aa0055595a           Audio Renderer Property Page
+	OUR_GUID_ENTRY(CLSID_AudioProperties,
+		0x05589faf, 0xc356, 0x11ce, 0xbf, 0x01, 0x0, 0xaa, 0x0, 0x55, 0x59, 0x5a)
+
+	// 79376820-07D0-11cf-A24D-0020AFD79767           DSound audio renderer
+	OUR_GUID_ENTRY(CLSID_DSoundRender,
+		0x79376820, 0x07D0, 0x11CF, 0xA2, 0x4D, 0x0, 0x20, 0xAF, 0xD7, 0x97, 0x67)
+
+	// e30629d2-27e5-11ce-875d-00608cb78066           Wavein audio recorder
+	OUR_GUID_ENTRY(CLSID_AudioRecord,
+		0xe30629d2, 0x27e5, 0x11ce, 0x87, 0x5d, 0x0, 0x60, 0x8c, 0xb7, 0x80, 0x66)
+
+	// {2CA8CA52-3C3F-11d2-B73D-00C04FB6BD3D}         IAMAudioInputMixer property page
+	OUR_GUID_ENTRY(CLSID_AudioInputMixerProperties,
+		0x2ca8ca52, 0x3c3f, 0x11d2, 0xb7, 0x3d, 0x0, 0xc0, 0x4f, 0xb6, 0xbd, 0x3d)
+
+	// {CF49D4E0-1115-11ce-B03A-0020AF0BA770}         AVI Decoder
+	OUR_GUID_ENTRY(CLSID_AVIDec,
+		0xcf49d4e0, 0x1115, 0x11ce, 0xb0, 0x3a, 0x0, 0x20, 0xaf, 0xb, 0xa7, 0x70)
+
+	// {A888DF60-1E90-11cf-AC98-00AA004C0FA9}         AVI ICDraw* wrapper
+	OUR_GUID_ENTRY(CLSID_AVIDraw,
+		0xa888df60, 0x1e90, 0x11cf, 0xac, 0x98, 0x0, 0xaa, 0x0, 0x4c, 0xf, 0xa9)
+
+	// 6a08cf80-0e18-11cf-a24d-0020afd79767       ACM Wrapper
+	OUR_GUID_ENTRY(CLSID_ACMWrapper,
+		0x6a08cf80, 0x0e18, 0x11cf, 0xa2, 0x4d, 0x0, 0x20, 0xaf, 0xd7, 0x97, 0x67)
+
+	// {e436ebb5-524f-11ce-9f53-0020af0ba770}    Async File Reader
+	OUR_GUID_ENTRY(CLSID_AsyncReader,
+		0xe436ebb5, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// {e436ebb6-524f-11ce-9f53-0020af0ba770}    Async URL Reader
+	OUR_GUID_ENTRY(CLSID_URLReader,
+		0xe436ebb6, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// {e436ebb7-524f-11ce-9f53-0020af0ba770}    IPersistMoniker PID
+	OUR_GUID_ENTRY(CLSID_PersistMonikerPID,
+		0xe436ebb7, 0x524f, 0x11ce, 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70)
+
+	// {D76E2820-1563-11cf-AC98-00AA004C0FA9}
+	OUR_GUID_ENTRY(CLSID_AVICo,
+		0xd76e2820, 0x1563, 0x11cf, 0xac, 0x98, 0x0, 0xaa, 0x0, 0x4c, 0xf, 0xa9)
+
+	// {8596E5F0-0DA5-11d0-BD21-00A0C911CE86}
+	OUR_GUID_ENTRY(CLSID_FileWriter,
+		0x8596e5f0, 0xda5, 0x11d0, 0xbd, 0x21, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// {E2510970-F137-11CE-8B67-00AA00A3F1A6}     AVI mux filter
+	OUR_GUID_ENTRY(CLSID_AviDest,
+		0xe2510970, 0xf137, 0x11ce, 0x8b, 0x67, 0x0, 0xaa, 0x0, 0xa3, 0xf1, 0xa6)
+
+	// {C647B5C0-157C-11d0-BD23-00A0C911CE86}
+	OUR_GUID_ENTRY(CLSID_AviMuxProptyPage,
+		0xc647b5c0, 0x157c, 0x11d0, 0xbd, 0x23, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// {0A9AE910-85C0-11d0-BD42-00A0C911CE86}
+	OUR_GUID_ENTRY(CLSID_AviMuxProptyPage1,
+		0xa9ae910, 0x85c0, 0x11d0, 0xbd, 0x42, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// {07b65360-c445-11ce-afde-00aa006c14f4}
+	OUR_GUID_ENTRY(CLSID_AVIMIDIRender,
+		0x07b65360, 0xc445, 0x11ce, 0xaf, 0xde, 0x00, 0xaa, 0x00, 0x6c, 0x14, 0xf4)
+
+	// {187463A0-5BB7-11d3-ACBE-0080C75E246E}    WMSDK-based ASF reader
+	OUR_GUID_ENTRY(CLSID_WMAsfReader,
+		0x187463a0, 0x5bb7, 0x11d3, 0xac, 0xbe, 0x0, 0x80, 0xc7, 0x5e, 0x24, 0x6e)
+
+	// {7c23220e-55bb-11d3-8b16-00c04fb6bd3d}    WMSDK-based ASF writer
+	OUR_GUID_ENTRY(CLSID_WMAsfWriter,
+		0x7c23220e, 0x55bb, 0x11d3, 0x8b, 0x16, 0x0, 0xc0, 0x4f, 0xb6, 0xbd, 0x3d)
+
+	//  {afb6c280-2c41-11d3-8a60-0000f81e0e4a}
+	OUR_GUID_ENTRY(CLSID_MPEG2Demultiplexer,
+		0xafb6c280, 0x2c41, 0x11d3, 0x8a, 0x60, 0x00, 0x00, 0xf8, 0x1e, 0x0e, 0x4a)
+
+	// {687D3367-3644-467a-ADFE-6CD7A85C4A2C}
+	OUR_GUID_ENTRY(CLSID_MPEG2Demultiplexer_NoClock,
+		0x687d3367, 0x3644, 0x467a, 0xad, 0xfe, 0x6c, 0xd7, 0xa8, 0x5c, 0x4a, 0x2c)
+
+	// {3ae86b20-7be8-11d1-abe6-00a0c905f375}
+	OUR_GUID_ENTRY(CLSID_MMSPLITTER,
+		0x3ae86b20, 0x7be8, 0x11d1, 0xab, 0xe6, 0x00, 0xa0, 0xc9, 0x05, 0xf3, 0x75)
+
+	// {2DB47AE5-CF39-43c2-B4D6-0CD8D90946F4}
+	OUR_GUID_ENTRY(CLSID_StreamBufferSink,
+		0x2db47ae5, 0xcf39, 0x43c2, 0xb4, 0xd6, 0xc, 0xd8, 0xd9, 0x9, 0x46, 0xf4)
+
+	// {E2448508-95DA-4205-9A27-7EC81E723B1A}
+	OUR_GUID_ENTRY(CLSID_SBE2Sink,
+		0xe2448508, 0x95da, 0x4205, 0x9a, 0x27, 0x7e, 0xc8, 0x1e, 0x72, 0x3b, 0x1a)
+
+	// {C9F5FE02-F851-4eb5-99EE-AD602AF1E619}
+	OUR_GUID_ENTRY(CLSID_StreamBufferSource,
+		0xc9f5fe02, 0xf851, 0x4eb5, 0x99, 0xee, 0xad, 0x60, 0x2a, 0xf1, 0xe6, 0x19)
+
+	// {FA8A68B2-C864-4ba2-AD53-D3876A87494B}
+	OUR_GUID_ENTRY(CLSID_StreamBufferConfig,
+		0xfa8a68b2, 0xc864, 0x4ba2, 0xad, 0x53, 0xd3, 0x87, 0x6a, 0x87, 0x49, 0x4b)
+
+	// {E37A73F8-FB01-43dc-914E-AAEE76095AB9}
+	OUR_GUID_ENTRY(CLSID_StreamBufferPropertyHandler,
+		0xe37a73f8, 0xfb01, 0x43dc, 0x91, 0x4e, 0xaa, 0xee, 0x76, 0x9, 0x5a, 0xb9)
+
+	// {713790EE-5EE1-45ba-8070-A1337D2762FA}
+	OUR_GUID_ENTRY(CLSID_StreamBufferThumbnailHandler,
+		0x713790ee, 0x5ee1, 0x45ba, 0x80, 0x70, 0xa1, 0x33, 0x7d, 0x27, 0x62, 0xfa)
+
+	// {6CFAD761-735D-4aa5-8AFC-AF91A7D61EBA}
+	OUR_GUID_ENTRY(CLSID_Mpeg2VideoStreamAnalyzer,
+		0x6cfad761, 0x735d, 0x4aa5, 0x8a, 0xfc, 0xaf, 0x91, 0xa7, 0xd6, 0x1e, 0xba)
+
+	// {CCAA63AC-1057-4778-AE92-1206AB9ACEE6}
+	OUR_GUID_ENTRY(CLSID_StreamBufferRecordingAttributes,
+		0xccaa63ac, 0x1057, 0x4778, 0xae, 0x92, 0x12, 0x6, 0xab, 0x9a, 0xce, 0xe6)
+
+	// {D682C4BA-A90A-42fe-B9E1-03109849C423}
+	OUR_GUID_ENTRY(CLSID_StreamBufferComposeRecording,
+		0xd682c4ba, 0xa90a, 0x42fe, 0xb9, 0xe1, 0x3, 0x10, 0x98, 0x49, 0xc4, 0x23)
+
+	// {93A094D7-51E8-485b-904A-8D6B97DC6B39}
+	OUR_GUID_ENTRY(CLSID_SBE2File,
+		0x93a094d7, 0x51e8, 0x485b, 0x90, 0x4a, 0x8d, 0x6b, 0x97, 0xdc, 0x6b, 0x39)
+
+	// {B1B77C00-C3E4-11cf-AF79-00AA00B67A42}               DV video decoder
+	OUR_GUID_ENTRY(CLSID_DVVideoCodec,
+		0xb1b77c00, 0xc3e4, 0x11cf, 0xaf, 0x79, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// {13AA3650-BB6F-11d0-AFB9-00AA00B67A42}               DV video encoder
+	OUR_GUID_ENTRY(CLSID_DVVideoEnc,
+		0x13aa3650, 0xbb6f, 0x11d0, 0xaf, 0xb9, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// {4EB31670-9FC6-11cf-AF6E-00AA00B67A42}               DV splitter
+	OUR_GUID_ENTRY(CLSID_DVSplitter,
+		0x4eb31670, 0x9fc6, 0x11cf, 0xaf, 0x6e, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// {129D7E40-C10D-11d0-AFB9-00AA00B67A42}               DV muxer
+	OUR_GUID_ENTRY(CLSID_DVMux,
+		0x129d7e40, 0xc10d, 0x11d0, 0xaf, 0xb9, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// {060AF76C-68DD-11d0-8FC1-00C04FD9189D}
+	OUR_GUID_ENTRY(CLSID_SeekingPassThru,
+		0x60af76c, 0x68dd, 0x11d0, 0x8f, 0xc1, 0x0, 0xc0, 0x4f, 0xd9, 0x18, 0x9d)
+
+	// 6E8D4A20-310C-11d0-B79A-00AA003767A7                 Line21 (CC) Decoder
+	OUR_GUID_ENTRY(CLSID_Line21Decoder,
+		0x6e8d4a20, 0x310c, 0x11d0, 0xb7, 0x9a, 0x0, 0xaa, 0x0, 0x37, 0x67, 0xa7)
+
+	// E4206432-01A1-4BEE-B3E1-3702C8EDC574                 Line21 (CC) Decoder v2
+	OUR_GUID_ENTRY(CLSID_Line21Decoder2,
+		0xe4206432, 0x01a1, 0x4bee, 0xb3, 0xe1, 0x37, 0x02, 0xc8, 0xed, 0xc5, 0x74)
+
+	OUR_GUID_ENTRY(CLSID_CCAFilter,
+		0x3d07a539, 0x35ca, 0x447c, 0x9b, 0x5, 0x8d, 0x85, 0xce, 0x92, 0x4f, 0x9e)
+
+	// {CD8743A1-3736-11d0-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(CLSID_OverlayMixer,
+		0xcd8743a1, 0x3736, 0x11d0, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {814B9800-1C88-11d1-BAD9-00609744111A}
+	OUR_GUID_ENTRY(CLSID_VBISurfaces,
+		0x814b9800, 0x1c88, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// {70BC06E0-5666-11d3-A184-00105AEF9F33}               WST Teletext Decoder
+	OUR_GUID_ENTRY(CLSID_WSTDecoder,
+		0x70bc06e0, 0x5666, 0x11d3, 0xa1, 0x84, 0x0, 0x10, 0x5a, 0xef, 0x9f, 0x33)
+
+	// {301056D0-6DFF-11d2-9EEB-006008039E37}
+	OUR_GUID_ENTRY(CLSID_MjpegDec,
+		0x301056d0, 0x6dff, 0x11d2, 0x9e, 0xeb, 0x0, 0x60, 0x8, 0x3, 0x9e, 0x37)
+
+	// {B80AB0A0-7416-11d2-9EEB-006008039E37}
+	OUR_GUID_ENTRY(CLSID_MJPGEnc,
+		0xb80ab0a0, 0x7416, 0x11d2, 0x9e, 0xeb, 0x0, 0x60, 0x8, 0x3, 0x9e, 0x37)
+
+
+
+	// pnp objects and categories
+	// 62BE5D10-60EB-11d0-BD3B-00A0C911CE86                 ICreateDevEnum
+	OUR_GUID_ENTRY(CLSID_SystemDeviceEnum,
+		0x62BE5D10, 0x60EB, 0x11d0, 0xBD, 0x3B, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86)
+
+	// 4315D437-5B8C-11d0-BD3B-00A0C911CE86
+	OUR_GUID_ENTRY(CLSID_CDeviceMoniker,
+		0x4315D437, 0x5B8C, 0x11d0, 0xBD, 0x3B, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86)
+
+	// 860BB310-5D01-11d0-BD3B-00A0C911CE86                 Video capture category
+	OUR_GUID_ENTRY(CLSID_VideoInputDeviceCategory,
+		0x860BB310, 0x5D01, 0x11d0, 0xBD, 0x3B, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86)
+	OUR_GUID_ENTRY(CLSID_CVidCapClassManager,
+		0x860BB310, 0x5D01, 0x11d0, 0xBD, 0x3B, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86)
+
+	// 083863F1-70DE-11d0-BD40-00A0C911CE86                 Filter category
+	OUR_GUID_ENTRY(CLSID_LegacyAmFilterCategory,
+		0x083863F1, 0x70DE, 0x11d0, 0xBD, 0x40, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86)
+	OUR_GUID_ENTRY(CLSID_CQzFilterClassManager,
+		0x083863F1, 0x70DE, 0x11d0, 0xBD, 0x40, 0x00, 0xA0, 0xC9, 0x11, 0xCE, 0x86)
+
+	// 33D9A760-90C8-11d0-BD43-00A0C911CE86
+	OUR_GUID_ENTRY(CLSID_VideoCompressorCategory,
+		0x33d9a760, 0x90c8, 0x11d0, 0xbd, 0x43, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+	OUR_GUID_ENTRY(CLSID_CIcmCoClassManager,
+		0x33d9a760, 0x90c8, 0x11d0, 0xbd, 0x43, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// 33D9A761-90C8-11d0-BD43-00A0C911CE86
+	OUR_GUID_ENTRY(CLSID_AudioCompressorCategory,
+		0x33d9a761, 0x90c8, 0x11d0, 0xbd, 0x43, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+	OUR_GUID_ENTRY(CLSID_CAcmCoClassManager,
+		0x33d9a761, 0x90c8, 0x11d0, 0xbd, 0x43, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// 33D9A762-90C8-11d0-BD43-00A0C911CE86                 Audio source cateogry
+	OUR_GUID_ENTRY(CLSID_AudioInputDeviceCategory,
+		0x33d9a762, 0x90c8, 0x11d0, 0xbd, 0x43, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+	OUR_GUID_ENTRY(CLSID_CWaveinClassManager,
+		0x33d9a762, 0x90c8, 0x11d0, 0xbd, 0x43, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// E0F158E1-CB04-11d0-BD4E-00A0C911CE86                 Audio renderer category
+	OUR_GUID_ENTRY(CLSID_AudioRendererCategory,
+		0xe0f158e1, 0xcb04, 0x11d0, 0xbd, 0x4e, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+	OUR_GUID_ENTRY(CLSID_CWaveOutClassManager,
+		0xe0f158e1, 0xcb04, 0x11d0, 0xbd, 0x4e, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// 4EFE2452-168A-11d1-BC76-00C04FB9453B                 Midi renderer category
+	OUR_GUID_ENTRY(CLSID_MidiRendererCategory,
+		0x4EfE2452, 0x168A, 0x11d1, 0xBC, 0x76, 0x0, 0xc0, 0x4F, 0xB9, 0x45, 0x3B)
+	OUR_GUID_ENTRY(CLSID_CMidiOutClassManager,
+		0x4EfE2452, 0x168A, 0x11d1, 0xBC, 0x76, 0x0, 0xc0, 0x4F, 0xB9, 0x45, 0x3B)
+
+	// CC7BFB41-F175-11d1-A392-00E0291F3959     External Renderers Category
+	OUR_GUID_ENTRY(CLSID_TransmitCategory,
+		0xcc7bfb41, 0xf175, 0x11d1, 0xa3, 0x92, 0x0, 0xe0, 0x29, 0x1f, 0x39, 0x59)
+
+	// CC7BFB46-F175-11d1-A392-00E0291F3959     Device Control Filters
+	OUR_GUID_ENTRY(CLSID_DeviceControlCategory,
+		0xcc7bfb46, 0xf175, 0x11d1, 0xa3, 0x92, 0x0, 0xe0, 0x29, 0x1f, 0x39, 0x59)
+
+	// DA4E3DA0-D07D-11d0-BD50-00A0C911CE86
+	OUR_GUID_ENTRY(CLSID_ActiveMovieCategories,
+		0xda4e3da0, 0xd07d, 0x11d0, 0xbd, 0x50, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// 2721AE20-7E70-11D0-A5D6-28DB04C10000
+	OUR_GUID_ENTRY(CLSID_DVDHWDecodersCategory,
+		0x2721AE20, 0x7E70, 0x11D0, 0xA5, 0xD6, 0x28, 0xDB, 0x04, 0xC1, 0x00, 0x00)
+
+	// 7D22E920-5CA9-4787-8C2B-A6779BD11781     Encoder API encoder category
+	OUR_GUID_ENTRY(CLSID_MediaEncoderCategory,
+		0x7D22E920, 0x5CA9, 0x4787, 0x8C, 0x2B, 0xA6, 0x77, 0x9B, 0xD1, 0x17, 0x81)
+
+	// 236C9559-ADCE-4736-BF72-BAB34E392196     Encoder API multiplexer category
+	OUR_GUID_ENTRY(CLSID_MediaMultiplexerCategory,
+		0x236C9559, 0xADCE, 0x4736, 0xBF, 0x72, 0xBA, 0xB3, 0x4E, 0x39, 0x21, 0x96)
+
+	// CDA42200-BD88-11d0-BD4E-00A0C911CE86
+	OUR_GUID_ENTRY(CLSID_FilterMapper2,
+		0xcda42200, 0xbd88, 0x11d0, 0xbd, 0x4e, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+
+	// 1e651cc0-b199-11d0-8212-00c04fc32c45
+	OUR_GUID_ENTRY(CLSID_MemoryAllocator,
+		0x1e651cc0, 0xb199, 0x11d0, 0x82, 0x12, 0x00, 0xc0, 0x4f, 0xc3, 0x2c, 0x45)
+
+	// CDBD8D00-C193-11d0-BD4E-00A0C911CE86
+	OUR_GUID_ENTRY(CLSID_MediaPropertyBag,
+		0xcdbd8d00, 0xc193, 0x11d0, 0xbd, 0x4e, 0x0, 0xa0, 0xc9, 0x11, 0xce, 0x86)
+
+	// FCC152B7-F372-11d0-8E00-00C04FD7C08B
+	OUR_GUID_ENTRY(CLSID_DvdGraphBuilder,
+		0xFCC152B7, 0xF372, 0x11d0, 0x8E, 0x00, 0x00, 0xC0, 0x4F, 0xD7, 0xC0, 0x8B)
+
+	// 9B8C4620-2C1A-11d0-8493-00A02438AD48
+	OUR_GUID_ENTRY(CLSID_DVDNavigator,
+		0x9b8c4620, 0x2c1a, 0x11d0, 0x84, 0x93, 0x0, 0xa0, 0x24, 0x38, 0xad, 0x48)
+
+	// f963c5cf-a659-4a93-9638-caf3cd277d13
+	OUR_GUID_ENTRY(CLSID_DVDState,
+		0xf963c5cf, 0xa659, 0x4a93, 0x96, 0x38, 0xca, 0xf3, 0xcd, 0x27, 0x7d, 0x13)
+
+	// CC58E280-8AA1-11d1-B3F1-00AA003761C5
+	OUR_GUID_ENTRY(CLSID_SmartTee,
+		0xcc58e280, 0x8aa1, 0x11d1, 0xb3, 0xf1, 0x0, 0xaa, 0x0, 0x37, 0x61, 0xc5)
+
+	// FB056BA0-2502-45B9-8E86-2B40DE84AD29
+	OUR_GUID_ENTRY(CLSID_DtvCcFilter,
+		0xfb056ba0, 0x2502, 0x45b9, 0x8e, 0x86, 0x2b, 0x40, 0xde, 0x84, 0xad, 0x29)
+
+	// 2F7EE4B6-6FF5-4EB4-B24A-2BFC41117171
+	OUR_GUID_ENTRY(CLSID_CaptionsFilter,
+		0x2F7EE4B6, 0x6FF5, 0x4EB4, 0xB2, 0x4A, 0x2B, 0xFC, 0x41, 0x11, 0x71, 0x71)
+
+	// {9F22CFEA-CE07-41ab-8BA0-C7364AF90AF9}
+	OUR_GUID_ENTRY(CLSID_SubtitlesFilter,
+		0x9f22cfea, 0xce07, 0x41ab, 0x8b, 0xa0, 0xc7, 0x36, 0x4a, 0xf9, 0x0a, 0xf9)
+
+	// {8670C736-F614-427b-8ADA-BBADC587194B}
+	OUR_GUID_ENTRY(CLSID_DirectShowPluginControl,
+		0x8670c736, 0xf614, 0x427b, 0x8a, 0xda, 0xbb, 0xad, 0xc5, 0x87, 0x19, 0x4b)
+
+
+	// -- format types ---
+
+	// 0F6417D6-C318-11D0-A43F-00A0C9223196        FORMAT_None
+	OUR_GUID_ENTRY(FORMAT_None,
+		0x0F6417D6, 0xc318, 0x11d0, 0xa4, 0x3f, 0x00, 0xa0, 0xc9, 0x22, 0x31, 0x96)
+
+	// 05589f80-c356-11ce-bf01-00aa0055595a        FORMAT_VideoInfo
+	OUR_GUID_ENTRY(FORMAT_VideoInfo,
+		0x05589f80, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// F72A76A0-EB0A-11d0-ACE4-0000C0CC16BA        FORMAT_VideoInfo2
+	OUR_GUID_ENTRY(FORMAT_VideoInfo2,
+		0xf72a76A0, 0xeb0a, 0x11d0, 0xac, 0xe4, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// 05589f81-c356-11ce-bf01-00aa0055595a        FORMAT_WaveFormatEx
+	OUR_GUID_ENTRY(FORMAT_WaveFormatEx,
+		0x05589f81, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 05589f82-c356-11ce-bf01-00aa0055595a        FORMAT_MPEGVideo
+	OUR_GUID_ENTRY(FORMAT_MPEGVideo,
+		0x05589f82, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 05589f83-c356-11ce-bf01-00aa0055595a        FORMAT_MPEGStreams
+	OUR_GUID_ENTRY(FORMAT_MPEGStreams,
+		0x05589f83, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 05589f84-c356-11ce-bf01-00aa0055595a        FORMAT_DvInfo, DVINFO
+	OUR_GUID_ENTRY(FORMAT_DvInfo,
+		0x05589f84, 0xc356, 0x11ce, 0xbf, 0x01, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// C7ECF04D-4582-4869-9ABB-BFB523B62EDF       FORMAT_525WSS
+	OUR_GUID_ENTRY(FORMAT_525WSS,
+		0xc7ecf04d, 0x4582, 0x4869, 0x9a, 0xbb, 0xbf, 0xb5, 0x23, 0xb6, 0x2e, 0xdf)
+
+	// -- Video related GUIDs ---
+
+	// 944d4c00-dd52-11ce-bf0e-00aa0055595a
+	OUR_GUID_ENTRY(CLSID_DirectDrawProperties,
+		0x944d4c00, 0xdd52, 0x11ce, 0xbf, 0x0e, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 59ce6880-acf8-11cf-b56e-0080c7c4b68a
+	OUR_GUID_ENTRY(CLSID_PerformanceProperties,
+		0x59ce6880, 0xacf8, 0x11cf, 0xb5, 0x6e, 0x00, 0x80, 0xc7, 0xc4, 0xb6, 0x8a)
+
+	// 418afb70-f8b8-11ce-aac6-0020af0b99a3
+	OUR_GUID_ENTRY(CLSID_QualityProperties,
+		0x418afb70, 0xf8b8, 0x11ce, 0xaa, 0xc6, 0x00, 0x20, 0xaf, 0x0b, 0x99, 0xa3)
+
+	// 61ded640-e912-11ce-a099-00aa00479a58
+	OUR_GUID_ENTRY(IID_IBaseVideoMixer,
+		0x61ded640, 0xe912, 0x11ce, 0xa0, 0x99, 0x00, 0xaa, 0x00, 0x47, 0x9a, 0x58)
+
+	// 36d39eb0-dd75-11ce-bf0e-00aa0055595a
+	OUR_GUID_ENTRY(IID_IDirectDrawVideo,
+		0x36d39eb0, 0xdd75, 0x11ce, 0xbf, 0x0e, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// bd0ecb0-f8e2-11ce-aac6-0020af0b99a3
+	OUR_GUID_ENTRY(IID_IQualProp,
+		0x1bd0ecb0, 0xf8e2, 0x11ce, 0xaa, 0xc6, 0x00, 0x20, 0xaf, 0x0b, 0x99, 0xa3)
+
+	// {CE292861-FC88-11d0-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(CLSID_VPObject,
+		0xce292861, 0xfc88, 0x11d0, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {CE292862-FC88-11d0-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IVPObject,
+		0xce292862, 0xfc88, 0x11d0, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {25DF12C1-3DE0-11d1-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IVPControl,
+		0x25df12c1, 0x3de0, 0x11d1, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {814B9801-1C88-11d1-BAD9-00609744111A}
+	OUR_GUID_ENTRY(CLSID_VPVBIObject,
+		0x814b9801, 0x1c88, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// {814B9802-1C88-11d1-BAD9-00609744111A}
+	OUR_GUID_ENTRY(IID_IVPVBIObject,
+		0x814b9802, 0x1c88, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// {BC29A660-30E3-11d0-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IVPConfig,
+		0xbc29a660, 0x30e3, 0x11d0, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {C76794A1-D6C5-11d0-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IVPNotify,
+		0xc76794a1, 0xd6c5, 0x11d0, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {EBF47183-8764-11d1-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IVPNotify2,
+		0xebf47183, 0x8764, 0x11d1, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+
+	// {EC529B00-1A1F-11D1-BAD9-00609744111A}
+	OUR_GUID_ENTRY(IID_IVPVBIConfig,
+		0xec529b00, 0x1a1f, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// {EC529B01-1A1F-11D1-BAD9-00609744111A}
+	OUR_GUID_ENTRY(IID_IVPVBINotify,
+		0xec529b01, 0x1a1f, 0x11d1, 0xba, 0xd9, 0x0, 0x60, 0x97, 0x44, 0x11, 0x1a)
+
+	// {593CDDE1-0759-11d1-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IMixerPinConfig,
+		0x593cdde1, 0x759, 0x11d1, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+	// {EBF47182-8764-11d1-9E69-00C04FD7C15B}
+	OUR_GUID_ENTRY(IID_IMixerPinConfig2,
+		0xebf47182, 0x8764, 0x11d1, 0x9e, 0x69, 0x0, 0xc0, 0x4f, 0xd7, 0xc1, 0x5b)
+
+
+	// This is a real pain in the neck. The OLE GUIDs are separated out into a
+	// different file from the main header files. The header files can then be
+	// included multiple times and are protected with the following statements,
+	//
+	//      #ifndef __SOMETHING_DEFINED__
+	//      #define __SOMETHING_DEFINED__
+	//          all the header contents
+	//      #endif // __SOMETHING_DEFINED__
+	//
+	// When the actual GUIDs are to be defined (using initguid) the GUID header
+	// file can then be included to really define them just once. Unfortunately
+	// DirectDraw has the GUIDs defined in the main header file. So if the base
+	// classes bring in ddraw.h to get at the DirectDraw structures and so on
+	// nobody would then be able to really include ddraw.h to allocate the GUID
+	// memory structures because of the aforementioned header file protection
+	// Therefore the DirectDraw GUIDs are defined and allocated for real here
+
+#ifndef __DDRAW_INCLUDED__
+	OUR_GUID_ENTRY(CLSID_DirectDraw, 0xD7B70EE0, 0x4340, 0x11CF, 0xB0, 0x63, 0x00, 0x20, 0xAF, 0xC2, 0xCD, 0x35)
+	OUR_GUID_ENTRY(CLSID_DirectDrawClipper, 0x593817A0, 0x7DB3, 0x11CF, 0xA2, 0xDE, 0x00, 0xAA, 0x00, 0xb9, 0x33, 0x56)
+	OUR_GUID_ENTRY(IID_IDirectDraw, 0x6C14DB80, 0xA733, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60)
+	OUR_GUID_ENTRY(IID_IDirectDraw2, 0xB3A6F3E0, 0x2B43, 0x11CF, 0xA2, 0xDE, 0x00, 0xAA, 0x00, 0xB9, 0x33, 0x56)
+	OUR_GUID_ENTRY(IID_IDirectDrawSurface, 0x6C14DB81, 0xA733, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60)
+	OUR_GUID_ENTRY(IID_IDirectDrawSurface2, 0x57805885, 0x6eec, 0x11cf, 0x94, 0x41, 0xa8, 0x23, 0x03, 0xc1, 0x0e, 0x27)
+	OUR_GUID_ENTRY(IID_IDirectDrawSurface3, 0xDA044E00, 0x69B2, 0x11D0, 0xA1, 0xD5, 0x00, 0xAA, 0x00, 0xB8, 0xDF, 0xBB)
+	OUR_GUID_ENTRY(IID_IDirectDrawSurface4, 0x0B2B8630, 0xAD35, 0x11D0, 0x8E, 0xA6, 0x00, 0x60, 0x97, 0x97, 0xEA, 0x5B)
+	OUR_GUID_ENTRY(IID_IDirectDrawSurface7, 0x06675a80, 0x3b9b, 0x11d2, 0xb9, 0x2f, 0x00, 0x60, 0x97, 0x97, 0xea, 0x5b)
+	OUR_GUID_ENTRY(IID_IDirectDrawPalette, 0x6C14DB84, 0xA733, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60)
+	OUR_GUID_ENTRY(IID_IDirectDrawClipper, 0x6C14DB85, 0xA733, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60)
+	OUR_GUID_ENTRY(IID_IDirectDrawColorControl, 0x4B9F0EE0, 0x0D7E, 0x11D0, 0x9B, 0x06, 0x00, 0xA0, 0xC9, 0x03, 0xA3, 0xB8)
+#endif
+
+#ifndef __DVP_INCLUDED__
+	OUR_GUID_ENTRY(IID_IDDVideoPortContainer, 0x6C142760, 0xA733, 0x11CE, 0xA5, 0x21, 0x00, 0x20, 0xAF, 0x0B, 0xE5, 0x60)
+#endif
+
+#ifndef __DDKM_INCLUDED__
+	OUR_GUID_ENTRY(IID_IDirectDrawKernel, 0x8D56C120, 0x6A08, 0x11D0, 0x9B, 0x06, 0x00, 0xA0, 0xC9, 0x03, 0xA3, 0xB8)
+	OUR_GUID_ENTRY(IID_IDirectDrawSurfaceKernel, 0x60755DA0, 0x6A40, 0x11D0, 0x9B, 0x06, 0x00, 0xA0, 0xC9, 0x03, 0xA3, 0xB8)
+#endif
+
+	// 0618aa30-6bc4-11cf-bf36-00aa0055595a
+	OUR_GUID_ENTRY(CLSID_ModexProperties,
+		0x0618aa30, 0x6bc4, 0x11cf, 0xbf, 0x36, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// dd1d7110-7836-11cf-bf47-00aa0055595a
+	OUR_GUID_ENTRY(IID_IFullScreenVideo,
+		0xdd1d7110, 0x7836, 0x11cf, 0xbf, 0x47, 0x00, 0xaa, 0x00, 0x55, 0x59, 0x5a)
+
+	// 53479470-f1dd-11cf-bc42-00aa00ac74f6
+	OUR_GUID_ENTRY(IID_IFullScreenVideoEx,
+		0x53479470, 0xf1dd, 0x11cf, 0xbc, 0x42, 0x00, 0xaa, 0x00, 0xac, 0x74, 0xf6)
+
+	// {101193C0-0BFE-11d0-AF91-00AA00B67A42}           DV decoder property
+	OUR_GUID_ENTRY(CLSID_DVDecPropertiesPage,
+		0x101193c0, 0xbfe, 0x11d0, 0xaf, 0x91, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// {4150F050-BB6F-11d0-AFB9-00AA00B67A42}           DV encoder property
+	OUR_GUID_ENTRY(CLSID_DVEncPropertiesPage,
+		0x4150f050, 0xbb6f, 0x11d0, 0xaf, 0xb9, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+	// {4DB880E0-C10D-11d0-AFB9-00AA00B67A42}           DV Muxer property
+	OUR_GUID_ENTRY(CLSID_DVMuxPropertyPage,
+		0x4db880e0, 0xc10d, 0x11d0, 0xaf, 0xb9, 0x0, 0xaa, 0x0, 0xb6, 0x7a, 0x42)
+
+
+	// -- Direct Sound Audio related GUID ---
+
+	// 546F4260-D53E-11cf-B3F0-00AA003761C5
+	OUR_GUID_ENTRY(IID_IAMDirectSound,
+		0x546f4260, 0xd53e, 0x11cf, 0xb3, 0xf0, 0x0, 0xaa, 0x0, 0x37, 0x61, 0xc5)
+
+	// -- MPEG audio decoder properties
+
+	// {b45dd570-3c77-11d1-abe1-00a0c905f375}
+	OUR_GUID_ENTRY(IID_IMpegAudioDecoder,
+		0xb45dd570, 0x3c77, 0x11d1, 0xab, 0xe1, 0x00, 0xa0, 0xc9, 0x05, 0xf3, 0x75)
+
+	// --- Line21 Decoder interface GUID ---
+
+	// 6E8D4A21-310C-11d0-B79A-00AA003767A7            IID_IAMLine21Decoder
+	OUR_GUID_ENTRY(IID_IAMLine21Decoder,
+		0x6e8d4a21, 0x310c, 0x11d0, 0xb7, 0x9a, 0x0, 0xaa, 0x0, 0x37, 0x67, 0xa7)
+
+	// --- WST Decoder interface GUID ---
+
+	// C056DE21-75C2-11d3-A184-00105AEF9F33            IID_IAMWstDecoder
+	OUR_GUID_ENTRY(IID_IAMWstDecoder,
+		0xc056de21, 0x75c2, 0x11d3, 0xa1, 0x84, 0x0, 0x10, 0x5a, 0xef, 0x9f, 0x33)
+
+	// --- WST Decoder Property Page ---
+
+	// 04E27F80-91E4-11d3-A184-00105AEF9F33            WST Decoder Property Page
+	OUR_GUID_ENTRY(CLSID_WstDecoderPropertyPage,
+		0x4e27f80, 0x91e4, 0x11d3, 0xa1, 0x84, 0x0, 0x10, 0x5a, 0xef, 0x9f, 0x33)
+
+
+	// -- Analog video related GUIDs ---
+
+
+	// -- format types ---
+	// 0482DDE0-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(FORMAT_AnalogVideo,
+		0x482dde0, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+
+	// -- major type, Analog Video
+
+	// 0482DDE1-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIATYPE_AnalogVideo,
+		0x482dde1, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+
+	// -- Analog Video subtypes, NTSC
+
+	// 0482DDE2-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_NTSC_M,
+		0x482dde2, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// -- Analog Video subtypes, PAL
+
+	// 0482DDE5-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_B,
+		0x482dde5, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDE6-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_D,
+		0x482dde6, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDE7-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_G,
+		0x482dde7, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDE8-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_H,
+		0x482dde8, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDE9-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_I,
+		0x482dde9, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDEA-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_M,
+		0x482ddea, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDEB-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_N,
+		0x482ddeb, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDEC-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_PAL_N_COMBO,
+		0x482ddec, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// -- Analog Video subtypes, SECAM
+
+	// 0482DDF0-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_B,
+		0x482ddf0, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDF1-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_D,
+		0x482ddf1, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDF2-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_G,
+		0x482ddf2, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDF3-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_H,
+		0x482ddf3, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDF4-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_K,
+		0x482ddf4, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDF5-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_K1,
+		0x482ddf5, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// 0482DDF6-7817-11cf-8A03-00AA006ECB65
+	OUR_GUID_ENTRY(MEDIASUBTYPE_AnalogVideo_SECAM_L,
+		0x482ddf6, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+
+	// --  External audio related GUIDs ---
+
+	// -- major types, Analog Audio
+
+	// 0482DEE1-7817-11cf-8a03-00aa006ecb65
+	OUR_GUID_ENTRY(MEDIATYPE_AnalogAudio,
+		0x482dee1, 0x7817, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// --  Video analysis related GUIDs ---
+
+	// -- format types used by VA -- H.264, captioning
+
+	// {A4EFC024-873E-4da3-898B-474DDBD79FD0}
+	OUR_GUID_ENTRY(FORMAT_CAPTIONED_H264VIDEO,
+		0xa4efc024, 0x873e, 0x4da3, 0x89, 0x8b, 0x47, 0x4d, 0xdb, 0xd7, 0x9f, 0xd0)
+
+	// -- media, media subtype, and format types, CC container
+
+	// {50997A4A-E508-4054-A2B2-10FF0AC1A69A}
+	OUR_GUID_ENTRY(FORMAT_CC_CONTAINER,
+		0x50997a4a, 0xe508, 0x4054, 0xa2, 0xb2, 0x10, 0xff, 0xa, 0xc1, 0xa6, 0x9a)
+
+	// {3ED9CB31-FD10-4ade-BCCC-FB9105D2F3EF}
+	OUR_GUID_ENTRY(CAPTION_FORMAT_ATSC,
+		0x3ed9cb31, 0xfd10, 0x4ade, 0xbc, 0xcc, 0xfb, 0x91, 0x5, 0xd2, 0xf3, 0xef)
+
+	// {12230DB4-FF2A-447e-BB88-6841C416D068}
+	OUR_GUID_ENTRY(CAPTION_FORMAT_DVB,
+		0x12230db4, 0xff2a, 0x447e, 0xbb, 0x88, 0x68, 0x41, 0xc4, 0x16, 0xd0, 0x68)
+
+	// {E9CA1CE7-915E-47be-9BB9-BF1D8A13A5EC}
+	OUR_GUID_ENTRY(CAPTION_FORMAT_DIRECTV,
+		0xe9ca1ce7, 0x915e, 0x47be, 0x9b, 0xb9, 0xbf, 0x1d, 0x8a, 0x13, 0xa5, 0xec)
+
+	// {EBB1A262-1158-4b99-AE80-92AC776952C4}
+	OUR_GUID_ENTRY(CAPTION_FORMAT_ECHOSTAR,
+		0xebb1a262, 0x1158, 0x4b99, 0xae, 0x80, 0x92, 0xac, 0x77, 0x69, 0x52, 0xc4)
+
+	// -- format types, MPEG-2
+
+	// {7AB2ADA2-81B6-4f14-B3C8-D0C486393B67}
+	OUR_GUID_ENTRY(FORMAT_CAPTIONED_MPEG2VIDEO,
+		0x7ab2ada2, 0x81b6, 0x4f14, 0xb3, 0xc8, 0xd0, 0xc4, 0x86, 0x39, 0x3b, 0x67)
+
+	//
+	// DirectShow's include file based on ksmedia.h from WDM DDK
+	//
+#include "ksuuids.h"
+
+
+	// -- Well known time format GUIDs ---
+
+
+	// 00000000-0000-0000-0000-000000000000
+	OUR_GUID_ENTRY(TIME_FORMAT_NONE,
+		0L, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+	// 7b785570-8c82-11cf-bc0c-00aa00ac74f6
+	OUR_GUID_ENTRY(TIME_FORMAT_FRAME,
+		0x7b785570, 0x8c82, 0x11cf, 0xbc, 0xc, 0x0, 0xaa, 0x0, 0xac, 0x74, 0xf6)
+
+	// 7b785571-8c82-11cf-bc0c-00aa00ac74f6
+	OUR_GUID_ENTRY(TIME_FORMAT_BYTE,
+		0x7b785571, 0x8c82, 0x11cf, 0xbc, 0xc, 0x0, 0xaa, 0x0, 0xac, 0x74, 0xf6)
+
+	// 7b785572-8c82-11cf-bc0c-00aa00ac74f6
+	OUR_GUID_ENTRY(TIME_FORMAT_SAMPLE,
+		0x7b785572, 0x8c82, 0x11cf, 0xbc, 0xc, 0x0, 0xaa, 0x0, 0xac, 0x74, 0xf6)
+
+	// 7b785573-8c82-11cf-bc0c-00aa00ac74f6
+	OUR_GUID_ENTRY(TIME_FORMAT_FIELD,
+		0x7b785573, 0x8c82, 0x11cf, 0xbc, 0xc, 0x0, 0xaa, 0x0, 0xac, 0x74, 0xf6)
+
+
+	// 7b785574-8c82-11cf-bc0c-00aa00ac74f6
+	OUR_GUID_ENTRY(TIME_FORMAT_MEDIA_TIME,
+		0x7b785574, 0x8c82, 0x11cf, 0xbc, 0xc, 0x0, 0xaa, 0x0, 0xac, 0x74, 0xf6)
+
+
+	// for IKsPropertySet
+
+	// 9B00F101-1567-11d1-B3F1-00AA003761C5
+	OUR_GUID_ENTRY(AMPROPSETID_Pin,
+		0x9b00f101, 0x1567, 0x11d1, 0xb3, 0xf1, 0x0, 0xaa, 0x0, 0x37, 0x61, 0xc5)
+
+	// fb6c4281-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_CAPTURE,
+		0xfb6c4281, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4282-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_PREVIEW,
+		0xfb6c4282, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4283-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_ANALOGVIDEOIN,
+		0xfb6c4283, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4284-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_VBI,
+		0xfb6c4284, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4285-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_VIDEOPORT,
+		0xfb6c4285, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4286-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_NABTS,
+		0xfb6c4286, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4287-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_EDS,
+		0xfb6c4287, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4288-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_TELETEXT,
+		0xfb6c4288, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c4289-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_CC,
+		0xfb6c4289, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c428a-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_STILL,
+		0xfb6c428a, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c428b-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_TIMECODE,
+		0xfb6c428b, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+	// fb6c428c-0353-11d1-905f-0000c0cc16ba
+	OUR_GUID_ENTRY(PIN_CATEGORY_VIDEOPORT_VBI,
+		0xfb6c428c, 0x0353, 0x11d1, 0x90, 0x5f, 0x00, 0x00, 0xc0, 0xcc, 0x16, 0xba)
+
+
+	// the following special GUIDS are used by ICaptureGraphBuilder::FindInterface
+
+	// {AC798BE0-98E3-11d1-B3F1-00AA003761C5}
+	OUR_GUID_ENTRY(LOOK_UPSTREAM_ONLY,
+		0xac798be0, 0x98e3, 0x11d1, 0xb3, 0xf1, 0x0, 0xaa, 0x0, 0x37, 0x61, 0xc5)
+
+	// {AC798BE1-98E3-11d1-B3F1-00AA003761C5}
+	OUR_GUID_ENTRY(LOOK_DOWNSTREAM_ONLY,
+		0xac798be1, 0x98e3, 0x11d1, 0xb3, 0xf1, 0x0, 0xaa, 0x0, 0x37, 0x61, 0xc5)
+
+	// -------------------------------------------------------------------------
+	// KSProxy GUIDS
+	// -------------------------------------------------------------------------
+
+	// {266EEE41-6C63-11cf-8A03-00AA006ECB65}
+	OUR_GUID_ENTRY(CLSID_TVTunerFilterPropertyPage,
+		0x266eee41, 0x6c63, 0x11cf, 0x8a, 0x3, 0x0, 0xaa, 0x0, 0x6e, 0xcb, 0x65)
+
+	// {71F96461-78F3-11d0-A18C-00A0C9118956}
+	OUR_GUID_ENTRY(CLSID_CrossbarFilterPropertyPage,
+		0x71f96461, 0x78f3, 0x11d0, 0xa1, 0x8c, 0x0, 0xa0, 0xc9, 0x11, 0x89, 0x56)
+
+	// {71F96463-78F3-11d0-A18C-00A0C9118956}
+	OUR_GUID_ENTRY(CLSID_TVAudioFilterPropertyPage,
+		0x71f96463, 0x78f3, 0x11d0, 0xa1, 0x8c, 0x0, 0xa0, 0xc9, 0x11, 0x89, 0x56)
+
+	// {71F96464-78F3-11d0-A18C-00A0C9118956}
+	OUR_GUID_ENTRY(CLSID_VideoProcAmpPropertyPage,
+		0x71f96464, 0x78f3, 0x11d0, 0xa1, 0x8c, 0x0, 0xa0, 0xc9, 0x11, 0x89, 0x56)
+
+	// {71F96465-78F3-11d0-A18C-00A0C9118956}
+	OUR_GUID_ENTRY(CLSID_CameraControlPropertyPage,
+		0x71f96465, 0x78f3, 0x11d0, 0xa1, 0x8c, 0x0, 0xa0, 0xc9, 0x11, 0x89, 0x56)
+
+	// {71F96466-78F3-11d0-A18C-00A0C9118956}
+	OUR_GUID_ENTRY(CLSID_AnalogVideoDecoderPropertyPage,
+		0x71f96466, 0x78f3, 0x11d0, 0xa1, 0x8c, 0x0, 0xa0, 0xc9, 0x11, 0x89, 0x56)
+
+	// {71F96467-78F3-11d0-A18C-00A0C9118956}
+	OUR_GUID_ENTRY(CLSID_VideoStreamConfigPropertyPage,
+		0x71f96467, 0x78f3, 0x11d0, 0xa1, 0x8c, 0x0, 0xa0, 0xc9, 0x11, 0x89, 0x56)
+
+	// {37E92A92-D9AA-11d2-BF84-8EF2B1555AED} Audio Renderer Advanced Property Page
+	OUR_GUID_ENTRY(CLSID_AudioRendererAdvancedProperties,
+		0x37e92a92, 0xd9aa, 0x11d2, 0xbf, 0x84, 0x8e, 0xf2, 0xb1, 0x55, 0x5a, 0xed)
+
+
+	// -------------------------------------------------------------------------
+	// VMR GUIDS
+	// -------------------------------------------------------------------------
+
+	// {B87BEB7B-8D29-423f-AE4D-6582C10175AC}
+	OUR_GUID_ENTRY(CLSID_VideoMixingRenderer,
+		0xB87BEB7B, 0x8D29, 0x423f, 0xAE, 0x4D, 0x65, 0x82, 0xC1, 0x01, 0x75, 0xAC)
+
+	// {6BC1CFFA-8FC1-4261-AC22-CFB4CC38DB50}
+	OUR_GUID_ENTRY(CLSID_VideoRendererDefault,
+		0x6BC1CFFA, 0x8FC1, 0x4261, 0xAC, 0x22, 0xCF, 0xB4, 0xCC, 0x38, 0xDB, 0x50)
+
+	// {99d54f63-1a69-41ae-aa4d-c976eb3f0713}
+	OUR_GUID_ENTRY(CLSID_AllocPresenter,
+		0x99d54f63, 0x1a69, 0x41ae, 0xaa, 0x4d, 0xc9, 0x76, 0xeb, 0x3f, 0x07, 0x13)
+
+	// {4444ac9e-242e-471b-a3c7-45dcd46352bc}
+	OUR_GUID_ENTRY(CLSID_AllocPresenterDDXclMode,
+		0x4444ac9e, 0x242e, 0x471b, 0xa3, 0xc7, 0x45, 0xdc, 0xd4, 0x63, 0x52, 0xbc)
+
+	// {6f26a6cd-967b-47fd-874a-7aed2c9d25a2}
+	OUR_GUID_ENTRY(CLSID_VideoPortManager,
+		0x6f26a6cd, 0x967b, 0x47fd, 0x87, 0x4a, 0x7a, 0xed, 0x2c, 0x9d, 0x25, 0xa2)
+
+
+	// -------------------------------------------------------------------------
+	// VMR GUIDS for DX9
+	// -------------------------------------------------------------------------
+
+	// {51b4abf3-748f-4e3b-a276-c828330e926a}
+	OUR_GUID_ENTRY(CLSID_VideoMixingRenderer9,
+		0x51b4abf3, 0x748f, 0x4e3b, 0xa2, 0x76, 0xc8, 0x28, 0x33, 0x0e, 0x92, 0x6a)
+
+
+	// -------------------------------------------------------------------------
+	// EVR GUIDS
+	// -------------------------------------------------------------------------
+
+	// {FA10746C-9B63-4b6c-BC49-FC300EA5F256}
+	OUR_GUID_ENTRY(CLSID_EnhancedVideoRenderer,
+		0xfa10746c, 0x9b63, 0x4b6c, 0xbc, 0x49, 0xfc, 0x30, 0xe, 0xa5, 0xf2, 0x56)
+
+	// {E474E05A-AB65-4f6a-827C-218B1BAAF31F}
+	OUR_GUID_ENTRY(CLSID_MFVideoMixer9,
+		0xE474E05A, 0xAB65, 0x4f6a, 0x82, 0x7C, 0x21, 0x8B, 0x1B, 0xAA, 0xF3, 0x1F)
+
+	// {98455561-5136-4d28-AB08-4CEE40EA2781}
+	OUR_GUID_ENTRY(CLSID_MFVideoPresenter9,
+		0x98455561, 0x5136, 0x4d28, 0xab, 0x8, 0x4c, 0xee, 0x40, 0xea, 0x27, 0x81)
+
+	// {a0a7a57b-59b2-4919-a694-add0a526c373}
+	OUR_GUID_ENTRY(CLSID_EVRTearlessWindowPresenter9,
+		0xa0a7a57b, 0x59b2, 0x4919, 0xa6, 0x94, 0xad, 0xd0, 0xa5, 0x26, 0xc3, 0x73)
+
+	// {62079164-233b-41f8-a80f-f01705f514a8}
+	OUR_GUID_ENTRY(CLSID_EVRPlaybackPipelineOptimizer,
+		0x62079164, 0x233b, 0x41f8, 0xa8, 0x0f, 0xf0, 0x17, 0x05, 0xf5, 0x14, 0xa8)
+
+	// {e447df01-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df02-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df03-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df04-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df05-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df06-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df07-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df08-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df09-10ca-4d17-b17e-6a840f8a3a4c}
+	// {e447df0a-10ca-4d17-b17e-6a840f8a3a4c}
+	OUR_GUID_ENTRY(EVRConfig_ForceBob, 0xe447df01, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_AllowDropToBob, 0xe447df02, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_ForceThrottle, 0xe447df03, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_AllowDropToThrottle, 0xe447df04, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_ForceHalfInterlace, 0xe447df05, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_AllowDropToHalfInterlace, 0xe447df06, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_ForceScaling, 0xe447df07, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_AllowScaling, 0xe447df08, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_ForceBatching, 0xe447df09, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+	OUR_GUID_ENTRY(EVRConfig_AllowBatching, 0xe447df0a, 0x10ca, 0x4d17, 0xb1, 0x7e, 0x6a, 0x84, 0x0f, 0x8a, 0x3a, 0x4c)
+
+
+	// -------------------------------------------------------------------------
+	// BDA Network Provider GUIDS
+	// -------------------------------------------------------------------------
+
+	// This is the GUID for the generic NP which would replace ATSC, DVBT, DVBS
+	// and DVBC NP. All the other GUIDs are still kept for backward compatibility
+	// {B2F3A67C-29DA-4c78-8831-091ED509A475}
+	OUR_GUID_ENTRY(CLSID_NetworkProvider,
+		0xb2f3a67c, 0x29da, 0x4c78, 0x88, 0x31, 0x9, 0x1e, 0xd5, 0x9, 0xa4, 0x75)
+
+	// {0DAD2FDD-5FD7-11D3-8F50-00C04F7971E2}
+	OUR_GUID_ENTRY(CLSID_ATSCNetworkProvider,
+		0x0dad2fdd, 0x5fd7, 0x11d3, 0x8f, 0x50, 0x00, 0xc0, 0x4f, 0x79, 0x71, 0xe2)
+
+	// {E3444D16-5AC4-4386-88DF-13FD230E1DDA}
+	OUR_GUID_ENTRY(CLSID_ATSCNetworkPropertyPage,
+		0xe3444d16, 0x5ac4, 0x4386, 0x88, 0xdf, 0x13, 0xfd, 0x23, 0x0e, 0x1d, 0xda)
+
+	// {FA4B375A-45B4-4d45-8440-263957B11623}
+	OUR_GUID_ENTRY(CLSID_DVBSNetworkProvider,
+		0xfa4b375a, 0x45b4, 0x4d45, 0x84, 0x40, 0x26, 0x39, 0x57, 0xb1, 0x16, 0x23)
+
+	// {216C62DF-6D7F-4e9a-8571-05F14EDB766A}
+	OUR_GUID_ENTRY(CLSID_DVBTNetworkProvider,
+		0x216c62df, 0x6d7f, 0x4e9a, 0x85, 0x71, 0x5, 0xf1, 0x4e, 0xdb, 0x76, 0x6a)
+
+	// {DC0C0FE7-0485-4266-B93F-68FBF80ED834}
+	OUR_GUID_ENTRY(CLSID_DVBCNetworkProvider,
+		0xdc0c0fe7, 0x485, 0x4266, 0xb9, 0x3f, 0x68, 0xfb, 0xf8, 0xe, 0xd8, 0x34)
+
+	// -------------------------------------------------------------------------
+	// attribute GUIDs
+	// -------------------------------------------------------------------------
+
+	// {EB7836CA-14FF-4919-BCE7-3AF12319E50C}
+	OUR_GUID_ENTRY(DSATTRIB_UDCRTag,
+		0xEB7836CA, 0x14FF, 0x4919, 0xbc, 0xe7, 0x3a, 0xf1, 0x23, 0x19, 0xe5, 0x0c)
+
+	// {2F5BAE02-7B8F-4f60-82D6-E4EA2F1F4C99}
+	OUR_GUID_ENTRY(DSATTRIB_PicSampleSeq,
+		0x2f5bae02, 0x7b8f, 0x4f60, 0x82, 0xd6, 0xe4, 0xea, 0x2f, 0x1f, 0x4c, 0x99)
+
+	// {5A5F08CA-55C2-4033-92AB-55DB8F781226}
+	OUR_GUID_ENTRY(DSATTRIB_OptionalVideoAttributes,
+		0x5A5F08CA, 0x55C2, 0x4033, 0x92, 0xAB, 0x55, 0xDB, 0x8F, 0x78, 0x12, 0x26)
+
+	// {e7e050fb-dd5d-40dd-9915-35dcb81bdc8a}
+	OUR_GUID_ENTRY(DSATTRIB_CC_CONTAINER_INFO,
+		0xe7e050fb, 0xdd5d, 0x40dd, 0x99, 0x15, 0x35, 0xDC, 0xB8, 0x1B, 0xDC, 0x8a)
+
+	// {B622F612-47AD-4671-AD6C-05A98E65DE3A}
+	OUR_GUID_ENTRY(DSATTRIB_TRANSPORT_PROPERTIES,
+		0xb622f612, 0x47ad, 0x4671, 0xad, 0x6c, 0x5, 0xa9, 0x8e, 0x65, 0xde, 0x3a)
+
+	// {e0b56679-12b9-43cc-b7df-578caa5a7b63}
+	OUR_GUID_ENTRY(DSATTRIB_PBDATAG_ATTRIBUTE,
+		0xe0b56679, 0x12b9, 0x43cc, 0xb7, 0xdf, 0x57, 0x8c, 0xaa, 0x5a, 0x7b, 0x63)
+
+	// {0c1a5614-30cd-4f40-bcbf-d03e52306207}
+	OUR_GUID_ENTRY(DSATTRIB_CAPTURE_STREAMTIME,
+		0x0c1a5614, 0x30cd, 0x4f40, 0xbc, 0xbf, 0xd0, 0x3e, 0x52, 0x30, 0x62, 0x07)
+
+	// {5FB5673B-0A2A-4565-827B-6853FD75E611}               DSATTRIB_DSHOW_STREAM_DESC
+	OUR_GUID_ENTRY(DSATTRIB_DSHOW_STREAM_DESC,
+		0x5fb5673b, 0xa2a, 0x4565, 0x82, 0x7b, 0x68, 0x53, 0xfd, 0x75, 0xe6, 0x11)
+
+	// {892CD111-72F3-411d-8B91-A9E9123AC29A}
+	OUR_GUID_ENTRY(DSATTRIB_SAMPLE_LIVE_STREAM_TIME,
+		0x892cd111, 0x72f3, 0x411d, 0x8b, 0x91, 0xa9, 0xe9, 0x12, 0x3a, 0xc2, 0x9a)
+
+	// UUID for supported UDRI TAG tables
+	OUR_GUID_ENTRY(UUID_UdriTagTables,
+		0xe1b98d74, 0x9778, 0x4878, 0xb6, 0x64, 0xeb, 0x20, 0x20, 0x36, 0x4d, 0x88)
+
+	// UUID for supported WMDRM TAG tables
+	OUR_GUID_ENTRY(UUID_WMDRMTagTables,
+		0x5DCD1101, 0x9263, 0x45bb, 0xa4, 0xd5, 0xc4, 0x15, 0xab, 0x8c, 0x58, 0x9c)
+
+	// -------------------------------------------------------------------------
+	// TVE Receiver filter guids
+	// -------------------------------------------------------------------------
+
+	// The CLSID used by the TVE Receiver filter
+	// {05500280-FAA5-4DF9-8246-BFC23AC5CEA8}
+	OUR_GUID_ENTRY(CLSID_DShowTVEFilter,
+		0x05500280, 0xFAA5, 0x4DF9, 0x82, 0x46, 0xBF, 0xC2, 0x3A, 0xC5, 0xCE, 0xA8)
+
+	// {05500281-FAA5-4DF9-8246-BFC23AC5CEA8}
+	OUR_GUID_ENTRY(CLSID_TVEFilterTuneProperties,
+		0x05500281, 0xFAA5, 0x4DF9, 0x82, 0x46, 0xBF, 0xC2, 0x3A, 0xC5, 0xCE, 0xA8)
+
+
+	// {05500282-FAA5-4DF9-8246-BFC23AC5CEA8}
+	OUR_GUID_ENTRY(CLSID_TVEFilterCCProperties,
+		0x05500282, 0xFAA5, 0x4DF9, 0x82, 0x46, 0xBF, 0xC2, 0x3A, 0xC5, 0xCE, 0xA8)
+
+	// {05500283-FAA5-4DF9-8246-BFC23AC5CEA8}
+	OUR_GUID_ENTRY(CLSID_TVEFilterStatsProperties,
+		0x05500283, 0xFAA5, 0x4DF9, 0x82, 0x46, 0xBF, 0xC2, 0x3A, 0xC5, 0xCE, 0xA8)
+
+	// -------------------------------------------------------------------------
+	// Defined ENCAPI parameter GUIDs
+	// -------------------------------------------------------------------------
+
+	// The CLSID for the original IVideoEncoder proxy plug-in
+	// {B43C4EEC-8C32-4791-9102-508ADA5EE8E7}
+	OUR_GUID_ENTRY(CLSID_IVideoEncoderProxy,
+		0xb43c4eec, 0x8c32, 0x4791, 0x91, 0x2, 0x50, 0x8a, 0xda, 0x5e, 0xe8, 0xe7)
+
+	// The CLSID for the ICodecAPI proxy plug-in
+	// {7ff0997a-1999-4286-a73c-622b8814e7eb}
+	OUR_GUID_ENTRY(CLSID_ICodecAPIProxy,
+		0x7ff0997a, 0x1999, 0x4286, 0xa7, 0x3c, 0x62, 0x2b, 0x88, 0x14, 0xe7, 0xeb)
+
+	// The CLSID for the combination ICodecAPI/IVideoEncoder proxy plug-in
+	// {b05dabd9-56e5-4fdc-afa4-8a47e91f1c9c}
+	OUR_GUID_ENTRY(CLSID_IVideoEncoderCodecAPIProxy,
+		0xb05dabd9, 0x56e5, 0x4fdc, 0xaf, 0xa4, 0x8a, 0x47, 0xe9, 0x1f, 0x1c, 0x9c)
+
+#ifndef __ENCODER_API_GUIDS__
+#define __ENCODER_API_GUIDS__
+
+	// {49CC4C43-CA83-4ad4-A9AF-F3696AF666DF}
+	OUR_GUID_ENTRY(ENCAPIPARAM_BITRATE,
+		0x49cc4c43, 0xca83, 0x4ad4, 0xa9, 0xaf, 0xf3, 0x69, 0x6a, 0xf6, 0x66, 0xdf)
+
+	// {703F16A9-3D48-44a1-B077-018DFF915D19}
+	OUR_GUID_ENTRY(ENCAPIPARAM_PEAK_BITRATE,
+		0x703f16a9, 0x3d48, 0x44a1, 0xb0, 0x77, 0x1, 0x8d, 0xff, 0x91, 0x5d, 0x19)
+
+	// {EE5FB25C-C713-40d1-9D58-C0D7241E250F}
+	OUR_GUID_ENTRY(ENCAPIPARAM_BITRATE_MODE,
+		0xee5fb25c, 0xc713, 0x40d1, 0x9d, 0x58, 0xc0, 0xd7, 0x24, 0x1e, 0x25, 0xf)
+
+	// {0C0171DB-FEFC-4af7-9991-A5657C191CD1}
+	OUR_GUID_ENTRY(ENCAPIPARAM_SAP_MODE,
+		0xc0171db, 0xfefc, 0x4af7, 0x99, 0x91, 0xa5, 0x65, 0x7c, 0x19, 0x1c, 0xd1)
+
+	// for kernel control
+
+	// {62b12acf-f6b0-47d9-9456-96f22c4e0b9d}
+	OUR_GUID_ENTRY(CODECAPI_CHANGELISTS,
+		0x62b12acf, 0xf6b0, 0x47d9, 0x94, 0x56, 0x96, 0xf2, 0x2c, 0x4e, 0x0b, 0x9d)
+
+	// {7112e8e1-3d03-47ef-8e60-03f1cf537301 }
+	OUR_GUID_ENTRY(CODECAPI_VIDEO_ENCODER,
+		0x7112e8e1, 0x3d03, 0x47ef, 0x8e, 0x60, 0x03, 0xf1, 0xcf, 0x53, 0x73, 0x01)
+
+	// {b9d19a3e-f897-429c-bc46-8138b7272b2d }
+	OUR_GUID_ENTRY(CODECAPI_AUDIO_ENCODER,
+		0xb9d19a3e, 0xf897, 0x429c, 0xbc, 0x46, 0x81, 0x38, 0xb7, 0x27, 0x2b, 0x2d)
+
+	// {6c5e6a7c-acf8-4f55-a999-1a628109051b }
+	OUR_GUID_ENTRY(CODECAPI_SETALLDEFAULTS,
+		0x6c5e6a7c, 0xacf8, 0x4f55, 0xa9, 0x99, 0x1a, 0x62, 0x81, 0x09, 0x05, 0x1b)
+
+	// {6a577e92-83e1-4113-adc2-4fcec32f83a1 }
+	OUR_GUID_ENTRY(CODECAPI_ALLSETTINGS,
+		0x6a577e92, 0x83e1, 0x4113, 0xad, 0xc2, 0x4f, 0xce, 0xc3, 0x2f, 0x83, 0xa1)
+
+	// {0581af97-7693-4dbd-9dca-3f9ebd6585a1 }
+	OUR_GUID_ENTRY(CODECAPI_SUPPORTSEVENTS,
+		0x0581af97, 0x7693, 0x4dbd, 0x9d, 0xca, 0x3f, 0x9e, 0xbd, 0x65, 0x85, 0xa1)
+
+	// {1cb14e83-7d72-4657-83fd-47a2c5b9d13d }
+	OUR_GUID_ENTRY(CODECAPI_CURRENTCHANGELIST,
+		0x1cb14e83, 0x7d72, 0x4657, 0x83, 0xfd, 0x47, 0xa2, 0xc5, 0xb9, 0xd1, 0x3d)
+
+	// {1f26a602-2b5c-4b63-b8e8-9ea5c1a7dc2e}
+	OUR_GUID_ENTRY(CLSID_SBE2MediaTypeProfile,
+		0x1f26a602, 0x2b5c, 0x4b63, 0xb8, 0xe8, 0x9e, 0xa5, 0xc1, 0xa7, 0xdc, 0x2e)
+
+	// {3E458037-0CA6-41aa-A594-2AA6C02D709B}
+	OUR_GUID_ENTRY(CLSID_SBE2FileScan,
+		0x3e458037, 0xca6, 0x41aa, 0xa5, 0x94, 0x2a, 0xa6, 0xc0, 0x2d, 0x70, 0x9b);
+
+// When generating strmiids.lib, include codecapi definitions
+#ifdef INITGUID
+#define UUID_GEN
+#include <codecapi.h>
+#endif
+
+#endif // __ENCODER_API_GUIDS__
+
+// -----------------------------------------------
+// Used for decoders that exposing ICodecAPI
+// -----------------------------------------------
+OUR_GUID_ENTRY(CODECAPI_AVDecMmcssClass,
+	0xe0ad4828, 0xdf66, 0x4893, 0x9f, 0x33, 0x78, 0x8a, 0xa4, 0xec, 0x40, 0x82)
+
+#undef OUR_GUID_ENTRY
+
+
+/*************************************uuids.h**************************************/
+
+
+/*************************************strmif.h**************************************/
+
+#ifndef __IMediaSample_INTERFACE_DEFINED__
+#define __IMediaSample_INTERFACE_DEFINED__
+
+/* interface IMediaSample */
+/* [unique][uuid][object][local] */
+
+
+EXTERN_C const IID IID_IMediaSample;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a8689a-0ad4-11ce-b03a-0020af0ba770")
+IMediaSample : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE GetPointer(
+		/* [annotation][out] */
+		_Outptr_result_buffer_to_(_Inexpressible_(this->GetSize()), _Inexpressible_(this->GetActualDataLength()))  BYTE **ppBuffer) = 0;
+
+	virtual long STDMETHODCALLTYPE GetSize(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetTime(
+		/* [annotation][out] */
+		_Out_  REFERENCE_TIME *pTimeStart,
+		/* [annotation][out] */
+		_Out_  REFERENCE_TIME *pTimeEnd) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetTime(
+		/* [annotation][in] */
+		_In_opt_  REFERENCE_TIME *pTimeStart,
+		/* [annotation][in] */
+		_In_opt_  REFERENCE_TIME *pTimeEnd) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE IsSyncPoint(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetSyncPoint(
+		BOOL bIsSyncPoint) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE IsPreroll(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetPreroll(
+		BOOL bIsPreroll) = 0;
+
+	virtual long STDMETHODCALLTYPE GetActualDataLength(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetActualDataLength(
+		long __MIDL__IMediaSample0000) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetMediaType(
+		/* [annotation][out] */
+		_Out_  AM_MEDIA_TYPE **ppMediaType) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetMediaType(
+		/* [annotation][in] */
+		_In_  AM_MEDIA_TYPE *pMediaType) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE IsDiscontinuity(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetDiscontinuity(
+		BOOL bDiscontinuity) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetMediaTime(
+		/* [annotation][out] */
+		_Out_  LONGLONG *pTimeStart,
+		/* [annotation][out] */
+		_Out_  LONGLONG *pTimeEnd) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetMediaTime(
+		/* [annotation][in] */
+		_In_opt_  LONGLONG *pTimeStart,
+		/* [annotation][in] */
+		_In_opt_  LONGLONG *pTimeEnd) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IMediaSampleVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IMediaSample * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IMediaSample * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IMediaSample * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetPointer)(
+		IMediaSample * This,
+		/* [annotation][out] */
+		_Outptr_result_buffer_to_(_Inexpressible_(this->GetSize()), _Inexpressible_(this->GetActualDataLength()))  BYTE **ppBuffer);
+
+	long (STDMETHODCALLTYPE *GetSize)(
+		IMediaSample * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTime)(
+		IMediaSample * This,
+		/* [annotation][out] */
+		_Out_  REFERENCE_TIME *pTimeStart,
+		/* [annotation][out] */
+		_Out_  REFERENCE_TIME *pTimeEnd);
+
+	HRESULT(STDMETHODCALLTYPE *SetTime)(
+		IMediaSample * This,
+		/* [annotation][in] */
+		_In_opt_  REFERENCE_TIME *pTimeStart,
+		/* [annotation][in] */
+		_In_opt_  REFERENCE_TIME *pTimeEnd);
+
+	HRESULT(STDMETHODCALLTYPE *IsSyncPoint)(
+		IMediaSample * This);
+
+	HRESULT(STDMETHODCALLTYPE *SetSyncPoint)(
+		IMediaSample * This,
+		BOOL bIsSyncPoint);
+
+	HRESULT(STDMETHODCALLTYPE *IsPreroll)(
+		IMediaSample * This);
+
+	HRESULT(STDMETHODCALLTYPE *SetPreroll)(
+		IMediaSample * This,
+		BOOL bIsPreroll);
+
+	long (STDMETHODCALLTYPE *GetActualDataLength)(
+		IMediaSample * This);
+
+	HRESULT(STDMETHODCALLTYPE *SetActualDataLength)(
+		IMediaSample * This,
+		long __MIDL__IMediaSample0000);
+
+	HRESULT(STDMETHODCALLTYPE *GetMediaType)(
+		IMediaSample * This,
+		/* [annotation][out] */
+		_Out_  AM_MEDIA_TYPE **ppMediaType);
+
+	HRESULT(STDMETHODCALLTYPE *SetMediaType)(
+		IMediaSample * This,
+		/* [annotation][in] */
+		_In_  AM_MEDIA_TYPE *pMediaType);
+
+	HRESULT(STDMETHODCALLTYPE *IsDiscontinuity)(
+		IMediaSample * This);
+
+	HRESULT(STDMETHODCALLTYPE *SetDiscontinuity)(
+		IMediaSample * This,
+		BOOL bDiscontinuity);
+
+	HRESULT(STDMETHODCALLTYPE *GetMediaTime)(
+		IMediaSample * This,
+		/* [annotation][out] */
+		_Out_  LONGLONG *pTimeStart,
+		/* [annotation][out] */
+		_Out_  LONGLONG *pTimeEnd);
+
+	HRESULT(STDMETHODCALLTYPE *SetMediaTime)(
+		IMediaSample * This,
+		/* [annotation][in] */
+		_In_opt_  LONGLONG *pTimeStart,
+		/* [annotation][in] */
+		_In_opt_  LONGLONG *pTimeEnd);
+
+	END_INTERFACE
+} IMediaSampleVtbl;
+
+interface IMediaSample
+{
+	CONST_VTBL struct IMediaSampleVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IMediaSample_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IMediaSample_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IMediaSample_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IMediaSample_GetPointer(This,ppBuffer)	\
+    ( (This)->lpVtbl -> GetPointer(This,ppBuffer) ) 
+
+#define IMediaSample_GetSize(This)	\
+    ( (This)->lpVtbl -> GetSize(This) ) 
+
+#define IMediaSample_GetTime(This,pTimeStart,pTimeEnd)	\
+    ( (This)->lpVtbl -> GetTime(This,pTimeStart,pTimeEnd) ) 
+
+#define IMediaSample_SetTime(This,pTimeStart,pTimeEnd)	\
+    ( (This)->lpVtbl -> SetTime(This,pTimeStart,pTimeEnd) ) 
+
+#define IMediaSample_IsSyncPoint(This)	\
+    ( (This)->lpVtbl -> IsSyncPoint(This) ) 
+
+#define IMediaSample_SetSyncPoint(This,bIsSyncPoint)	\
+    ( (This)->lpVtbl -> SetSyncPoint(This,bIsSyncPoint) ) 
+
+#define IMediaSample_IsPreroll(This)	\
+    ( (This)->lpVtbl -> IsPreroll(This) ) 
+
+#define IMediaSample_SetPreroll(This,bIsPreroll)	\
+    ( (This)->lpVtbl -> SetPreroll(This,bIsPreroll) ) 
+
+#define IMediaSample_GetActualDataLength(This)	\
+    ( (This)->lpVtbl -> GetActualDataLength(This) ) 
+
+#define IMediaSample_SetActualDataLength(This,__MIDL__IMediaSample0000)	\
+    ( (This)->lpVtbl -> SetActualDataLength(This,__MIDL__IMediaSample0000) ) 
+
+#define IMediaSample_GetMediaType(This,ppMediaType)	\
+    ( (This)->lpVtbl -> GetMediaType(This,ppMediaType) ) 
+
+#define IMediaSample_SetMediaType(This,pMediaType)	\
+    ( (This)->lpVtbl -> SetMediaType(This,pMediaType) ) 
+
+#define IMediaSample_IsDiscontinuity(This)	\
+    ( (This)->lpVtbl -> IsDiscontinuity(This) ) 
+
+#define IMediaSample_SetDiscontinuity(This,bDiscontinuity)	\
+    ( (This)->lpVtbl -> SetDiscontinuity(This,bDiscontinuity) ) 
+
+#define IMediaSample_GetMediaTime(This,pTimeStart,pTimeEnd)	\
+    ( (This)->lpVtbl -> GetMediaTime(This,pTimeStart,pTimeEnd) ) 
+
+#define IMediaSample_SetMediaTime(This,pTimeStart,pTimeEnd)	\
+    ( (This)->lpVtbl -> SetMediaTime(This,pTimeStart,pTimeEnd) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IMediaSample_INTERFACE_DEFINED__ */
+
+
+
+/*************************************strmif.h**************************************/
+
+
+/*************************************objjldl.h**************************************/
+
+#ifndef __IRunningObjectTable_INTERFACE_DEFINED__
+#define __IRunningObjectTable_INTERFACE_DEFINED__
+
+/* interface IRunningObjectTable */
+/* [uuid][object] */
+
+typedef /* [unique] */  __RPC_unique_pointer IRunningObjectTable *LPRUNNINGOBJECTTABLE;
+
+
+EXTERN_C const IID IID_IRunningObjectTable;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("00000010-0000-0000-C000-000000000046")
+IRunningObjectTable : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Register(
+		/* [in] */ DWORD grfFlags,
+		/* [unique][in] */ __RPC__in_opt IUnknown *punkObject,
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName,
+		/* [out] */ __RPC__out DWORD *pdwRegister) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Revoke(
+		/* [in] */ DWORD dwRegister) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE IsRunning(
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetObject(
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName,
+		/* [out] */ __RPC__deref_out_opt IUnknown **ppunkObject) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE NoteChangeTime(
+		/* [in] */ DWORD dwRegister,
+		/* [in] */ __RPC__in FILETIME *pfiletime) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetTimeOfLastChange(
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName,
+		/* [out] */ __RPC__out FILETIME *pfiletime) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE EnumRunning(
+		/* [out] */ __RPC__deref_out_opt IEnumMoniker **ppenumMoniker) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IRunningObjectTableVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IRunningObjectTable * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IRunningObjectTable * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IRunningObjectTable * This);
+
+	HRESULT(STDMETHODCALLTYPE *Register)(
+		__RPC__in IRunningObjectTable * This,
+		/* [in] */ DWORD grfFlags,
+		/* [unique][in] */ __RPC__in_opt IUnknown *punkObject,
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName,
+		/* [out] */ __RPC__out DWORD *pdwRegister);
+
+	HRESULT(STDMETHODCALLTYPE *Revoke)(
+		__RPC__in IRunningObjectTable * This,
+		/* [in] */ DWORD dwRegister);
+
+	HRESULT(STDMETHODCALLTYPE *IsRunning)(
+		__RPC__in IRunningObjectTable * This,
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName);
+
+	HRESULT(STDMETHODCALLTYPE *GetObject)(
+		__RPC__in IRunningObjectTable * This,
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName,
+		/* [out] */ __RPC__deref_out_opt IUnknown **ppunkObject);
+
+	HRESULT(STDMETHODCALLTYPE *NoteChangeTime)(
+		__RPC__in IRunningObjectTable * This,
+		/* [in] */ DWORD dwRegister,
+		/* [in] */ __RPC__in FILETIME *pfiletime);
+
+	HRESULT(STDMETHODCALLTYPE *GetTimeOfLastChange)(
+		__RPC__in IRunningObjectTable * This,
+		/* [unique][in] */ __RPC__in_opt IMoniker *pmkObjectName,
+		/* [out] */ __RPC__out FILETIME *pfiletime);
+
+	HRESULT(STDMETHODCALLTYPE *EnumRunning)(
+		__RPC__in IRunningObjectTable * This,
+		/* [out] */ __RPC__deref_out_opt IEnumMoniker **ppenumMoniker);
+
+	END_INTERFACE
+} IRunningObjectTableVtbl;
+
+interface IRunningObjectTable
+{
+	CONST_VTBL struct IRunningObjectTableVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IRunningObjectTable_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IRunningObjectTable_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IRunningObjectTable_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IRunningObjectTable_Register(This,grfFlags,punkObject,pmkObjectName,pdwRegister)	\
+    ( (This)->lpVtbl -> Register(This,grfFlags,punkObject,pmkObjectName,pdwRegister) ) 
+
+#define IRunningObjectTable_Revoke(This,dwRegister)	\
+    ( (This)->lpVtbl -> Revoke(This,dwRegister) ) 
+
+#define IRunningObjectTable_IsRunning(This,pmkObjectName)	\
+    ( (This)->lpVtbl -> IsRunning(This,pmkObjectName) ) 
+
+#define IRunningObjectTable_GetObject(This,pmkObjectName,ppunkObject)	\
+    ( (This)->lpVtbl -> GetObject(This,pmkObjectName,ppunkObject) ) 
+
+#define IRunningObjectTable_NoteChangeTime(This,dwRegister,pfiletime)	\
+    ( (This)->lpVtbl -> NoteChangeTime(This,dwRegister,pfiletime) ) 
+
+#define IRunningObjectTable_GetTimeOfLastChange(This,pmkObjectName,pfiletime)	\
+    ( (This)->lpVtbl -> GetTimeOfLastChange(This,pmkObjectName,pfiletime) ) 
+
+#define IRunningObjectTable_EnumRunning(This,ppenumMoniker)	\
+    ( (This)->lpVtbl -> EnumRunning(This,ppenumMoniker) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IRunningObjectTable_INTERFACE_DEFINED__ */
+/*************************************objjldl.h**************************************/
+
+
+
+#ifndef __IPin_INTERFACE_DEFINED__
+#define __IPin_INTERFACE_DEFINED__
+
+/* interface IPin */
+/* [unique][uuid][object][local] */
+
+typedef struct _PinInfo
+{
+	IBaseFilter *pFilter;
+	PIN_DIRECTION dir;
+	WCHAR achName[128];
+} 	PIN_INFO;
+
+
+EXTERN_C const IID IID_IPin;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a86891-0ad4-11ce-b03a-0020af0ba770")
+IPin : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Connect(
+		/* [in] */ IPin *pReceivePin,
+		/* [annotation][in] */
+		_In_opt_  const AM_MEDIA_TYPE *pmt) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE ReceiveConnection(
+		/* [in] */ IPin *pConnector,
+		/* [in] */ const AM_MEDIA_TYPE *pmt) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Disconnect(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE ConnectedTo(
+		/* [annotation][out] */
+		_Out_  IPin **pPin) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE ConnectionMediaType(
+		/* [annotation][out] */
+		_Out_  AM_MEDIA_TYPE *pmt) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryPinInfo(
+		/* [annotation][out] */
+		_Out_  PIN_INFO *pInfo) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryDirection(
+		/* [annotation][out] */
+		_Out_  PIN_DIRECTION *pPinDir) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryId(
+		/* [annotation][out] */
+		_Out_  LPWSTR *Id) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryAccept(
+		/* [in] */ const AM_MEDIA_TYPE *pmt) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE EnumMediaTypes(
+		/* [annotation][out] */
+		_Out_  IEnumMediaTypes **ppEnum) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryInternalConnections(
+		/* [annotation][out] */
+		_Out_writes_to_opt_(*nPin, *nPin)  IPin **apPin,
+		/* [out][in] */ ULONG *nPin) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE EndOfStream(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE BeginFlush(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE EndFlush(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE NewSegment(
+		/* [in] */ REFERENCE_TIME tStart,
+		/* [in] */ REFERENCE_TIME tStop,
+		/* [in] */ double dRate) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IPinVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IPin * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IPin * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IPin * This);
+
+	HRESULT(STDMETHODCALLTYPE *Connect)(
+		IPin * This,
+		/* [in] */ IPin *pReceivePin,
+		/* [annotation][in] */
+		_In_opt_  const AM_MEDIA_TYPE *pmt);
+
+	HRESULT(STDMETHODCALLTYPE *ReceiveConnection)(
+		IPin * This,
+		/* [in] */ IPin *pConnector,
+		/* [in] */ const AM_MEDIA_TYPE *pmt);
+
+	HRESULT(STDMETHODCALLTYPE *Disconnect)(
+		IPin * This);
+
+	HRESULT(STDMETHODCALLTYPE *ConnectedTo)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_  IPin **pPin);
+
+	HRESULT(STDMETHODCALLTYPE *ConnectionMediaType)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_  AM_MEDIA_TYPE *pmt);
+
+	HRESULT(STDMETHODCALLTYPE *QueryPinInfo)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_  PIN_INFO *pInfo);
+
+	HRESULT(STDMETHODCALLTYPE *QueryDirection)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_  PIN_DIRECTION *pPinDir);
+
+	HRESULT(STDMETHODCALLTYPE *QueryId)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_  LPWSTR *Id);
+
+	HRESULT(STDMETHODCALLTYPE *QueryAccept)(
+		IPin * This,
+		/* [in] */ const AM_MEDIA_TYPE *pmt);
+
+	HRESULT(STDMETHODCALLTYPE *EnumMediaTypes)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_  IEnumMediaTypes **ppEnum);
+
+	HRESULT(STDMETHODCALLTYPE *QueryInternalConnections)(
+		IPin * This,
+		/* [annotation][out] */
+		_Out_writes_to_opt_(*nPin, *nPin)  IPin **apPin,
+		/* [out][in] */ ULONG *nPin);
+
+	HRESULT(STDMETHODCALLTYPE *EndOfStream)(
+		IPin * This);
+
+	HRESULT(STDMETHODCALLTYPE *BeginFlush)(
+		IPin * This);
+
+	HRESULT(STDMETHODCALLTYPE *EndFlush)(
+		IPin * This);
+
+	HRESULT(STDMETHODCALLTYPE *NewSegment)(
+		IPin * This,
+		/* [in] */ REFERENCE_TIME tStart,
+		/* [in] */ REFERENCE_TIME tStop,
+		/* [in] */ double dRate);
+
+	END_INTERFACE
+} IPinVtbl;
+
+interface IPin
+{
+	CONST_VTBL struct IPinVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IPin_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IPin_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IPin_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IPin_Connect(This,pReceivePin,pmt)	\
+    ( (This)->lpVtbl -> Connect(This,pReceivePin,pmt) ) 
+
+#define IPin_ReceiveConnection(This,pConnector,pmt)	\
+    ( (This)->lpVtbl -> ReceiveConnection(This,pConnector,pmt) ) 
+
+#define IPin_Disconnect(This)	\
+    ( (This)->lpVtbl -> Disconnect(This) ) 
+
+#define IPin_ConnectedTo(This,pPin)	\
+    ( (This)->lpVtbl -> ConnectedTo(This,pPin) ) 
+
+#define IPin_ConnectionMediaType(This,pmt)	\
+    ( (This)->lpVtbl -> ConnectionMediaType(This,pmt) ) 
+
+#define IPin_QueryPinInfo(This,pInfo)	\
+    ( (This)->lpVtbl -> QueryPinInfo(This,pInfo) ) 
+
+#define IPin_QueryDirection(This,pPinDir)	\
+    ( (This)->lpVtbl -> QueryDirection(This,pPinDir) ) 
+
+#define IPin_QueryId(This,Id)	\
+    ( (This)->lpVtbl -> QueryId(This,Id) ) 
+
+#define IPin_QueryAccept(This,pmt)	\
+    ( (This)->lpVtbl -> QueryAccept(This,pmt) ) 
+
+#define IPin_EnumMediaTypes(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumMediaTypes(This,ppEnum) ) 
+
+#define IPin_QueryInternalConnections(This,apPin,nPin)	\
+    ( (This)->lpVtbl -> QueryInternalConnections(This,apPin,nPin) ) 
+
+#define IPin_EndOfStream(This)	\
+    ( (This)->lpVtbl -> EndOfStream(This) ) 
+
+#define IPin_BeginFlush(This)	\
+    ( (This)->lpVtbl -> BeginFlush(This) ) 
+
+#define IPin_EndFlush(This)	\
+    ( (This)->lpVtbl -> EndFlush(This) ) 
+
+#define IPin_NewSegment(This,tStart,tStop,dRate)	\
+    ( (This)->lpVtbl -> NewSegment(This,tStart,tStop,dRate) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IPin_INTERFACE_DEFINED__ */
+
+#ifndef __IEnumPins_INTERFACE_DEFINED__
+#define __IEnumPins_INTERFACE_DEFINED__
+
+/* interface IEnumPins */
+/* [unique][uuid][object][local] */
+
+
+EXTERN_C const IID IID_IEnumPins;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a86892-0ad4-11ce-b03a-0020af0ba770")
+IEnumPins : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Next(
+		/* [in] */ ULONG cPins,
+		/* [annotation][size_is][out] */
+		_Out_writes_to_(cPins, *pcFetched)  IPin **ppPins,
+		/* [annotation][out] */
+		_Out_opt_  ULONG *pcFetched) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Skip(
+		/* [in] */ ULONG cPins) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Reset(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Clone(
+		/* [annotation][out] */
+		_Out_  IEnumPins **ppEnum) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IEnumPinsVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IEnumPins * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IEnumPins * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IEnumPins * This);
+
+	HRESULT(STDMETHODCALLTYPE *Next)(
+		IEnumPins * This,
+		/* [in] */ ULONG cPins,
+		/* [annotation][size_is][out] */
+		_Out_writes_to_(cPins, *pcFetched)  IPin **ppPins,
+		/* [annotation][out] */
+		_Out_opt_  ULONG *pcFetched);
+
+	HRESULT(STDMETHODCALLTYPE *Skip)(
+		IEnumPins * This,
+		/* [in] */ ULONG cPins);
+
+	HRESULT(STDMETHODCALLTYPE *Reset)(
+		IEnumPins * This);
+
+	HRESULT(STDMETHODCALLTYPE *Clone)(
+		IEnumPins * This,
+		/* [annotation][out] */
+		_Out_  IEnumPins **ppEnum);
+
+	END_INTERFACE
+} IEnumPinsVtbl;
+
+interface IEnumPins
+{
+	CONST_VTBL struct IEnumPinsVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IEnumPins_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IEnumPins_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IEnumPins_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IEnumPins_Next(This,cPins,ppPins,pcFetched)	\
+    ( (This)->lpVtbl -> Next(This,cPins,ppPins,pcFetched) ) 
+
+#define IEnumPins_Skip(This,cPins)	\
+    ( (This)->lpVtbl -> Skip(This,cPins) ) 
+
+#define IEnumPins_Reset(This)	\
+    ( (This)->lpVtbl -> Reset(This) ) 
+
+#define IEnumPins_Clone(This,ppEnum)	\
+    ( (This)->lpVtbl -> Clone(This,ppEnum) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IEnumPins_INTERFACE_DEFINED__ */
+
+#ifndef __IMediaFilter_INTERFACE_DEFINED__
+#define __IMediaFilter_INTERFACE_DEFINED__
+
+/* interface IMediaFilter */
+/* [unique][uuid][object][local] */
+
+typedef
+enum _FilterState
+{
+	State_Stopped = 0,
+	State_Paused = (State_Stopped + 1),
+	State_Running = (State_Paused + 1)
+} 	FILTER_STATE;
+
+
+EXTERN_C const IID IID_IMediaFilter;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a86899-0ad4-11ce-b03a-0020af0ba770")
+IMediaFilter : public IPersist
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Stop(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Pause(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Run(
+		REFERENCE_TIME tStart) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetState(
+		/* [in] */ DWORD dwMilliSecsTimeout,
+		/* [annotation][out] */
+		_Out_  FILTER_STATE *State) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetSyncSource(
+		/* [annotation][in] */
+		_In_opt_  IReferenceClock *pClock) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE GetSyncSource(
+		/* [annotation][out] */
+		_Outptr_result_maybenull_  IReferenceClock **pClock) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IMediaFilterVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IMediaFilter * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IMediaFilter * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IMediaFilter * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetClassID)(
+		IMediaFilter * This,
+		/* [out] */ CLSID *pClassID);
+
+	HRESULT(STDMETHODCALLTYPE *Stop)(
+		IMediaFilter * This);
+
+	HRESULT(STDMETHODCALLTYPE *Pause)(
+		IMediaFilter * This);
+
+	HRESULT(STDMETHODCALLTYPE *Run)(
+		IMediaFilter * This,
+		REFERENCE_TIME tStart);
+
+	HRESULT(STDMETHODCALLTYPE *GetState)(
+		IMediaFilter * This,
+		/* [in] */ DWORD dwMilliSecsTimeout,
+		/* [annotation][out] */
+		_Out_  FILTER_STATE *State);
+
+	HRESULT(STDMETHODCALLTYPE *SetSyncSource)(
+		IMediaFilter * This,
+		/* [annotation][in] */
+		_In_opt_  IReferenceClock *pClock);
+
+	HRESULT(STDMETHODCALLTYPE *GetSyncSource)(
+		IMediaFilter * This,
+		/* [annotation][out] */
+		_Outptr_result_maybenull_  IReferenceClock **pClock);
+
+	END_INTERFACE
+} IMediaFilterVtbl;
+
+interface IMediaFilter
+{
+	CONST_VTBL struct IMediaFilterVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IMediaFilter_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IMediaFilter_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IMediaFilter_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IMediaFilter_GetClassID(This,pClassID)	\
+    ( (This)->lpVtbl -> GetClassID(This,pClassID) ) 
+
+
+#define IMediaFilter_Stop(This)	\
+    ( (This)->lpVtbl -> Stop(This) ) 
+
+#define IMediaFilter_Pause(This)	\
+    ( (This)->lpVtbl -> Pause(This) ) 
+
+#define IMediaFilter_Run(This,tStart)	\
+    ( (This)->lpVtbl -> Run(This,tStart) ) 
+
+#define IMediaFilter_GetState(This,dwMilliSecsTimeout,State)	\
+    ( (This)->lpVtbl -> GetState(This,dwMilliSecsTimeout,State) ) 
+
+#define IMediaFilter_SetSyncSource(This,pClock)	\
+    ( (This)->lpVtbl -> SetSyncSource(This,pClock) ) 
+
+#define IMediaFilter_GetSyncSource(This,pClock)	\
+    ( (This)->lpVtbl -> GetSyncSource(This,pClock) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IMediaFilter_INTERFACE_DEFINED__ */
+
+
+/* interface __MIDL_itf_strmif_0000_0007 */
+/* [local] */
+
+typedef IMediaFilter *PMEDIAFILTER;
+
+
+
+#ifndef __IBaseFilter_INTERFACE_DEFINED__
+#define __IBaseFilter_INTERFACE_DEFINED__
+
+/* interface IBaseFilter */
+/* [unique][uuid][object][local] */
+
+typedef struct _FilterInfo
+{
+	WCHAR achName[128];
+	IFilterGraph *pGraph;
+} 	FILTER_INFO;
+
+
+EXTERN_C const IID IID_IBaseFilter;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a86895-0ad4-11ce-b03a-0020af0ba770")
+IBaseFilter : public IMediaFilter
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE EnumPins(
+		/* [annotation][out] */
+		_Out_  IEnumPins **ppEnum) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE FindPin(
+		/* [string][in] */ LPCWSTR Id,
+		/* [annotation][out] */
+		_Out_  IPin **ppPin) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryFilterInfo(
+		/* [annotation][out] */
+		_Out_  FILTER_INFO *pInfo) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE JoinFilterGraph(
+		/* [annotation][in] */
+		_In_opt_  IFilterGraph *pGraph,
+		/* [annotation][string][in] */
+		_In_opt_  LPCWSTR pName) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE QueryVendorInfo(
+		/* [annotation][string][out] */
+		_Out_  LPWSTR *pVendorInfo) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IBaseFilterVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IBaseFilter * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IBaseFilter * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IBaseFilter * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetClassID)(
+		IBaseFilter * This,
+		/* [out] */ CLSID *pClassID);
+
+	HRESULT(STDMETHODCALLTYPE *Stop)(
+		IBaseFilter * This);
+
+	HRESULT(STDMETHODCALLTYPE *Pause)(
+		IBaseFilter * This);
+
+	HRESULT(STDMETHODCALLTYPE *Run)(
+		IBaseFilter * This,
+		REFERENCE_TIME tStart);
+
+	HRESULT(STDMETHODCALLTYPE *GetState)(
+		IBaseFilter * This,
+		/* [in] */ DWORD dwMilliSecsTimeout,
+		/* [annotation][out] */
+		_Out_  FILTER_STATE *State);
+
+	HRESULT(STDMETHODCALLTYPE *SetSyncSource)(
+		IBaseFilter * This,
+		/* [annotation][in] */
+		_In_opt_  IReferenceClock *pClock);
+
+	HRESULT(STDMETHODCALLTYPE *GetSyncSource)(
+		IBaseFilter * This,
+		/* [annotation][out] */
+		_Outptr_result_maybenull_  IReferenceClock **pClock);
+
+	HRESULT(STDMETHODCALLTYPE *EnumPins)(
+		IBaseFilter * This,
+		/* [annotation][out] */
+		_Out_  IEnumPins **ppEnum);
+
+	HRESULT(STDMETHODCALLTYPE *FindPin)(
+		IBaseFilter * This,
+		/* [string][in] */ LPCWSTR Id,
+		/* [annotation][out] */
+		_Out_  IPin **ppPin);
+
+	HRESULT(STDMETHODCALLTYPE *QueryFilterInfo)(
+		IBaseFilter * This,
+		/* [annotation][out] */
+		_Out_  FILTER_INFO *pInfo);
+
+	HRESULT(STDMETHODCALLTYPE *JoinFilterGraph)(
+		IBaseFilter * This,
+		/* [annotation][in] */
+		_In_opt_  IFilterGraph *pGraph,
+		/* [annotation][string][in] */
+		_In_opt_  LPCWSTR pName);
+
+	HRESULT(STDMETHODCALLTYPE *QueryVendorInfo)(
+		IBaseFilter * This,
+		/* [annotation][string][out] */
+		_Out_  LPWSTR *pVendorInfo);
+
+	END_INTERFACE
+} IBaseFilterVtbl;
+
+interface IBaseFilter
+{
+	CONST_VTBL struct IBaseFilterVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IBaseFilter_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IBaseFilter_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IBaseFilter_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IBaseFilter_GetClassID(This,pClassID)	\
+    ( (This)->lpVtbl -> GetClassID(This,pClassID) ) 
+
+
+#define IBaseFilter_Stop(This)	\
+    ( (This)->lpVtbl -> Stop(This) ) 
+
+#define IBaseFilter_Pause(This)	\
+    ( (This)->lpVtbl -> Pause(This) ) 
+
+#define IBaseFilter_Run(This,tStart)	\
+    ( (This)->lpVtbl -> Run(This,tStart) ) 
+
+#define IBaseFilter_GetState(This,dwMilliSecsTimeout,State)	\
+    ( (This)->lpVtbl -> GetState(This,dwMilliSecsTimeout,State) ) 
+
+#define IBaseFilter_SetSyncSource(This,pClock)	\
+    ( (This)->lpVtbl -> SetSyncSource(This,pClock) ) 
+
+#define IBaseFilter_GetSyncSource(This,pClock)	\
+    ( (This)->lpVtbl -> GetSyncSource(This,pClock) ) 
+
+
+#define IBaseFilter_EnumPins(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumPins(This,ppEnum) ) 
+
+#define IBaseFilter_FindPin(This,Id,ppPin)	\
+    ( (This)->lpVtbl -> FindPin(This,Id,ppPin) ) 
+
+#define IBaseFilter_QueryFilterInfo(This,pInfo)	\
+    ( (This)->lpVtbl -> QueryFilterInfo(This,pInfo) ) 
+
+#define IBaseFilter_JoinFilterGraph(This,pGraph,pName)	\
+    ( (This)->lpVtbl -> JoinFilterGraph(This,pGraph,pName) ) 
+
+#define IBaseFilter_QueryVendorInfo(This,pVendorInfo)	\
+    ( (This)->lpVtbl -> QueryVendorInfo(This,pVendorInfo) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IBaseFilter_INTERFACE_DEFINED__ */
+
+_Check_return_ WINOLEAPI  GetRunningObjectTable(_In_ DWORD reserved, _Outptr_ LPRUNNINGOBJECTTABLE FAR* pprot);
+
+
+#ifndef __IFilterGraph_INTERFACE_DEFINED__
+#define __IFilterGraph_INTERFACE_DEFINED__
+
+/* interface IFilterGraph */
+/* [unique][uuid][object][local] */
+
+
+EXTERN_C const IID IID_IFilterGraph;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a8689f-0ad4-11ce-b03a-0020af0ba770")
+IFilterGraph : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE AddFilter(
+		/* [in] */ IBaseFilter *pFilter,
+		/* [string][in] */ LPCWSTR pName) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE RemoveFilter(
+		/* [in] */ IBaseFilter *pFilter) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE EnumFilters(
+		/* [annotation][out] */
+		_Out_  IEnumFilters **ppEnum) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE FindFilterByName(
+		/* [string][in] */ LPCWSTR pName,
+		/* [annotation][out] */
+		_Out_  IBaseFilter **ppFilter) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE ConnectDirect(
+		/* [in] */ IPin *ppinOut,
+		/* [in] */ IPin *ppinIn,
+		/* [annotation][unique][in] */
+		_In_opt_  const AM_MEDIA_TYPE *pmt) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Reconnect(
+		/* [in] */ IPin *ppin) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Disconnect(
+		/* [in] */ IPin *ppin) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetDefaultSyncSource(void) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IFilterGraphVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IFilterGraph * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IFilterGraph * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IFilterGraph * This);
+
+	HRESULT(STDMETHODCALLTYPE *AddFilter)(
+		IFilterGraph * This,
+		/* [in] */ IBaseFilter *pFilter,
+		/* [string][in] */ LPCWSTR pName);
+
+	HRESULT(STDMETHODCALLTYPE *RemoveFilter)(
+		IFilterGraph * This,
+		/* [in] */ IBaseFilter *pFilter);
+
+	HRESULT(STDMETHODCALLTYPE *EnumFilters)(
+		IFilterGraph * This,
+		/* [annotation][out] */
+		_Out_  IEnumFilters **ppEnum);
+
+	HRESULT(STDMETHODCALLTYPE *FindFilterByName)(
+		IFilterGraph * This,
+		/* [string][in] */ LPCWSTR pName,
+		/* [annotation][out] */
+		_Out_  IBaseFilter **ppFilter);
+
+	HRESULT(STDMETHODCALLTYPE *ConnectDirect)(
+		IFilterGraph * This,
+		/* [in] */ IPin *ppinOut,
+		/* [in] */ IPin *ppinIn,
+		/* [annotation][unique][in] */
+		_In_opt_  const AM_MEDIA_TYPE *pmt);
+
+	HRESULT(STDMETHODCALLTYPE *Reconnect)(
+		IFilterGraph * This,
+		/* [in] */ IPin *ppin);
+
+	HRESULT(STDMETHODCALLTYPE *Disconnect)(
+		IFilterGraph * This,
+		/* [in] */ IPin *ppin);
+
+	HRESULT(STDMETHODCALLTYPE *SetDefaultSyncSource)(
+		IFilterGraph * This);
+
+	END_INTERFACE
+} IFilterGraphVtbl;
+
+interface IFilterGraph
+{
+	CONST_VTBL struct IFilterGraphVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IFilterGraph_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IFilterGraph_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IFilterGraph_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IFilterGraph_AddFilter(This,pFilter,pName)	\
+    ( (This)->lpVtbl -> AddFilter(This,pFilter,pName) ) 
+
+#define IFilterGraph_RemoveFilter(This,pFilter)	\
+    ( (This)->lpVtbl -> RemoveFilter(This,pFilter) ) 
+
+#define IFilterGraph_EnumFilters(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumFilters(This,ppEnum) ) 
+
+#define IFilterGraph_FindFilterByName(This,pName,ppFilter)	\
+    ( (This)->lpVtbl -> FindFilterByName(This,pName,ppFilter) ) 
+
+#define IFilterGraph_ConnectDirect(This,ppinOut,ppinIn,pmt)	\
+    ( (This)->lpVtbl -> ConnectDirect(This,ppinOut,ppinIn,pmt) ) 
+
+#define IFilterGraph_Reconnect(This,ppin)	\
+    ( (This)->lpVtbl -> Reconnect(This,ppin) ) 
+
+#define IFilterGraph_Disconnect(This,ppin)	\
+    ( (This)->lpVtbl -> Disconnect(This,ppin) ) 
+
+#define IFilterGraph_SetDefaultSyncSource(This)	\
+    ( (This)->lpVtbl -> SetDefaultSyncSource(This) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IFilterGraph_INTERFACE_DEFINED__ */
+
+
+/* interface __MIDL_itf_strmif_0000_0005 */
+/* [local] */
+
+typedef IFilterGraph *PFILTERGRAPH;
+
+
+
+#ifndef __IGraphBuilder_INTERFACE_DEFINED__
+#define __IGraphBuilder_INTERFACE_DEFINED__
+
+/* interface IGraphBuilder */
+/* [unique][uuid][object][local] */
+
+
+EXTERN_C const IID IID_IGraphBuilder;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("56a868a9-0ad4-11ce-b03a-0020af0ba770")
+IGraphBuilder : public IFilterGraph
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Connect(
+		/* [in] */ IPin *ppinOut,
+		/* [in] */ IPin *ppinIn) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Render(
+		/* [in] */ IPin *ppinOut) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE RenderFile(
+		/* [in] */ LPCWSTR lpcwstrFile,
+		/* [annotation][unique][in] */
+		_In_opt_  LPCWSTR lpcwstrPlayList) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE AddSourceFilter(
+		/* [in] */ LPCWSTR lpcwstrFileName,
+		/* [annotation][unique][in] */
+		_In_opt_  LPCWSTR lpcwstrFilterName,
+		/* [annotation][out] */
+		_Out_  IBaseFilter **ppFilter) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE SetLogFile(
+		/* [in] */ DWORD_PTR hFile) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Abort(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE ShouldOperationContinue(void) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IGraphBuilderVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			IGraphBuilder * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		IGraphBuilder * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		IGraphBuilder * This);
+
+	HRESULT(STDMETHODCALLTYPE *AddFilter)(
+		IGraphBuilder * This,
+		/* [in] */ IBaseFilter *pFilter,
+		/* [string][in] */ LPCWSTR pName);
+
+	HRESULT(STDMETHODCALLTYPE *RemoveFilter)(
+		IGraphBuilder * This,
+		/* [in] */ IBaseFilter *pFilter);
+
+	HRESULT(STDMETHODCALLTYPE *EnumFilters)(
+		IGraphBuilder * This,
+		/* [annotation][out] */
+		_Out_  IEnumFilters **ppEnum);
+
+	HRESULT(STDMETHODCALLTYPE *FindFilterByName)(
+		IGraphBuilder * This,
+		/* [string][in] */ LPCWSTR pName,
+		/* [annotation][out] */
+		_Out_  IBaseFilter **ppFilter);
+
+	HRESULT(STDMETHODCALLTYPE *ConnectDirect)(
+		IGraphBuilder * This,
+		/* [in] */ IPin *ppinOut,
+		/* [in] */ IPin *ppinIn,
+		/* [annotation][unique][in] */
+		_In_opt_  const AM_MEDIA_TYPE *pmt);
+
+	HRESULT(STDMETHODCALLTYPE *Reconnect)(
+		IGraphBuilder * This,
+		/* [in] */ IPin *ppin);
+
+	HRESULT(STDMETHODCALLTYPE *Disconnect)(
+		IGraphBuilder * This,
+		/* [in] */ IPin *ppin);
+
+	HRESULT(STDMETHODCALLTYPE *SetDefaultSyncSource)(
+		IGraphBuilder * This);
+
+	HRESULT(STDMETHODCALLTYPE *Connect)(
+		IGraphBuilder * This,
+		/* [in] */ IPin *ppinOut,
+		/* [in] */ IPin *ppinIn);
+
+	HRESULT(STDMETHODCALLTYPE *Render)(
+		IGraphBuilder * This,
+		/* [in] */ IPin *ppinOut);
+
+	HRESULT(STDMETHODCALLTYPE *RenderFile)(
+		IGraphBuilder * This,
+		/* [in] */ LPCWSTR lpcwstrFile,
+		/* [annotation][unique][in] */
+		_In_opt_  LPCWSTR lpcwstrPlayList);
+
+	HRESULT(STDMETHODCALLTYPE *AddSourceFilter)(
+		IGraphBuilder * This,
+		/* [in] */ LPCWSTR lpcwstrFileName,
+		/* [annotation][unique][in] */
+		_In_opt_  LPCWSTR lpcwstrFilterName,
+		/* [annotation][out] */
+		_Out_  IBaseFilter **ppFilter);
+
+	HRESULT(STDMETHODCALLTYPE *SetLogFile)(
+		IGraphBuilder * This,
+		/* [in] */ DWORD_PTR hFile);
+
+	HRESULT(STDMETHODCALLTYPE *Abort)(
+		IGraphBuilder * This);
+
+	HRESULT(STDMETHODCALLTYPE *ShouldOperationContinue)(
+		IGraphBuilder * This);
+
+	END_INTERFACE
+} IGraphBuilderVtbl;
+
+interface IGraphBuilder
+{
+	CONST_VTBL struct IGraphBuilderVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IGraphBuilder_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IGraphBuilder_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IGraphBuilder_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IGraphBuilder_AddFilter(This,pFilter,pName)	\
+    ( (This)->lpVtbl -> AddFilter(This,pFilter,pName) ) 
+
+#define IGraphBuilder_RemoveFilter(This,pFilter)	\
+    ( (This)->lpVtbl -> RemoveFilter(This,pFilter) ) 
+
+#define IGraphBuilder_EnumFilters(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumFilters(This,ppEnum) ) 
+
+#define IGraphBuilder_FindFilterByName(This,pName,ppFilter)	\
+    ( (This)->lpVtbl -> FindFilterByName(This,pName,ppFilter) ) 
+
+#define IGraphBuilder_ConnectDirect(This,ppinOut,ppinIn,pmt)	\
+    ( (This)->lpVtbl -> ConnectDirect(This,ppinOut,ppinIn,pmt) ) 
+
+#define IGraphBuilder_Reconnect(This,ppin)	\
+    ( (This)->lpVtbl -> Reconnect(This,ppin) ) 
+
+#define IGraphBuilder_Disconnect(This,ppin)	\
+    ( (This)->lpVtbl -> Disconnect(This,ppin) ) 
+
+#define IGraphBuilder_SetDefaultSyncSource(This)	\
+    ( (This)->lpVtbl -> SetDefaultSyncSource(This) ) 
+
+
+#define IGraphBuilder_Connect(This,ppinOut,ppinIn)	\
+    ( (This)->lpVtbl -> Connect(This,ppinOut,ppinIn) ) 
+
+#define IGraphBuilder_Render(This,ppinOut)	\
+    ( (This)->lpVtbl -> Render(This,ppinOut) ) 
+
+#define IGraphBuilder_RenderFile(This,lpcwstrFile,lpcwstrPlayList)	\
+    ( (This)->lpVtbl -> RenderFile(This,lpcwstrFile,lpcwstrPlayList) ) 
+
+#define IGraphBuilder_AddSourceFilter(This,lpcwstrFileName,lpcwstrFilterName,ppFilter)	\
+    ( (This)->lpVtbl -> AddSourceFilter(This,lpcwstrFileName,lpcwstrFilterName,ppFilter) ) 
+
+#define IGraphBuilder_SetLogFile(This,hFile)	\
+    ( (This)->lpVtbl -> SetLogFile(This,hFile) ) 
+
+#define IGraphBuilder_Abort(This)	\
+    ( (This)->lpVtbl -> Abort(This) ) 
+
+#define IGraphBuilder_ShouldOperationContinue(This)	\
+    ( (This)->lpVtbl -> ShouldOperationContinue(This) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IGraphBuilder_INTERFACE_DEFINED__ */
+
+
+
+#ifndef __ITuner_INTERFACE_DEFINED__
+#define __ITuner_INTERFACE_DEFINED__
+
+/* interface ITuner */
+/* [unique][helpstring][uuid][nonextensible][hidden][object] */
+
+
+EXTERN_C const IID IID_ITuner;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("28C52640-018A-11d3-9D8E-00C04F72D980")
+ITuner : public IUnknown
+{
+public:
+	virtual /* [helpstring][propget] */ HRESULT STDMETHODCALLTYPE get_TuningSpace(
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace) = 0;
+
+	virtual /* [helpstring][propput] */ HRESULT STDMETHODCALLTYPE put_TuningSpace(
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace) = 0;
+
+	virtual /* [helpstring][restricted][hidden] */ HRESULT STDMETHODCALLTYPE EnumTuningSpaces(
+		/* [retval][out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum) = 0;
+
+	virtual /* [helpstring][propget] */ HRESULT STDMETHODCALLTYPE get_TuneRequest(
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest) = 0;
+
+	virtual /* [helpstring][propput] */ HRESULT STDMETHODCALLTYPE put_TuneRequest(
+		/* [in] */ __RPC__in_opt ITuneRequest *TuneRequest) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE Validate(
+		/* [in] */ __RPC__in_opt ITuneRequest *TuneRequest) = 0;
+
+	virtual /* [helpstring][propget] */ HRESULT STDMETHODCALLTYPE get_PreferredComponentTypes(
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes) = 0;
+
+	virtual /* [helpstring][propput] */ HRESULT STDMETHODCALLTYPE put_PreferredComponentTypes(
+		/* [in] */ __RPC__in_opt IComponentTypes *ComponentTypes) = 0;
+
+	virtual /* [helpstring][propget] */ HRESULT STDMETHODCALLTYPE get_SignalStrength(
+		/* [retval][out] */ __RPC__out long *Strength) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE TriggerSignalEvents(
+		/* [in] */ long Interval) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct ITunerVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in ITuner * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in ITuner * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in ITuner * This);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in ITuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][propput] */ HRESULT(STDMETHODCALLTYPE *put_TuningSpace)(
+		__RPC__in ITuner * This,
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace);
+
+	/* [helpstring][restricted][hidden] */ HRESULT(STDMETHODCALLTYPE *EnumTuningSpaces)(
+		__RPC__in ITuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuneRequest)(
+		__RPC__in ITuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest);
+
+	/* [helpstring][propput] */ HRESULT(STDMETHODCALLTYPE *put_TuneRequest)(
+		__RPC__in ITuner * This,
+		/* [in] */ __RPC__in_opt ITuneRequest *TuneRequest);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *Validate)(
+		__RPC__in ITuner * This,
+		/* [in] */ __RPC__in_opt ITuneRequest *TuneRequest);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_PreferredComponentTypes)(
+		__RPC__in ITuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes);
+
+	/* [helpstring][propput] */ HRESULT(STDMETHODCALLTYPE *put_PreferredComponentTypes)(
+		__RPC__in ITuner * This,
+		/* [in] */ __RPC__in_opt IComponentTypes *ComponentTypes);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_SignalStrength)(
+		__RPC__in ITuner * This,
+		/* [retval][out] */ __RPC__out long *Strength);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *TriggerSignalEvents)(
+		__RPC__in ITuner * This,
+		/* [in] */ long Interval);
+
+	END_INTERFACE
+} ITunerVtbl;
+
+interface ITuner
+{
+	CONST_VTBL struct ITunerVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define ITuner_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define ITuner_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define ITuner_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define ITuner_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define ITuner_put_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> put_TuningSpace(This,TuningSpace) ) 
+
+#define ITuner_EnumTuningSpaces(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumTuningSpaces(This,ppEnum) ) 
+
+#define ITuner_get_TuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> get_TuneRequest(This,TuneRequest) ) 
+
+#define ITuner_put_TuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> put_TuneRequest(This,TuneRequest) ) 
+
+#define ITuner_Validate(This,TuneRequest)	\
+    ( (This)->lpVtbl -> Validate(This,TuneRequest) ) 
+
+#define ITuner_get_PreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> get_PreferredComponentTypes(This,ComponentTypes) ) 
+
+#define ITuner_put_PreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> put_PreferredComponentTypes(This,ComponentTypes) ) 
+
+#define ITuner_get_SignalStrength(This,Strength)	\
+    ( (This)->lpVtbl -> get_SignalStrength(This,Strength) ) 
+
+#define ITuner_TriggerSignalEvents(This,Interval)	\
+    ( (This)->lpVtbl -> TriggerSignalEvents(This,Interval) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __ITuner_INTERFACE_DEFINED__ */
+
+
+#ifndef __IScanningTuner_INTERFACE_DEFINED__
+#define __IScanningTuner_INTERFACE_DEFINED__
+
+/* interface IScanningTuner */
+/* [unique][helpstring][uuid][nonextensible][hidden][object] */
+
+
+EXTERN_C const IID IID_IScanningTuner;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("1DFD0A5C-0284-11d3-9D8E-00C04F72D980")
+IScanningTuner : public ITuner
+{
+public:
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE SeekUp(void) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE SeekDown(void) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE ScanUp(
+		/* [in] */ long MillisecondsPause) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE ScanDown(
+		/* [in] */ long MillisecondsPause) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE AutoProgram(void) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IScanningTunerVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IScanningTuner * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IScanningTuner * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IScanningTuner * This);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in IScanningTuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][propput] */ HRESULT(STDMETHODCALLTYPE *put_TuningSpace)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace);
+
+	/* [helpstring][restricted][hidden] */ HRESULT(STDMETHODCALLTYPE *EnumTuningSpaces)(
+		__RPC__in IScanningTuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuneRequest)(
+		__RPC__in IScanningTuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest);
+
+	/* [helpstring][propput] */ HRESULT(STDMETHODCALLTYPE *put_TuneRequest)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ __RPC__in_opt ITuneRequest *TuneRequest);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *Validate)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ __RPC__in_opt ITuneRequest *TuneRequest);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_PreferredComponentTypes)(
+		__RPC__in IScanningTuner * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes);
+
+	/* [helpstring][propput] */ HRESULT(STDMETHODCALLTYPE *put_PreferredComponentTypes)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ __RPC__in_opt IComponentTypes *ComponentTypes);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_SignalStrength)(
+		__RPC__in IScanningTuner * This,
+		/* [retval][out] */ __RPC__out long *Strength);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *TriggerSignalEvents)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ long Interval);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *SeekUp)(
+		__RPC__in IScanningTuner * This);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *SeekDown)(
+		__RPC__in IScanningTuner * This);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *ScanUp)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ long MillisecondsPause);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *ScanDown)(
+		__RPC__in IScanningTuner * This,
+		/* [in] */ long MillisecondsPause);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *AutoProgram)(
+		__RPC__in IScanningTuner * This);
+
+	END_INTERFACE
+} IScanningTunerVtbl;
+
+interface IScanningTuner
+{
+	CONST_VTBL struct IScanningTunerVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IScanningTuner_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IScanningTuner_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IScanningTuner_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IScanningTuner_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define IScanningTuner_put_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> put_TuningSpace(This,TuningSpace) ) 
+
+#define IScanningTuner_EnumTuningSpaces(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumTuningSpaces(This,ppEnum) ) 
+
+#define IScanningTuner_get_TuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> get_TuneRequest(This,TuneRequest) ) 
+
+#define IScanningTuner_put_TuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> put_TuneRequest(This,TuneRequest) ) 
+
+#define IScanningTuner_Validate(This,TuneRequest)	\
+    ( (This)->lpVtbl -> Validate(This,TuneRequest) ) 
+
+#define IScanningTuner_get_PreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> get_PreferredComponentTypes(This,ComponentTypes) ) 
+
+#define IScanningTuner_put_PreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> put_PreferredComponentTypes(This,ComponentTypes) ) 
+
+#define IScanningTuner_get_SignalStrength(This,Strength)	\
+    ( (This)->lpVtbl -> get_SignalStrength(This,Strength) ) 
+
+#define IScanningTuner_TriggerSignalEvents(This,Interval)	\
+    ( (This)->lpVtbl -> TriggerSignalEvents(This,Interval) ) 
+
+
+#define IScanningTuner_SeekUp(This)	\
+    ( (This)->lpVtbl -> SeekUp(This) ) 
+
+#define IScanningTuner_SeekDown(This)	\
+    ( (This)->lpVtbl -> SeekDown(This) ) 
+
+#define IScanningTuner_ScanUp(This,MillisecondsPause)	\
+    ( (This)->lpVtbl -> ScanUp(This,MillisecondsPause) ) 
+
+#define IScanningTuner_ScanDown(This,MillisecondsPause)	\
+    ( (This)->lpVtbl -> ScanDown(This,MillisecondsPause) ) 
+
+#define IScanningTuner_AutoProgram(This)	\
+    ( (This)->lpVtbl -> AutoProgram(This) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IScanningTuner_INTERFACE_DEFINED__ */
+
+
+
+
+#ifndef __ITuningSpace_INTERFACE_DEFINED__
+#define __ITuningSpace_INTERFACE_DEFINED__
+
+/* interface ITuningSpace */
+/* [unique][helpstring][nonextensible][proxy][oleautomation][dual][uuid][object] */
+
+
+EXTERN_C const IID IID_ITuningSpace;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("061C6E30-E622-11d2-9493-00C04F72D980")
+ITuningSpace : public IDispatch
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_UniqueName(
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_UniqueName(
+		/* [in] */ __RPC__in BSTR Name) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_FriendlyName(
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_FriendlyName(
+		/* [in] */ __RPC__in BSTR Name) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_CLSID(
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *SpaceCLSID) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_NetworkType(
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *NetworkTypeGuid) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_NetworkType(
+		/* [in] */ __RPC__in BSTR NetworkTypeGuid) = 0;
+
+	virtual /* [restricted][hidden][helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get__NetworkType(
+		/* [retval][out] */ __RPC__out GUID *NetworkTypeGuid) = 0;
+
+	virtual /* [restricted][hidden][helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put__NetworkType(
+		/* [in] */ __RPC__in REFCLSID NetworkTypeGuid) = 0;
+
+	virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE CreateTuneRequest(
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest) = 0;
+
+	virtual /* [restricted][hidden][id] */ HRESULT STDMETHODCALLTYPE EnumCategoryGUIDs(
+		/* [retval][out] */ __RPC__deref_out_opt IEnumGUID **ppEnum) = 0;
+
+	virtual /* [restricted][hidden][id] */ HRESULT STDMETHODCALLTYPE EnumDeviceMonikers(
+		/* [retval][out] */ __RPC__deref_out_opt IEnumMoniker **ppEnum) = 0;
+
+	virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_DefaultPreferredComponentTypes(
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes) = 0;
+
+	virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_DefaultPreferredComponentTypes(
+		/* [in] */ __RPC__in_opt IComponentTypes *NewComponentTypes) = 0;
+
+	virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_FrequencyMapping(
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *pMapping) = 0;
+
+	virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_FrequencyMapping(
+		__RPC__in BSTR Mapping) = 0;
+
+	virtual /* [id][propget] */ HRESULT STDMETHODCALLTYPE get_DefaultLocator(
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **LocatorVal) = 0;
+
+	virtual /* [id][propput] */ HRESULT STDMETHODCALLTYPE put_DefaultLocator(
+		/* [in] */ __RPC__in_opt ILocator *LocatorVal) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Clone(
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **NewTS) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct ITuningSpaceVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in ITuningSpace * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in ITuningSpace * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in ITuningSpace * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in ITuningSpace * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		ITuningSpace * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_UniqueName)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_UniqueName)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in BSTR Name);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_FriendlyName)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_FriendlyName)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in BSTR Name);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CLSID)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *SpaceCLSID);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_NetworkType)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *NetworkTypeGuid);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_NetworkType)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in BSTR NetworkTypeGuid);
+
+	/* [restricted][hidden][helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get__NetworkType)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__out GUID *NetworkTypeGuid);
+
+	/* [restricted][hidden][helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put__NetworkType)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in REFCLSID NetworkTypeGuid);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *CreateTuneRequest)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest);
+
+	/* [restricted][hidden][id] */ HRESULT(STDMETHODCALLTYPE *EnumCategoryGUIDs)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumGUID **ppEnum);
+
+	/* [restricted][hidden][id] */ HRESULT(STDMETHODCALLTYPE *EnumDeviceMonikers)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumMoniker **ppEnum);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DefaultPreferredComponentTypes)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DefaultPreferredComponentTypes)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in_opt IComponentTypes *NewComponentTypes);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_FrequencyMapping)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *pMapping);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_FrequencyMapping)(
+		__RPC__in ITuningSpace * This,
+		__RPC__in BSTR Mapping);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DefaultLocator)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **LocatorVal);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DefaultLocator)(
+		__RPC__in ITuningSpace * This,
+		/* [in] */ __RPC__in_opt ILocator *LocatorVal);
+
+	HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in ITuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **NewTS);
+
+	END_INTERFACE
+} ITuningSpaceVtbl;
+
+interface ITuningSpace
+{
+	CONST_VTBL struct ITuningSpaceVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define ITuningSpace_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define ITuningSpace_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define ITuningSpace_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define ITuningSpace_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define ITuningSpace_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define ITuningSpace_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define ITuningSpace_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define ITuningSpace_get_UniqueName(This,Name)	\
+    ( (This)->lpVtbl -> get_UniqueName(This,Name) ) 
+
+#define ITuningSpace_put_UniqueName(This,Name)	\
+    ( (This)->lpVtbl -> put_UniqueName(This,Name) ) 
+
+#define ITuningSpace_get_FriendlyName(This,Name)	\
+    ( (This)->lpVtbl -> get_FriendlyName(This,Name) ) 
+
+#define ITuningSpace_put_FriendlyName(This,Name)	\
+    ( (This)->lpVtbl -> put_FriendlyName(This,Name) ) 
+
+#define ITuningSpace_get_CLSID(This,SpaceCLSID)	\
+    ( (This)->lpVtbl -> get_CLSID(This,SpaceCLSID) ) 
+
+#define ITuningSpace_get_NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> get_NetworkType(This,NetworkTypeGuid) ) 
+
+#define ITuningSpace_put_NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> put_NetworkType(This,NetworkTypeGuid) ) 
+
+#define ITuningSpace_get__NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> get__NetworkType(This,NetworkTypeGuid) ) 
+
+#define ITuningSpace_put__NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> put__NetworkType(This,NetworkTypeGuid) ) 
+
+#define ITuningSpace_CreateTuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> CreateTuneRequest(This,TuneRequest) ) 
+
+#define ITuningSpace_EnumCategoryGUIDs(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumCategoryGUIDs(This,ppEnum) ) 
+
+#define ITuningSpace_EnumDeviceMonikers(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumDeviceMonikers(This,ppEnum) ) 
+
+#define ITuningSpace_get_DefaultPreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> get_DefaultPreferredComponentTypes(This,ComponentTypes) ) 
+
+#define ITuningSpace_put_DefaultPreferredComponentTypes(This,NewComponentTypes)	\
+    ( (This)->lpVtbl -> put_DefaultPreferredComponentTypes(This,NewComponentTypes) ) 
+
+#define ITuningSpace_get_FrequencyMapping(This,pMapping)	\
+    ( (This)->lpVtbl -> get_FrequencyMapping(This,pMapping) ) 
+
+#define ITuningSpace_put_FrequencyMapping(This,Mapping)	\
+    ( (This)->lpVtbl -> put_FrequencyMapping(This,Mapping) ) 
+
+#define ITuningSpace_get_DefaultLocator(This,LocatorVal)	\
+    ( (This)->lpVtbl -> get_DefaultLocator(This,LocatorVal) ) 
+
+#define ITuningSpace_put_DefaultLocator(This,LocatorVal)	\
+    ( (This)->lpVtbl -> put_DefaultLocator(This,LocatorVal) ) 
+
+#define ITuningSpace_Clone(This,NewTS)	\
+    ( (This)->lpVtbl -> Clone(This,NewTS) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __ITuningSpace_INTERFACE_DEFINED__ */
+
+
+
+#ifndef __ITuneRequest_INTERFACE_DEFINED__
+#define __ITuneRequest_INTERFACE_DEFINED__
+
+/* interface ITuneRequest */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_ITuneRequest;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("07DDC146-FC3D-11d2-9D8C-00C04F72D980")
+ITuneRequest : public IDispatch
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_TuningSpace(
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Components(
+		/* [retval][out] */ __RPC__deref_out_opt IComponents **Components) = 0;
+
+	virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Clone(
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **NewTuneRequest) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Locator(
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **Locator) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Locator(
+		/* [in] */ __RPC__in_opt ILocator *Locator) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct ITuneRequestVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in ITuneRequest * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in ITuneRequest * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in ITuneRequest * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in ITuneRequest * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in ITuneRequest * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in ITuneRequest * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		ITuneRequest * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in ITuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Components)(
+		__RPC__in ITuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponents **Components);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in ITuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **NewTuneRequest);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Locator)(
+		__RPC__in ITuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **Locator);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Locator)(
+		__RPC__in ITuneRequest * This,
+		/* [in] */ __RPC__in_opt ILocator *Locator);
+
+	END_INTERFACE
+} ITuneRequestVtbl;
+
+interface ITuneRequest
+{
+	CONST_VTBL struct ITuneRequestVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define ITuneRequest_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define ITuneRequest_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define ITuneRequest_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define ITuneRequest_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define ITuneRequest_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define ITuneRequest_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define ITuneRequest_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define ITuneRequest_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define ITuneRequest_get_Components(This,Components)	\
+    ( (This)->lpVtbl -> get_Components(This,Components) ) 
+
+#define ITuneRequest_Clone(This,NewTuneRequest)	\
+    ( (This)->lpVtbl -> Clone(This,NewTuneRequest) ) 
+
+#define ITuneRequest_get_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> get_Locator(This,Locator) ) 
+
+#define ITuneRequest_put_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> put_Locator(This,Locator) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __ITuneRequest_INTERFACE_DEFINED__ */
+
+
+
+#ifndef __IChannelTuneRequest_INTERFACE_DEFINED__
+#define __IChannelTuneRequest_INTERFACE_DEFINED__
+
+/* interface IChannelTuneRequest */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_IChannelTuneRequest;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("0369B4E0-45B6-11d3-B650-00C04F79498E")
+IChannelTuneRequest : public ITuneRequest
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Channel(
+		/* [retval][out] */ __RPC__out long *Channel) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Channel(
+		/* [in] */ long Channel) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IChannelTuneRequestVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IChannelTuneRequest * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IChannelTuneRequest * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IChannelTuneRequest * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IChannelTuneRequest * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Components)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponents **Components);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **NewTuneRequest);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Locator)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **Locator);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Locator)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [in] */ __RPC__in_opt ILocator *Locator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Channel)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *Channel);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Channel)(
+		__RPC__in IChannelTuneRequest * This,
+		/* [in] */ long Channel);
+
+	END_INTERFACE
+} IChannelTuneRequestVtbl;
+
+interface IChannelTuneRequest
+{
+	CONST_VTBL struct IChannelTuneRequestVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IChannelTuneRequest_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IChannelTuneRequest_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IChannelTuneRequest_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IChannelTuneRequest_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IChannelTuneRequest_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IChannelTuneRequest_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IChannelTuneRequest_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IChannelTuneRequest_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define IChannelTuneRequest_get_Components(This,Components)	\
+    ( (This)->lpVtbl -> get_Components(This,Components) ) 
+
+#define IChannelTuneRequest_Clone(This,NewTuneRequest)	\
+    ( (This)->lpVtbl -> Clone(This,NewTuneRequest) ) 
+
+#define IChannelTuneRequest_get_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> get_Locator(This,Locator) ) 
+
+#define IChannelTuneRequest_put_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> put_Locator(This,Locator) ) 
+
+
+#define IChannelTuneRequest_get_Channel(This,Channel)	\
+    ( (This)->lpVtbl -> get_Channel(This,Channel) ) 
+
+#define IChannelTuneRequest_put_Channel(This,Channel)	\
+    ( (This)->lpVtbl -> put_Channel(This,Channel) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IChannelTuneRequest_INTERFACE_DEFINED__ */
+
+
+
+#ifndef __IPropertyBag_INTERFACE_DEFINED__
+#define __IPropertyBag_INTERFACE_DEFINED__
+
+/* interface IPropertyBag */
+/* [unique][uuid][object] */
+
+typedef IPropertyBag *LPPROPERTYBAG;
+
+
+EXTERN_C const IID IID_IPropertyBag;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("55272A00-42CB-11CE-8135-00AA004BB851")
+IPropertyBag : public IUnknown
+{
+public:
+	virtual /* [local] */ HRESULT STDMETHODCALLTYPE Read(
+		/* [in] */ LPCOLESTR pszPropName,
+		/* [out][in] */ VARIANT *pVar,
+		/* [unique][in] */ IErrorLog *pErrorLog) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Write(
+		/* [in] */ __RPC__in LPCOLESTR pszPropName,
+		/* [in] */ __RPC__in VARIANT *pVar) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IPropertyBagVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IPropertyBag * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IPropertyBag * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IPropertyBag * This);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Read)(
+		IPropertyBag * This,
+		/* [in] */ LPCOLESTR pszPropName,
+		/* [out][in] */ VARIANT *pVar,
+		/* [unique][in] */ IErrorLog *pErrorLog);
+
+	HRESULT(STDMETHODCALLTYPE *Write)(
+		__RPC__in IPropertyBag * This,
+		/* [in] */ __RPC__in LPCOLESTR pszPropName,
+		/* [in] */ __RPC__in VARIANT *pVar);
+
+	END_INTERFACE
+} IPropertyBagVtbl;
+
+interface IPropertyBag
+{
+	CONST_VTBL struct IPropertyBagVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IPropertyBag_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IPropertyBag_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IPropertyBag_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IPropertyBag_Read(This,pszPropName,pVar,pErrorLog)	\
+    ( (This)->lpVtbl -> Read(This,pszPropName,pVar,pErrorLog) ) 
+
+#define IPropertyBag_Write(This,pszPropName,pVar)	\
+    ( (This)->lpVtbl -> Write(This,pszPropName,pVar) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+/* [call_as] */ HRESULT STDMETHODCALLTYPE IPropertyBag_RemoteRead_Proxy(
+	__RPC__in IPropertyBag * This,
+	/* [in] */ __RPC__in LPCOLESTR pszPropName,
+	/* [out] */ __RPC__out VARIANT *pVar,
+	/* [unique][in] */ __RPC__in_opt IErrorLog *pErrorLog,
+	/* [in] */ DWORD varType,
+	/* [in] */ __RPC__in_opt IUnknown *pUnkObj);
+
+
+void __RPC_STUB IPropertyBag_RemoteRead_Stub(
+	IRpcStubBuffer *This,
+	IRpcChannelBuffer *_pRpcChannelBuffer,
+	PRPC_MESSAGE _pRpcMessage,
+	DWORD *_pdwStubPhase);
+
+
+
+#endif 	/* __IPropertyBag_INTERFACE_DEFINED__ */
+
+
+
+#ifndef __ICreateDevEnum_INTERFACE_DEFINED__
+#define __ICreateDevEnum_INTERFACE_DEFINED__
+
+/* interface ICreateDevEnum */
+/* [unique][uuid][object][local] */
+
+
+EXTERN_C const IID IID_ICreateDevEnum;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("29840822-5B84-11D0-BD3B-00A0C911CE86")
+ICreateDevEnum : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE CreateClassEnumerator(
+		/* [in] */ REFCLSID clsidDeviceClass,
+		/* [annotation][out] */
+		_Out_  IEnumMoniker **ppEnumMoniker,
+		/* [in] */ DWORD dwFlags) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct ICreateDevEnumVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			ICreateDevEnum * This,
+			/* [in] */ REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		ICreateDevEnum * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		ICreateDevEnum * This);
+
+	HRESULT(STDMETHODCALLTYPE *CreateClassEnumerator)(
+		ICreateDevEnum * This,
+		/* [in] */ REFCLSID clsidDeviceClass,
+		/* [annotation][out] */
+		_Out_  IEnumMoniker **ppEnumMoniker,
+		/* [in] */ DWORD dwFlags);
+
+	END_INTERFACE
+} ICreateDevEnumVtbl;
+
+interface ICreateDevEnum
+{
+	CONST_VTBL struct ICreateDevEnumVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define ICreateDevEnum_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define ICreateDevEnum_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define ICreateDevEnum_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define ICreateDevEnum_CreateClassEnumerator(This,clsidDeviceClass,ppEnumMoniker,dwFlags)	\
+    ( (This)->lpVtbl -> CreateClassEnumerator(This,clsidDeviceClass,ppEnumMoniker,dwFlags) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __ICreateDevEnum_INTERFACE_DEFINED__ */
+
+
+#ifndef __IDVBTuneRequest_INTERFACE_DEFINED__
+#define __IDVBTuneRequest_INTERFACE_DEFINED__
+
+/* interface IDVBTuneRequest */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_IDVBTuneRequest;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("0D6F567E-A636-42bb-83BA-CE4C1704AFA2")
+IDVBTuneRequest : public ITuneRequest
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_ONID(
+		/* [retval][out] */ __RPC__out long *ONID) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_ONID(
+		/* [in] */ long ONID) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_TSID(
+		/* [retval][out] */ __RPC__out long *TSID) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_TSID(
+		/* [in] */ long TSID) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SID(
+		/* [retval][out] */ __RPC__out long *SID) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SID(
+		/* [in] */ long SID) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBTuneRequestVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBTuneRequest * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBTuneRequest * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBTuneRequest * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBTuneRequest * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Components)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponents **Components);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **NewTuneRequest);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Locator)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **Locator);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Locator)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [in] */ __RPC__in_opt ILocator *Locator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_ONID)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *ONID);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_ONID)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [in] */ long ONID);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_TSID)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *TSID);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_TSID)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [in] */ long TSID);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SID)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *SID);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SID)(
+		__RPC__in IDVBTuneRequest * This,
+		/* [in] */ long SID);
+
+	END_INTERFACE
+} IDVBTuneRequestVtbl;
+
+interface IDVBTuneRequest
+{
+	CONST_VTBL struct IDVBTuneRequestVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBTuneRequest_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBTuneRequest_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBTuneRequest_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBTuneRequest_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBTuneRequest_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBTuneRequest_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBTuneRequest_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBTuneRequest_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define IDVBTuneRequest_get_Components(This,Components)	\
+    ( (This)->lpVtbl -> get_Components(This,Components) ) 
+
+#define IDVBTuneRequest_Clone(This,NewTuneRequest)	\
+    ( (This)->lpVtbl -> Clone(This,NewTuneRequest) ) 
+
+#define IDVBTuneRequest_get_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> get_Locator(This,Locator) ) 
+
+#define IDVBTuneRequest_put_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> put_Locator(This,Locator) ) 
+
+
+#define IDVBTuneRequest_get_ONID(This,ONID)	\
+    ( (This)->lpVtbl -> get_ONID(This,ONID) ) 
+
+#define IDVBTuneRequest_put_ONID(This,ONID)	\
+    ( (This)->lpVtbl -> put_ONID(This,ONID) ) 
+
+#define IDVBTuneRequest_get_TSID(This,TSID)	\
+    ( (This)->lpVtbl -> get_TSID(This,TSID) ) 
+
+#define IDVBTuneRequest_put_TSID(This,TSID)	\
+    ( (This)->lpVtbl -> put_TSID(This,TSID) ) 
+
+#define IDVBTuneRequest_get_SID(This,SID)	\
+    ( (This)->lpVtbl -> get_SID(This,SID) ) 
+
+#define IDVBTuneRequest_put_SID(This,SID)	\
+    ( (This)->lpVtbl -> put_SID(This,SID) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBTuneRequest_INTERFACE_DEFINED__ */
+
+
+
+
+#ifndef __ILocator_INTERFACE_DEFINED__
+#define __ILocator_INTERFACE_DEFINED__
+
+/* interface ILocator */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_ILocator;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("286D7F89-760C-4F89-80C4-66841D2507AA")
+ILocator : public IDispatch
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_CarrierFrequency(
+		/* [retval][out] */ __RPC__out long *Frequency) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_CarrierFrequency(
+		/* [in] */ long Frequency) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_InnerFEC(
+		/* [retval][out] */ __RPC__out FECMethod *FEC) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_InnerFEC(
+		/* [in] */ FECMethod FEC) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_InnerFECRate(
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_InnerFECRate(
+		/* [in] */ BinaryConvolutionCodeRate FEC) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_OuterFEC(
+		/* [retval][out] */ __RPC__out FECMethod *FEC) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_OuterFEC(
+		/* [in] */ FECMethod FEC) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_OuterFECRate(
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_OuterFECRate(
+		/* [in] */ BinaryConvolutionCodeRate FEC) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Modulation(
+		/* [retval][out] */ __RPC__out ModulationType *Modulation) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Modulation(
+		/* [in] */ ModulationType Modulation) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SymbolRate(
+		/* [retval][out] */ __RPC__out long *Rate) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SymbolRate(
+		/* [in] */ long Rate) = 0;
+
+	virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Clone(
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct ILocatorVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in ILocator * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in ILocator * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in ILocator * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in ILocator * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in ILocator * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in ILocator * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		ILocator * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CarrierFrequency)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out long *Frequency);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_CarrierFrequency)(
+		__RPC__in ILocator * This,
+		/* [in] */ long Frequency);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFEC)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFEC)(
+		__RPC__in ILocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFECRate)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFECRate)(
+		__RPC__in ILocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFEC)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFEC)(
+		__RPC__in ILocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFECRate)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFECRate)(
+		__RPC__in ILocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Modulation)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out ModulationType *Modulation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Modulation)(
+		__RPC__in ILocator * This,
+		/* [in] */ ModulationType Modulation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SymbolRate)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__out long *Rate);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SymbolRate)(
+		__RPC__in ILocator * This,
+		/* [in] */ long Rate);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in ILocator * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator);
+
+	END_INTERFACE
+} ILocatorVtbl;
+
+interface ILocator
+{
+	CONST_VTBL struct ILocatorVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define ILocator_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define ILocator_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define ILocator_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define ILocator_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define ILocator_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define ILocator_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define ILocator_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define ILocator_get_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> get_CarrierFrequency(This,Frequency) ) 
+
+#define ILocator_put_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> put_CarrierFrequency(This,Frequency) ) 
+
+#define ILocator_get_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFEC(This,FEC) ) 
+
+#define ILocator_put_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFEC(This,FEC) ) 
+
+#define ILocator_get_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFECRate(This,FEC) ) 
+
+#define ILocator_put_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFECRate(This,FEC) ) 
+
+#define ILocator_get_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFEC(This,FEC) ) 
+
+#define ILocator_put_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFEC(This,FEC) ) 
+
+#define ILocator_get_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFECRate(This,FEC) ) 
+
+#define ILocator_put_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFECRate(This,FEC) ) 
+
+#define ILocator_get_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> get_Modulation(This,Modulation) ) 
+
+#define ILocator_put_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> put_Modulation(This,Modulation) ) 
+
+#define ILocator_get_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> get_SymbolRate(This,Rate) ) 
+
+#define ILocator_put_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> put_SymbolRate(This,Rate) ) 
+
+#define ILocator_Clone(This,NewLocator)	\
+    ( (This)->lpVtbl -> Clone(This,NewLocator) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __ILocator_INTERFACE_DEFINED__ */
+
+
+#ifndef __IDigitalLocator_INTERFACE_DEFINED__
+#define __IDigitalLocator_INTERFACE_DEFINED__
+
+/* interface IDigitalLocator */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_IDigitalLocator;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("19B595D8-839A-47F0-96DF-4F194F3C768C")
+IDigitalLocator : public ILocator
+{
+public:
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDigitalLocatorVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDigitalLocator * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDigitalLocator * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDigitalLocator * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDigitalLocator * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDigitalLocator * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CarrierFrequency)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out long *Frequency);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_CarrierFrequency)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ long Frequency);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFEC)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFEC)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFECRate)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFECRate)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFEC)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFEC)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFECRate)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFECRate)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Modulation)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out ModulationType *Modulation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Modulation)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ ModulationType Modulation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SymbolRate)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__out long *Rate);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SymbolRate)(
+		__RPC__in IDigitalLocator * This,
+		/* [in] */ long Rate);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDigitalLocator * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator);
+
+	END_INTERFACE
+} IDigitalLocatorVtbl;
+
+interface IDigitalLocator
+{
+	CONST_VTBL struct IDigitalLocatorVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDigitalLocator_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDigitalLocator_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDigitalLocator_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDigitalLocator_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDigitalLocator_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDigitalLocator_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDigitalLocator_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDigitalLocator_get_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> get_CarrierFrequency(This,Frequency) ) 
+
+#define IDigitalLocator_put_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> put_CarrierFrequency(This,Frequency) ) 
+
+#define IDigitalLocator_get_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFEC(This,FEC) ) 
+
+#define IDigitalLocator_put_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFEC(This,FEC) ) 
+
+#define IDigitalLocator_get_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFECRate(This,FEC) ) 
+
+#define IDigitalLocator_put_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFECRate(This,FEC) ) 
+
+#define IDigitalLocator_get_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFEC(This,FEC) ) 
+
+#define IDigitalLocator_put_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFEC(This,FEC) ) 
+
+#define IDigitalLocator_get_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFECRate(This,FEC) ) 
+
+#define IDigitalLocator_put_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFECRate(This,FEC) ) 
+
+#define IDigitalLocator_get_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> get_Modulation(This,Modulation) ) 
+
+#define IDigitalLocator_put_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> put_Modulation(This,Modulation) ) 
+
+#define IDigitalLocator_get_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> get_SymbolRate(This,Rate) ) 
+
+#define IDigitalLocator_put_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> put_SymbolRate(This,Rate) ) 
+
+#define IDigitalLocator_Clone(This,NewLocator)	\
+    ( (This)->lpVtbl -> Clone(This,NewLocator) ) 
+
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDigitalLocator_INTERFACE_DEFINED__ */
+
+
+
+
+#ifndef __IDVBTLocator_INTERFACE_DEFINED__
+#define __IDVBTLocator_INTERFACE_DEFINED__
+
+/* interface IDVBTLocator */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][hidden][object] */
+
+
+EXTERN_C const IID IID_IDVBTLocator;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("8664DA16-DDA2-42ac-926A-C18F9127C302")
+
+IDVBTLocator : public IDigitalLocator
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Bandwidth(
+		/* [retval][out] */ __RPC__out long *BandWidthVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Bandwidth(
+		/* [in] */ long BandwidthVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_LPInnerFEC(
+		/* [retval][out] */ __RPC__out FECMethod *FEC) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_LPInnerFEC(
+		/* [in] */ FECMethod FEC) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_LPInnerFECRate(
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_LPInnerFECRate(
+		/* [in] */ BinaryConvolutionCodeRate FEC) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_HAlpha(
+		/* [retval][out] */ __RPC__out HierarchyAlpha *Alpha) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_HAlpha(
+		/* [in] */ HierarchyAlpha Alpha) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Guard(
+		/* [retval][out] */ __RPC__out GuardInterval *GI) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Guard(
+		/* [in] */ GuardInterval GI) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Mode(
+		/* [retval][out] */ __RPC__out TransmissionMode *mode) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Mode(
+		/* [in] */ TransmissionMode mode) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_OtherFrequencyInUse(
+		/* [retval][out] */ __RPC__out VARIANT_BOOL *OtherFrequencyInUseVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_OtherFrequencyInUse(
+		/* [in] */ VARIANT_BOOL OtherFrequencyInUseVal) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBTLocatorVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBTLocator * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBTLocator * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBTLocator * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBTLocator * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBTLocator * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CarrierFrequency)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out long *Frequency);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_CarrierFrequency)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ long Frequency);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFEC)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFEC)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFECRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFECRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFEC)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFEC)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFECRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFECRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Modulation)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out ModulationType *Modulation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Modulation)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ ModulationType Modulation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SymbolRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out long *Rate);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SymbolRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ long Rate);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Bandwidth)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out long *BandWidthVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Bandwidth)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ long BandwidthVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_LPInnerFEC)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_LPInnerFEC)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_LPInnerFECRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_LPInnerFECRate)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_HAlpha)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out HierarchyAlpha *Alpha);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_HAlpha)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ HierarchyAlpha Alpha);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Guard)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out GuardInterval *GI);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Guard)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ GuardInterval GI);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Mode)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out TransmissionMode *mode);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Mode)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ TransmissionMode mode);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OtherFrequencyInUse)(
+		__RPC__in IDVBTLocator * This,
+		/* [retval][out] */ __RPC__out VARIANT_BOOL *OtherFrequencyInUseVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OtherFrequencyInUse)(
+		__RPC__in IDVBTLocator * This,
+		/* [in] */ VARIANT_BOOL OtherFrequencyInUseVal);
+
+	END_INTERFACE
+} IDVBTLocatorVtbl;
+
+interface IDVBTLocator
+{
+	CONST_VTBL struct IDVBTLocatorVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBTLocator_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBTLocator_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBTLocator_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBTLocator_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBTLocator_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBTLocator_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBTLocator_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBTLocator_get_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> get_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBTLocator_put_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> put_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBTLocator_get_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFEC(This,FEC) ) 
+
+#define IDVBTLocator_put_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFEC(This,FEC) ) 
+
+#define IDVBTLocator_get_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFECRate(This,FEC) ) 
+
+#define IDVBTLocator_put_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFECRate(This,FEC) ) 
+
+#define IDVBTLocator_get_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFEC(This,FEC) ) 
+
+#define IDVBTLocator_put_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFEC(This,FEC) ) 
+
+#define IDVBTLocator_get_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFECRate(This,FEC) ) 
+
+#define IDVBTLocator_put_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFECRate(This,FEC) ) 
+
+#define IDVBTLocator_get_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> get_Modulation(This,Modulation) ) 
+
+#define IDVBTLocator_put_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> put_Modulation(This,Modulation) ) 
+
+#define IDVBTLocator_get_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> get_SymbolRate(This,Rate) ) 
+
+#define IDVBTLocator_put_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> put_SymbolRate(This,Rate) ) 
+
+#define IDVBTLocator_Clone(This,NewLocator)	\
+    ( (This)->lpVtbl -> Clone(This,NewLocator) ) 
+
+
+
+#define IDVBTLocator_get_Bandwidth(This,BandWidthVal)	\
+    ( (This)->lpVtbl -> get_Bandwidth(This,BandWidthVal) ) 
+
+#define IDVBTLocator_put_Bandwidth(This,BandwidthVal)	\
+    ( (This)->lpVtbl -> put_Bandwidth(This,BandwidthVal) ) 
+
+#define IDVBTLocator_get_LPInnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_LPInnerFEC(This,FEC) ) 
+
+#define IDVBTLocator_put_LPInnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_LPInnerFEC(This,FEC) ) 
+
+#define IDVBTLocator_get_LPInnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_LPInnerFECRate(This,FEC) ) 
+
+#define IDVBTLocator_put_LPInnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_LPInnerFECRate(This,FEC) ) 
+
+#define IDVBTLocator_get_HAlpha(This,Alpha)	\
+    ( (This)->lpVtbl -> get_HAlpha(This,Alpha) ) 
+
+#define IDVBTLocator_put_HAlpha(This,Alpha)	\
+    ( (This)->lpVtbl -> put_HAlpha(This,Alpha) ) 
+
+#define IDVBTLocator_get_Guard(This,GI)	\
+    ( (This)->lpVtbl -> get_Guard(This,GI) ) 
+
+#define IDVBTLocator_put_Guard(This,GI)	\
+    ( (This)->lpVtbl -> put_Guard(This,GI) ) 
+
+#define IDVBTLocator_get_Mode(This,mode)	\
+    ( (This)->lpVtbl -> get_Mode(This,mode) ) 
+
+#define IDVBTLocator_put_Mode(This,mode)	\
+    ( (This)->lpVtbl -> put_Mode(This,mode) ) 
+
+#define IDVBTLocator_get_OtherFrequencyInUse(This,OtherFrequencyInUseVal)	\
+    ( (This)->lpVtbl -> get_OtherFrequencyInUse(This,OtherFrequencyInUseVal) ) 
+
+#define IDVBTLocator_put_OtherFrequencyInUse(This,OtherFrequencyInUseVal)	\
+    ( (This)->lpVtbl -> put_OtherFrequencyInUse(This,OtherFrequencyInUseVal) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBTLocator_INTERFACE_DEFINED__ */
+
+
+#ifndef __IDVBTuningSpace_INTERFACE_DEFINED__
+#define __IDVBTuningSpace_INTERFACE_DEFINED__
+
+/* interface IDVBTuningSpace */
+/* [unique][uuid][nonextensible][proxy][oleautomation][dual][hidden][object] */
+
+
+EXTERN_C const IID IID_IDVBTuningSpace;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("ADA0B268-3B19-4e5b-ACC4-49F852BE13BA")
+IDVBTuningSpace : public ITuningSpace
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SystemType(
+		/* [retval][out] */ __RPC__out DVBSystemType *SysType) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SystemType(
+		/* [in] */ DVBSystemType SysType) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBTuningSpaceVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBTuningSpace * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBTuningSpace * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBTuningSpace * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBTuningSpace * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_UniqueName)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_UniqueName)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in BSTR Name);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_FriendlyName)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_FriendlyName)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in BSTR Name);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CLSID)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *SpaceCLSID);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_NetworkType)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *NetworkTypeGuid);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_NetworkType)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in BSTR NetworkTypeGuid);
+
+	/* [restricted][hidden][helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get__NetworkType)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__out GUID *NetworkTypeGuid);
+
+	/* [restricted][hidden][helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put__NetworkType)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in REFCLSID NetworkTypeGuid);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *CreateTuneRequest)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest);
+
+	/* [restricted][hidden][id] */ HRESULT(STDMETHODCALLTYPE *EnumCategoryGUIDs)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumGUID **ppEnum);
+
+	/* [restricted][hidden][id] */ HRESULT(STDMETHODCALLTYPE *EnumDeviceMonikers)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumMoniker **ppEnum);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DefaultPreferredComponentTypes)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DefaultPreferredComponentTypes)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in_opt IComponentTypes *NewComponentTypes);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_FrequencyMapping)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *pMapping);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_FrequencyMapping)(
+		__RPC__in IDVBTuningSpace * This,
+		__RPC__in BSTR Mapping);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DefaultLocator)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **LocatorVal);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DefaultLocator)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ __RPC__in_opt ILocator *LocatorVal);
+
+	HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **NewTS);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SystemType)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [retval][out] */ __RPC__out DVBSystemType *SysType);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SystemType)(
+		__RPC__in IDVBTuningSpace * This,
+		/* [in] */ DVBSystemType SysType);
+
+	END_INTERFACE
+} IDVBTuningSpaceVtbl;
+
+interface IDVBTuningSpace
+{
+	CONST_VTBL struct IDVBTuningSpaceVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBTuningSpace_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBTuningSpace_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBTuningSpace_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBTuningSpace_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBTuningSpace_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBTuningSpace_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBTuningSpace_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBTuningSpace_get_UniqueName(This,Name)	\
+    ( (This)->lpVtbl -> get_UniqueName(This,Name) ) 
+
+#define IDVBTuningSpace_put_UniqueName(This,Name)	\
+    ( (This)->lpVtbl -> put_UniqueName(This,Name) ) 
+
+#define IDVBTuningSpace_get_FriendlyName(This,Name)	\
+    ( (This)->lpVtbl -> get_FriendlyName(This,Name) ) 
+
+#define IDVBTuningSpace_put_FriendlyName(This,Name)	\
+    ( (This)->lpVtbl -> put_FriendlyName(This,Name) ) 
+
+#define IDVBTuningSpace_get_CLSID(This,SpaceCLSID)	\
+    ( (This)->lpVtbl -> get_CLSID(This,SpaceCLSID) ) 
+
+#define IDVBTuningSpace_get_NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> get_NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace_put_NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> put_NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace_get__NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> get__NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace_put__NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> put__NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace_CreateTuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> CreateTuneRequest(This,TuneRequest) ) 
+
+#define IDVBTuningSpace_EnumCategoryGUIDs(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumCategoryGUIDs(This,ppEnum) ) 
+
+#define IDVBTuningSpace_EnumDeviceMonikers(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumDeviceMonikers(This,ppEnum) ) 
+
+#define IDVBTuningSpace_get_DefaultPreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> get_DefaultPreferredComponentTypes(This,ComponentTypes) ) 
+
+#define IDVBTuningSpace_put_DefaultPreferredComponentTypes(This,NewComponentTypes)	\
+    ( (This)->lpVtbl -> put_DefaultPreferredComponentTypes(This,NewComponentTypes) ) 
+
+#define IDVBTuningSpace_get_FrequencyMapping(This,pMapping)	\
+    ( (This)->lpVtbl -> get_FrequencyMapping(This,pMapping) ) 
+
+#define IDVBTuningSpace_put_FrequencyMapping(This,Mapping)	\
+    ( (This)->lpVtbl -> put_FrequencyMapping(This,Mapping) ) 
+
+#define IDVBTuningSpace_get_DefaultLocator(This,LocatorVal)	\
+    ( (This)->lpVtbl -> get_DefaultLocator(This,LocatorVal) ) 
+
+#define IDVBTuningSpace_put_DefaultLocator(This,LocatorVal)	\
+    ( (This)->lpVtbl -> put_DefaultLocator(This,LocatorVal) ) 
+
+#define IDVBTuningSpace_Clone(This,NewTS)	\
+    ( (This)->lpVtbl -> Clone(This,NewTS) ) 
+
+
+#define IDVBTuningSpace_get_SystemType(This,SysType)	\
+    ( (This)->lpVtbl -> get_SystemType(This,SysType) ) 
+
+#define IDVBTuningSpace_put_SystemType(This,SysType)	\
+    ( (This)->lpVtbl -> put_SystemType(This,SysType) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBTuningSpace_INTERFACE_DEFINED__ */
+#ifndef __IDVBTuningSpace2_INTERFACE_DEFINED__
+#define __IDVBTuningSpace2_INTERFACE_DEFINED__
+
+/* interface IDVBTuningSpace2 */
+/* [unique][uuid][nonextensible][proxy][oleautomation][dual][hidden][object] */
+
+
+EXTERN_C const IID IID_IDVBTuningSpace2;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("843188B4-CE62-43db-966B-8145A094E040")
+IDVBTuningSpace2 : public IDVBTuningSpace
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_NetworkID(
+		/* [retval][out] */ __RPC__out long *NetworkID) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_NetworkID(
+		/* [in] */ long NetworkID) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBTuningSpace2Vtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBTuningSpace2 * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBTuningSpace2 * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBTuningSpace2 * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBTuningSpace2 * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_UniqueName)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_UniqueName)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in BSTR Name);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_FriendlyName)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *Name);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_FriendlyName)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in BSTR Name);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CLSID)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *SpaceCLSID);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_NetworkType)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *NetworkTypeGuid);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_NetworkType)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in BSTR NetworkTypeGuid);
+
+	/* [restricted][hidden][helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get__NetworkType)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__out GUID *NetworkTypeGuid);
+
+	/* [restricted][hidden][helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put__NetworkType)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in REFCLSID NetworkTypeGuid);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *CreateTuneRequest)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **TuneRequest);
+
+	/* [restricted][hidden][id] */ HRESULT(STDMETHODCALLTYPE *EnumCategoryGUIDs)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumGUID **ppEnum);
+
+	/* [restricted][hidden][id] */ HRESULT(STDMETHODCALLTYPE *EnumDeviceMonikers)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumMoniker **ppEnum);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DefaultPreferredComponentTypes)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponentTypes **ComponentTypes);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DefaultPreferredComponentTypes)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in_opt IComponentTypes *NewComponentTypes);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_FrequencyMapping)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt BSTR *pMapping);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_FrequencyMapping)(
+		__RPC__in IDVBTuningSpace2 * This,
+		__RPC__in BSTR Mapping);
+
+	/* [id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DefaultLocator)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **LocatorVal);
+
+	/* [id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DefaultLocator)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ __RPC__in_opt ILocator *LocatorVal);
+
+	HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **NewTS);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SystemType)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__out DVBSystemType *SysType);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SystemType)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ DVBSystemType SysType);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_NetworkID)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [retval][out] */ __RPC__out long *NetworkID);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_NetworkID)(
+		__RPC__in IDVBTuningSpace2 * This,
+		/* [in] */ long NetworkID);
+
+	END_INTERFACE
+} IDVBTuningSpace2Vtbl;
+
+interface IDVBTuningSpace2
+{
+	CONST_VTBL struct IDVBTuningSpace2Vtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBTuningSpace2_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBTuningSpace2_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBTuningSpace2_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBTuningSpace2_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBTuningSpace2_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBTuningSpace2_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBTuningSpace2_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBTuningSpace2_get_UniqueName(This,Name)	\
+    ( (This)->lpVtbl -> get_UniqueName(This,Name) ) 
+
+#define IDVBTuningSpace2_put_UniqueName(This,Name)	\
+    ( (This)->lpVtbl -> put_UniqueName(This,Name) ) 
+
+#define IDVBTuningSpace2_get_FriendlyName(This,Name)	\
+    ( (This)->lpVtbl -> get_FriendlyName(This,Name) ) 
+
+#define IDVBTuningSpace2_put_FriendlyName(This,Name)	\
+    ( (This)->lpVtbl -> put_FriendlyName(This,Name) ) 
+
+#define IDVBTuningSpace2_get_CLSID(This,SpaceCLSID)	\
+    ( (This)->lpVtbl -> get_CLSID(This,SpaceCLSID) ) 
+
+#define IDVBTuningSpace2_get_NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> get_NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace2_put_NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> put_NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace2_get__NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> get__NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace2_put__NetworkType(This,NetworkTypeGuid)	\
+    ( (This)->lpVtbl -> put__NetworkType(This,NetworkTypeGuid) ) 
+
+#define IDVBTuningSpace2_CreateTuneRequest(This,TuneRequest)	\
+    ( (This)->lpVtbl -> CreateTuneRequest(This,TuneRequest) ) 
+
+#define IDVBTuningSpace2_EnumCategoryGUIDs(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumCategoryGUIDs(This,ppEnum) ) 
+
+#define IDVBTuningSpace2_EnumDeviceMonikers(This,ppEnum)	\
+    ( (This)->lpVtbl -> EnumDeviceMonikers(This,ppEnum) ) 
+
+#define IDVBTuningSpace2_get_DefaultPreferredComponentTypes(This,ComponentTypes)	\
+    ( (This)->lpVtbl -> get_DefaultPreferredComponentTypes(This,ComponentTypes) ) 
+
+#define IDVBTuningSpace2_put_DefaultPreferredComponentTypes(This,NewComponentTypes)	\
+    ( (This)->lpVtbl -> put_DefaultPreferredComponentTypes(This,NewComponentTypes) ) 
+
+#define IDVBTuningSpace2_get_FrequencyMapping(This,pMapping)	\
+    ( (This)->lpVtbl -> get_FrequencyMapping(This,pMapping) ) 
+
+#define IDVBTuningSpace2_put_FrequencyMapping(This,Mapping)	\
+    ( (This)->lpVtbl -> put_FrequencyMapping(This,Mapping) ) 
+
+#define IDVBTuningSpace2_get_DefaultLocator(This,LocatorVal)	\
+    ( (This)->lpVtbl -> get_DefaultLocator(This,LocatorVal) ) 
+
+#define IDVBTuningSpace2_put_DefaultLocator(This,LocatorVal)	\
+    ( (This)->lpVtbl -> put_DefaultLocator(This,LocatorVal) ) 
+
+#define IDVBTuningSpace2_Clone(This,NewTS)	\
+    ( (This)->lpVtbl -> Clone(This,NewTS) ) 
+
+
+#define IDVBTuningSpace2_get_SystemType(This,SysType)	\
+    ( (This)->lpVtbl -> get_SystemType(This,SysType) ) 
+
+#define IDVBTuningSpace2_put_SystemType(This,SysType)	\
+    ( (This)->lpVtbl -> put_SystemType(This,SysType) ) 
+
+
+#define IDVBTuningSpace2_get_NetworkID(This,NetworkID)	\
+    ( (This)->lpVtbl -> get_NetworkID(This,NetworkID) ) 
+
+#define IDVBTuningSpace2_put_NetworkID(This,NetworkID)	\
+    ( (This)->lpVtbl -> put_NetworkID(This,NetworkID) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBTuningSpace2_INTERFACE_DEFINED__ */
+
+
+
+
+
+#ifndef __ITuningSpaceContainer_INTERFACE_DEFINED__
+#define __ITuningSpaceContainer_INTERFACE_DEFINED__
+
+/* interface ITuningSpaceContainer */
+/* [unique][helpstring][nonextensible][hidden][proxy][oleautomation][dual][uuid][object] */
+
+
+EXTERN_C const IID IID_ITuningSpaceContainer;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("5B692E84-E2F1-11d2-9493-00C04F72D980")
+ITuningSpaceContainer : public IDispatch
+{
+public:
+	virtual /* [helpstring][propget] */ HRESULT STDMETHODCALLTYPE get_Count(
+		/* [retval][out] */ __RPC__out long *Count) = 0;
+
+	virtual /* [restricted][hidden][id][propget] */ HRESULT STDMETHODCALLTYPE get__NewEnum(
+		/* [retval][out] */ __RPC__deref_out_opt IEnumVARIANT **NewEnum) = 0;
+
+	virtual /* [helpstring][propget][id] */ HRESULT STDMETHODCALLTYPE get_Item(
+		/* [in] */ VARIANT varIndex,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace) = 0;
+
+	virtual /* [helpstring][propput][id] */ HRESULT STDMETHODCALLTYPE put_Item(
+		/* [in] */ VARIANT varIndex,
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE TuningSpacesForCLSID(
+		/* [in] */ __RPC__in BSTR SpaceCLSID,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpaces **NewColl) = 0;
+
+	virtual /* [helpstring][restricted][hidden] */ HRESULT STDMETHODCALLTYPE _TuningSpacesForCLSID(
+		/* [in] */ __RPC__in REFCLSID SpaceCLSID,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpaces **NewColl) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE TuningSpacesForName(
+		/* [in] */ __RPC__in BSTR Name,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpaces **NewColl) = 0;
+
+	virtual /* [helpstring] */ HRESULT STDMETHODCALLTYPE FindID(
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace,
+		/* [retval][out] */ __RPC__out long *ID) = 0;
+
+	virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Add(
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace,
+		/* [retval][out] */ __RPC__out VARIANT *NewIndex) = 0;
+
+	virtual /* [helpstring][restricted][hidden][propget] */ HRESULT STDMETHODCALLTYPE get_EnumTuningSpaces(
+		/* [retval][out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum) = 0;
+
+	virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Remove(
+		/* [in] */ VARIANT Index) = 0;
+
+	virtual /* [helpstring][propget] */ HRESULT STDMETHODCALLTYPE get_MaxCount(
+		/* [retval][out] */ __RPC__out long *MaxCount) = 0;
+
+	virtual /* [helpstring][restricted][hidden][propput] */ HRESULT STDMETHODCALLTYPE put_MaxCount(
+		/* [in] */ long MaxCount) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct ITuningSpaceContainerVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in ITuningSpaceContainer * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in ITuningSpaceContainer * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in ITuningSpaceContainer * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		ITuningSpaceContainer * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_Count)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [retval][out] */ __RPC__out long *Count);
+
+	/* [restricted][hidden][id][propget] */ HRESULT(STDMETHODCALLTYPE *get__NewEnum)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumVARIANT **NewEnum);
+
+	/* [helpstring][propget][id] */ HRESULT(STDMETHODCALLTYPE *get_Item)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ VARIANT varIndex,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][propput][id] */ HRESULT(STDMETHODCALLTYPE *put_Item)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ VARIANT varIndex,
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *TuningSpacesForCLSID)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ __RPC__in BSTR SpaceCLSID,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpaces **NewColl);
+
+	/* [helpstring][restricted][hidden] */ HRESULT(STDMETHODCALLTYPE *_TuningSpacesForCLSID)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ __RPC__in REFCLSID SpaceCLSID,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpaces **NewColl);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *TuningSpacesForName)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ __RPC__in BSTR Name,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpaces **NewColl);
+
+	/* [helpstring] */ HRESULT(STDMETHODCALLTYPE *FindID)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace,
+		/* [retval][out] */ __RPC__out long *ID);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Add)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ __RPC__in_opt ITuningSpace *TuningSpace,
+		/* [retval][out] */ __RPC__out VARIANT *NewIndex);
+
+	/* [helpstring][restricted][hidden][propget] */ HRESULT(STDMETHODCALLTYPE *get_EnumTuningSpaces)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [retval][out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Remove)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ VARIANT Index);
+
+	/* [helpstring][propget] */ HRESULT(STDMETHODCALLTYPE *get_MaxCount)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [retval][out] */ __RPC__out long *MaxCount);
+
+	/* [helpstring][restricted][hidden][propput] */ HRESULT(STDMETHODCALLTYPE *put_MaxCount)(
+		__RPC__in ITuningSpaceContainer * This,
+		/* [in] */ long MaxCount);
+
+	END_INTERFACE
+} ITuningSpaceContainerVtbl;
+
+interface ITuningSpaceContainer
+{
+	CONST_VTBL struct ITuningSpaceContainerVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define ITuningSpaceContainer_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define ITuningSpaceContainer_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define ITuningSpaceContainer_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define ITuningSpaceContainer_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define ITuningSpaceContainer_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define ITuningSpaceContainer_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define ITuningSpaceContainer_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define ITuningSpaceContainer_get_Count(This,Count)	\
+    ( (This)->lpVtbl -> get_Count(This,Count) ) 
+
+#define ITuningSpaceContainer_get__NewEnum(This,NewEnum)	\
+    ( (This)->lpVtbl -> get__NewEnum(This,NewEnum) ) 
+
+#define ITuningSpaceContainer_get_Item(This,varIndex,TuningSpace)	\
+    ( (This)->lpVtbl -> get_Item(This,varIndex,TuningSpace) ) 
+
+#define ITuningSpaceContainer_put_Item(This,varIndex,TuningSpace)	\
+    ( (This)->lpVtbl -> put_Item(This,varIndex,TuningSpace) ) 
+
+#define ITuningSpaceContainer_TuningSpacesForCLSID(This,SpaceCLSID,NewColl)	\
+    ( (This)->lpVtbl -> TuningSpacesForCLSID(This,SpaceCLSID,NewColl) ) 
+
+#define ITuningSpaceContainer__TuningSpacesForCLSID(This,SpaceCLSID,NewColl)	\
+    ( (This)->lpVtbl -> _TuningSpacesForCLSID(This,SpaceCLSID,NewColl) ) 
+
+#define ITuningSpaceContainer_TuningSpacesForName(This,Name,NewColl)	\
+    ( (This)->lpVtbl -> TuningSpacesForName(This,Name,NewColl) ) 
+
+#define ITuningSpaceContainer_FindID(This,TuningSpace,ID)	\
+    ( (This)->lpVtbl -> FindID(This,TuningSpace,ID) ) 
+
+#define ITuningSpaceContainer_Add(This,TuningSpace,NewIndex)	\
+    ( (This)->lpVtbl -> Add(This,TuningSpace,NewIndex) ) 
+
+#define ITuningSpaceContainer_get_EnumTuningSpaces(This,ppEnum)	\
+    ( (This)->lpVtbl -> get_EnumTuningSpaces(This,ppEnum) ) 
+
+#define ITuningSpaceContainer_Remove(This,Index)	\
+    ( (This)->lpVtbl -> Remove(This,Index) ) 
+
+#define ITuningSpaceContainer_get_MaxCount(This,MaxCount)	\
+    ( (This)->lpVtbl -> get_MaxCount(This,MaxCount) ) 
+
+#define ITuningSpaceContainer_put_MaxCount(This,MaxCount)	\
+    ( (This)->lpVtbl -> put_MaxCount(This,MaxCount) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __ITuningSpaceContainer_INTERFACE_DEFINED__ */
+
+#ifndef __IEnumTuningSpaces_INTERFACE_DEFINED__
+#define __IEnumTuningSpaces_INTERFACE_DEFINED__
+
+/* interface IEnumTuningSpaces */
+/* [unique][uuid][object][restricted][hidden] */
+
+
+EXTERN_C const IID IID_IEnumTuningSpaces;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("8B8EB248-FC2B-11d2-9D8C-00C04F72D980")
+IEnumTuningSpaces : public IUnknown
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE Next(
+		/* [in] */ ULONG celt,
+		/* [length_is][size_is][out] */ __RPC__out_ecount_part(celt, *pceltFetched) ITuningSpace **rgelt,
+		/* [out] */ __RPC__out ULONG *pceltFetched) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Skip(
+		/* [in] */ ULONG celt) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Reset(void) = 0;
+
+	virtual HRESULT STDMETHODCALLTYPE Clone(
+		/* [out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IEnumTuningSpacesVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IEnumTuningSpaces * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IEnumTuningSpaces * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IEnumTuningSpaces * This);
+
+	HRESULT(STDMETHODCALLTYPE *Next)(
+		__RPC__in IEnumTuningSpaces * This,
+		/* [in] */ ULONG celt,
+		/* [length_is][size_is][out] */ __RPC__out_ecount_part(celt, *pceltFetched) ITuningSpace **rgelt,
+		/* [out] */ __RPC__out ULONG *pceltFetched);
+
+	HRESULT(STDMETHODCALLTYPE *Skip)(
+		__RPC__in IEnumTuningSpaces * This,
+		/* [in] */ ULONG celt);
+
+	HRESULT(STDMETHODCALLTYPE *Reset)(
+		__RPC__in IEnumTuningSpaces * This);
+
+	HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IEnumTuningSpaces * This,
+		/* [out] */ __RPC__deref_out_opt IEnumTuningSpaces **ppEnum);
+
+	END_INTERFACE
+} IEnumTuningSpacesVtbl;
+
+interface IEnumTuningSpaces
+{
+	CONST_VTBL struct IEnumTuningSpacesVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IEnumTuningSpaces_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IEnumTuningSpaces_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IEnumTuningSpaces_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IEnumTuningSpaces_Next(This,celt,rgelt,pceltFetched)	\
+    ( (This)->lpVtbl -> Next(This,celt,rgelt,pceltFetched) ) 
+
+#define IEnumTuningSpaces_Skip(This,celt)	\
+    ( (This)->lpVtbl -> Skip(This,celt) ) 
+
+#define IEnumTuningSpaces_Reset(This)	\
+    ( (This)->lpVtbl -> Reset(This) ) 
+
+#define IEnumTuningSpaces_Clone(This,ppEnum)	\
+    ( (This)->lpVtbl -> Clone(This,ppEnum) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IEnumTuningSpaces_INTERFACE_DEFINED__ */
+
+
+
+
+#ifndef __IATSCChannelTuneRequest_INTERFACE_DEFINED__
+#define __IATSCChannelTuneRequest_INTERFACE_DEFINED__
+
+/* interface IATSCChannelTuneRequest */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_IATSCChannelTuneRequest;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("0369B4E1-45B6-11d3-B650-00C04F79498E")
+IATSCChannelTuneRequest : public IChannelTuneRequest
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_MinorChannel(
+		/* [retval][out] */ __RPC__out long *MinorChannel) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_MinorChannel(
+		/* [in] */ long MinorChannel) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IATSCChannelTuneRequestVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IATSCChannelTuneRequest * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IATSCChannelTuneRequest * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IATSCChannelTuneRequest * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IATSCChannelTuneRequest * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Components)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponents **Components);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **NewTuneRequest);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Locator)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **Locator);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Locator)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [in] */ __RPC__in_opt ILocator *Locator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Channel)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *Channel);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Channel)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [in] */ long Channel);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_MinorChannel)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *MinorChannel);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_MinorChannel)(
+		__RPC__in IATSCChannelTuneRequest * This,
+		/* [in] */ long MinorChannel);
+
+	END_INTERFACE
+} IATSCChannelTuneRequestVtbl;
+
+interface IATSCChannelTuneRequest
+{
+	CONST_VTBL struct IATSCChannelTuneRequestVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IATSCChannelTuneRequest_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IATSCChannelTuneRequest_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IATSCChannelTuneRequest_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IATSCChannelTuneRequest_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IATSCChannelTuneRequest_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IATSCChannelTuneRequest_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IATSCChannelTuneRequest_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IATSCChannelTuneRequest_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define IATSCChannelTuneRequest_get_Components(This,Components)	\
+    ( (This)->lpVtbl -> get_Components(This,Components) ) 
+
+#define IATSCChannelTuneRequest_Clone(This,NewTuneRequest)	\
+    ( (This)->lpVtbl -> Clone(This,NewTuneRequest) ) 
+
+#define IATSCChannelTuneRequest_get_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> get_Locator(This,Locator) ) 
+
+#define IATSCChannelTuneRequest_put_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> put_Locator(This,Locator) ) 
+
+
+#define IATSCChannelTuneRequest_get_Channel(This,Channel)	\
+    ( (This)->lpVtbl -> get_Channel(This,Channel) ) 
+
+#define IATSCChannelTuneRequest_put_Channel(This,Channel)	\
+    ( (This)->lpVtbl -> put_Channel(This,Channel) ) 
+
+
+#define IATSCChannelTuneRequest_get_MinorChannel(This,MinorChannel)	\
+    ( (This)->lpVtbl -> get_MinorChannel(This,MinorChannel) ) 
+
+#define IATSCChannelTuneRequest_put_MinorChannel(This,MinorChannel)	\
+    ( (This)->lpVtbl -> put_MinorChannel(This,MinorChannel) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IATSCChannelTuneRequest_INTERFACE_DEFINED__ */
+
+
+#ifndef __IDigitalCableTuneRequest_INTERFACE_DEFINED__
+#define __IDigitalCableTuneRequest_INTERFACE_DEFINED__
+
+/* interface IDigitalCableTuneRequest */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][object] */
+
+
+EXTERN_C const IID IID_IDigitalCableTuneRequest;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("BAD7753B-6B37-4810-AE57-3CE0C4A9E6CB")
+IDigitalCableTuneRequest : public IATSCChannelTuneRequest
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_MajorChannel(
+		/* [retval][out] */ __RPC__out long *pMajorChannel) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_MajorChannel(
+		/* [in] */ long MajorChannel) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SourceID(
+		/* [retval][out] */ __RPC__out long *pSourceID) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SourceID(
+		/* [in] */ long SourceID) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDigitalCableTuneRequestVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDigitalCableTuneRequest * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDigitalCableTuneRequest * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDigitalCableTuneRequest * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDigitalCableTuneRequest * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_TuningSpace)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuningSpace **TuningSpace);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Components)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt IComponents **Components);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ITuneRequest **NewTuneRequest);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Locator)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **Locator);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Locator)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ __RPC__in_opt ILocator *Locator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Channel)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *Channel);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Channel)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ long Channel);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_MinorChannel)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *MinorChannel);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_MinorChannel)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ long MinorChannel);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_MajorChannel)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *pMajorChannel);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_MajorChannel)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ long MajorChannel);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SourceID)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [retval][out] */ __RPC__out long *pSourceID);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SourceID)(
+		__RPC__in IDigitalCableTuneRequest * This,
+		/* [in] */ long SourceID);
+
+	END_INTERFACE
+} IDigitalCableTuneRequestVtbl;
+
+interface IDigitalCableTuneRequest
+{
+	CONST_VTBL struct IDigitalCableTuneRequestVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDigitalCableTuneRequest_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDigitalCableTuneRequest_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDigitalCableTuneRequest_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDigitalCableTuneRequest_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDigitalCableTuneRequest_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDigitalCableTuneRequest_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDigitalCableTuneRequest_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDigitalCableTuneRequest_get_TuningSpace(This,TuningSpace)	\
+    ( (This)->lpVtbl -> get_TuningSpace(This,TuningSpace) ) 
+
+#define IDigitalCableTuneRequest_get_Components(This,Components)	\
+    ( (This)->lpVtbl -> get_Components(This,Components) ) 
+
+#define IDigitalCableTuneRequest_Clone(This,NewTuneRequest)	\
+    ( (This)->lpVtbl -> Clone(This,NewTuneRequest) ) 
+
+#define IDigitalCableTuneRequest_get_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> get_Locator(This,Locator) ) 
+
+#define IDigitalCableTuneRequest_put_Locator(This,Locator)	\
+    ( (This)->lpVtbl -> put_Locator(This,Locator) ) 
+
+
+#define IDigitalCableTuneRequest_get_Channel(This,Channel)	\
+    ( (This)->lpVtbl -> get_Channel(This,Channel) ) 
+
+#define IDigitalCableTuneRequest_put_Channel(This,Channel)	\
+    ( (This)->lpVtbl -> put_Channel(This,Channel) ) 
+
+
+#define IDigitalCableTuneRequest_get_MinorChannel(This,MinorChannel)	\
+    ( (This)->lpVtbl -> get_MinorChannel(This,MinorChannel) ) 
+
+#define IDigitalCableTuneRequest_put_MinorChannel(This,MinorChannel)	\
+    ( (This)->lpVtbl -> put_MinorChannel(This,MinorChannel) ) 
+
+
+#define IDigitalCableTuneRequest_get_MajorChannel(This,pMajorChannel)	\
+    ( (This)->lpVtbl -> get_MajorChannel(This,pMajorChannel) ) 
+
+#define IDigitalCableTuneRequest_put_MajorChannel(This,MajorChannel)	\
+    ( (This)->lpVtbl -> put_MajorChannel(This,MajorChannel) ) 
+
+#define IDigitalCableTuneRequest_get_SourceID(This,pSourceID)	\
+    ( (This)->lpVtbl -> get_SourceID(This,pSourceID) ) 
+
+#define IDigitalCableTuneRequest_put_SourceID(This,SourceID)	\
+    ( (This)->lpVtbl -> put_SourceID(This,SourceID) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDigitalCableTuneRequest_INTERFACE_DEFINED__ */
+
+
+
+
+
+
+
+#ifndef __IDVBSLocator_INTERFACE_DEFINED__
+#define __IDVBSLocator_INTERFACE_DEFINED__
+
+/* interface IDVBSLocator */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][hidden][object] */
+
+
+EXTERN_C const IID IID_IDVBSLocator;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("3D7C353C-0D04-45f1-A742-F97CC1188DC8")
+IDVBSLocator : public IDigitalLocator
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SignalPolarisation(
+		/* [retval][out] */ __RPC__out Polarisation *PolarisationVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SignalPolarisation(
+		/* [in] */ Polarisation PolarisationVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_WestPosition(
+		/* [retval][out] */ __RPC__out VARIANT_BOOL *WestLongitude) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_WestPosition(
+		/* [in] */ VARIANT_BOOL WestLongitude) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_OrbitalPosition(
+		/* [retval][out] */ __RPC__out long *longitude) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_OrbitalPosition(
+		/* [in] */ long longitude) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Azimuth(
+		/* [retval][out] */ __RPC__out long *Azimuth) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Azimuth(
+		/* [in] */ long Azimuth) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_Elevation(
+		/* [retval][out] */ __RPC__out long *Elevation) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_Elevation(
+		/* [in] */ long Elevation) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBSLocatorVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBSLocator * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBSLocator * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBSLocator * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBSLocator * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBSLocator * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CarrierFrequency)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out long *Frequency);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_CarrierFrequency)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ long Frequency);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFEC)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFEC)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFECRate)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFECRate)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFEC)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFEC)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFECRate)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFECRate)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Modulation)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out ModulationType *Modulation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Modulation)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ ModulationType Modulation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SymbolRate)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out long *Rate);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SymbolRate)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ long Rate);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SignalPolarisation)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out Polarisation *PolarisationVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SignalPolarisation)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ Polarisation PolarisationVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_WestPosition)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out VARIANT_BOOL *WestLongitude);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_WestPosition)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ VARIANT_BOOL WestLongitude);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OrbitalPosition)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out long *longitude);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OrbitalPosition)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ long longitude);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Azimuth)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out long *Azimuth);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Azimuth)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ long Azimuth);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Elevation)(
+		__RPC__in IDVBSLocator * This,
+		/* [retval][out] */ __RPC__out long *Elevation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Elevation)(
+		__RPC__in IDVBSLocator * This,
+		/* [in] */ long Elevation);
+
+	END_INTERFACE
+} IDVBSLocatorVtbl;
+
+interface IDVBSLocator
+{
+	CONST_VTBL struct IDVBSLocatorVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBSLocator_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBSLocator_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBSLocator_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBSLocator_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBSLocator_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBSLocator_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBSLocator_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBSLocator_get_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> get_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBSLocator_put_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> put_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBSLocator_get_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFEC(This,FEC) ) 
+
+#define IDVBSLocator_put_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFEC(This,FEC) ) 
+
+#define IDVBSLocator_get_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFECRate(This,FEC) ) 
+
+#define IDVBSLocator_put_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFECRate(This,FEC) ) 
+
+#define IDVBSLocator_get_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFEC(This,FEC) ) 
+
+#define IDVBSLocator_put_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFEC(This,FEC) ) 
+
+#define IDVBSLocator_get_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFECRate(This,FEC) ) 
+
+#define IDVBSLocator_put_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFECRate(This,FEC) ) 
+
+#define IDVBSLocator_get_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> get_Modulation(This,Modulation) ) 
+
+#define IDVBSLocator_put_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> put_Modulation(This,Modulation) ) 
+
+#define IDVBSLocator_get_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> get_SymbolRate(This,Rate) ) 
+
+#define IDVBSLocator_put_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> put_SymbolRate(This,Rate) ) 
+
+#define IDVBSLocator_Clone(This,NewLocator)	\
+    ( (This)->lpVtbl -> Clone(This,NewLocator) ) 
+
+
+
+#define IDVBSLocator_get_SignalPolarisation(This,PolarisationVal)	\
+    ( (This)->lpVtbl -> get_SignalPolarisation(This,PolarisationVal) ) 
+
+#define IDVBSLocator_put_SignalPolarisation(This,PolarisationVal)	\
+    ( (This)->lpVtbl -> put_SignalPolarisation(This,PolarisationVal) ) 
+
+#define IDVBSLocator_get_WestPosition(This,WestLongitude)	\
+    ( (This)->lpVtbl -> get_WestPosition(This,WestLongitude) ) 
+
+#define IDVBSLocator_put_WestPosition(This,WestLongitude)	\
+    ( (This)->lpVtbl -> put_WestPosition(This,WestLongitude) ) 
+
+#define IDVBSLocator_get_OrbitalPosition(This,longitude)	\
+    ( (This)->lpVtbl -> get_OrbitalPosition(This,longitude) ) 
+
+#define IDVBSLocator_put_OrbitalPosition(This,longitude)	\
+    ( (This)->lpVtbl -> put_OrbitalPosition(This,longitude) ) 
+
+#define IDVBSLocator_get_Azimuth(This,Azimuth)	\
+    ( (This)->lpVtbl -> get_Azimuth(This,Azimuth) ) 
+
+#define IDVBSLocator_put_Azimuth(This,Azimuth)	\
+    ( (This)->lpVtbl -> put_Azimuth(This,Azimuth) ) 
+
+#define IDVBSLocator_get_Elevation(This,Elevation)	\
+    ( (This)->lpVtbl -> get_Elevation(This,Elevation) ) 
+
+#define IDVBSLocator_put_Elevation(This,Elevation)	\
+    ( (This)->lpVtbl -> put_Elevation(This,Elevation) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBSLocator_INTERFACE_DEFINED__ */
+
+
+#ifndef __IDVBSLocator2_INTERFACE_DEFINED__
+#define __IDVBSLocator2_INTERFACE_DEFINED__
+
+/* interface IDVBSLocator2 */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][hidden][object] */
+
+
+EXTERN_C const IID IID_IDVBSLocator2;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("6044634A-1733-4f99-B982-5FB12AFCE4F0")
+IDVBSLocator2 : public IDVBSLocator
+{
+public:
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_DiseqLNBSource(
+		/* [retval][out] */ __RPC__out LNB_Source *DiseqLNBSourceVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_DiseqLNBSource(
+		/* [in] */ LNB_Source DiseqLNBSourceVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_LocalOscillatorOverrideLow(
+		/* [retval][out] */ __RPC__out long *LocalOscillatorOverrideLowVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_LocalOscillatorOverrideLow(
+		/* [in] */ long LocalOscillatorOverrideLowVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_LocalOscillatorOverrideHigh(
+		/* [retval][out] */ __RPC__out long *LocalOscillatorOverrideHighVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_LocalOscillatorOverrideHigh(
+		/* [in] */ long LocalOscillatorOverrideHighVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_LocalLNBSwitchOverride(
+		/* [retval][out] */ __RPC__out long *LocalLNBSwitchOverrideVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_LocalLNBSwitchOverride(
+		/* [in] */ long LocalLNBSwitchOverrideVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_LocalSpectralInversionOverride(
+		/* [retval][out] */ __RPC__out SpectralInversion *LocalSpectralInversionOverrideVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_LocalSpectralInversionOverride(
+		/* [in] */ SpectralInversion LocalSpectralInversionOverrideVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SignalRollOff(
+		/* [retval][out] */ __RPC__out RollOff *RollOffVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SignalRollOff(
+		/* [in] */ RollOff RollOffVal) = 0;
+
+	virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_SignalPilot(
+		/* [retval][out] */ __RPC__out Pilot *PilotVal) = 0;
+
+	virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_SignalPilot(
+		/* [in] */ Pilot PilotVal) = 0;
+
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBSLocator2Vtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBSLocator2 * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBSLocator2 * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBSLocator2 * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBSLocator2 * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CarrierFrequency)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *Frequency);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_CarrierFrequency)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long Frequency);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFEC)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFEC)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFECRate)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFECRate)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFEC)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFEC)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFECRate)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFECRate)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Modulation)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out ModulationType *Modulation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Modulation)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ ModulationType Modulation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SymbolRate)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *Rate);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SymbolRate)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long Rate);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SignalPolarisation)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out Polarisation *PolarisationVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SignalPolarisation)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ Polarisation PolarisationVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_WestPosition)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out VARIANT_BOOL *WestLongitude);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_WestPosition)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ VARIANT_BOOL WestLongitude);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OrbitalPosition)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *longitude);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OrbitalPosition)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long longitude);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Azimuth)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *Azimuth);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Azimuth)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long Azimuth);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Elevation)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *Elevation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Elevation)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long Elevation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_DiseqLNBSource)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out LNB_Source *DiseqLNBSourceVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_DiseqLNBSource)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ LNB_Source DiseqLNBSourceVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_LocalOscillatorOverrideLow)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *LocalOscillatorOverrideLowVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_LocalOscillatorOverrideLow)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long LocalOscillatorOverrideLowVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_LocalOscillatorOverrideHigh)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *LocalOscillatorOverrideHighVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_LocalOscillatorOverrideHigh)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long LocalOscillatorOverrideHighVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_LocalLNBSwitchOverride)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out long *LocalLNBSwitchOverrideVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_LocalLNBSwitchOverride)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ long LocalLNBSwitchOverrideVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_LocalSpectralInversionOverride)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out SpectralInversion *LocalSpectralInversionOverrideVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_LocalSpectralInversionOverride)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ SpectralInversion LocalSpectralInversionOverrideVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SignalRollOff)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out RollOff *RollOffVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SignalRollOff)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ RollOff RollOffVal);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SignalPilot)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [retval][out] */ __RPC__out Pilot *PilotVal);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SignalPilot)(
+		__RPC__in IDVBSLocator2 * This,
+		/* [in] */ Pilot PilotVal);
+
+	END_INTERFACE
+} IDVBSLocator2Vtbl;
+
+interface IDVBSLocator2
+{
+	CONST_VTBL struct IDVBSLocator2Vtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBSLocator2_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBSLocator2_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBSLocator2_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBSLocator2_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBSLocator2_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBSLocator2_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBSLocator2_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBSLocator2_get_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> get_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBSLocator2_put_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> put_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBSLocator2_get_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFEC(This,FEC) ) 
+
+#define IDVBSLocator2_put_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFEC(This,FEC) ) 
+
+#define IDVBSLocator2_get_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFECRate(This,FEC) ) 
+
+#define IDVBSLocator2_put_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFECRate(This,FEC) ) 
+
+#define IDVBSLocator2_get_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFEC(This,FEC) ) 
+
+#define IDVBSLocator2_put_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFEC(This,FEC) ) 
+
+#define IDVBSLocator2_get_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFECRate(This,FEC) ) 
+
+#define IDVBSLocator2_put_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFECRate(This,FEC) ) 
+
+#define IDVBSLocator2_get_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> get_Modulation(This,Modulation) ) 
+
+#define IDVBSLocator2_put_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> put_Modulation(This,Modulation) ) 
+
+#define IDVBSLocator2_get_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> get_SymbolRate(This,Rate) ) 
+
+#define IDVBSLocator2_put_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> put_SymbolRate(This,Rate) ) 
+
+#define IDVBSLocator2_Clone(This,NewLocator)	\
+    ( (This)->lpVtbl -> Clone(This,NewLocator) ) 
+
+
+
+#define IDVBSLocator2_get_SignalPolarisation(This,PolarisationVal)	\
+    ( (This)->lpVtbl -> get_SignalPolarisation(This,PolarisationVal) ) 
+
+#define IDVBSLocator2_put_SignalPolarisation(This,PolarisationVal)	\
+    ( (This)->lpVtbl -> put_SignalPolarisation(This,PolarisationVal) ) 
+
+#define IDVBSLocator2_get_WestPosition(This,WestLongitude)	\
+    ( (This)->lpVtbl -> get_WestPosition(This,WestLongitude) ) 
+
+#define IDVBSLocator2_put_WestPosition(This,WestLongitude)	\
+    ( (This)->lpVtbl -> put_WestPosition(This,WestLongitude) ) 
+
+#define IDVBSLocator2_get_OrbitalPosition(This,longitude)	\
+    ( (This)->lpVtbl -> get_OrbitalPosition(This,longitude) ) 
+
+#define IDVBSLocator2_put_OrbitalPosition(This,longitude)	\
+    ( (This)->lpVtbl -> put_OrbitalPosition(This,longitude) ) 
+
+#define IDVBSLocator2_get_Azimuth(This,Azimuth)	\
+    ( (This)->lpVtbl -> get_Azimuth(This,Azimuth) ) 
+
+#define IDVBSLocator2_put_Azimuth(This,Azimuth)	\
+    ( (This)->lpVtbl -> put_Azimuth(This,Azimuth) ) 
+
+#define IDVBSLocator2_get_Elevation(This,Elevation)	\
+    ( (This)->lpVtbl -> get_Elevation(This,Elevation) ) 
+
+#define IDVBSLocator2_put_Elevation(This,Elevation)	\
+    ( (This)->lpVtbl -> put_Elevation(This,Elevation) ) 
+
+
+#define IDVBSLocator2_get_DiseqLNBSource(This,DiseqLNBSourceVal)	\
+    ( (This)->lpVtbl -> get_DiseqLNBSource(This,DiseqLNBSourceVal) ) 
+
+#define IDVBSLocator2_put_DiseqLNBSource(This,DiseqLNBSourceVal)	\
+    ( (This)->lpVtbl -> put_DiseqLNBSource(This,DiseqLNBSourceVal) ) 
+
+#define IDVBSLocator2_get_LocalOscillatorOverrideLow(This,LocalOscillatorOverrideLowVal)	\
+    ( (This)->lpVtbl -> get_LocalOscillatorOverrideLow(This,LocalOscillatorOverrideLowVal) ) 
+
+#define IDVBSLocator2_put_LocalOscillatorOverrideLow(This,LocalOscillatorOverrideLowVal)	\
+    ( (This)->lpVtbl -> put_LocalOscillatorOverrideLow(This,LocalOscillatorOverrideLowVal) ) 
+
+#define IDVBSLocator2_get_LocalOscillatorOverrideHigh(This,LocalOscillatorOverrideHighVal)	\
+    ( (This)->lpVtbl -> get_LocalOscillatorOverrideHigh(This,LocalOscillatorOverrideHighVal) ) 
+
+#define IDVBSLocator2_put_LocalOscillatorOverrideHigh(This,LocalOscillatorOverrideHighVal)	\
+    ( (This)->lpVtbl -> put_LocalOscillatorOverrideHigh(This,LocalOscillatorOverrideHighVal) ) 
+
+#define IDVBSLocator2_get_LocalLNBSwitchOverride(This,LocalLNBSwitchOverrideVal)	\
+    ( (This)->lpVtbl -> get_LocalLNBSwitchOverride(This,LocalLNBSwitchOverrideVal) ) 
+
+#define IDVBSLocator2_put_LocalLNBSwitchOverride(This,LocalLNBSwitchOverrideVal)	\
+    ( (This)->lpVtbl -> put_LocalLNBSwitchOverride(This,LocalLNBSwitchOverrideVal) ) 
+
+#define IDVBSLocator2_get_LocalSpectralInversionOverride(This,LocalSpectralInversionOverrideVal)	\
+    ( (This)->lpVtbl -> get_LocalSpectralInversionOverride(This,LocalSpectralInversionOverrideVal) ) 
+
+#define IDVBSLocator2_put_LocalSpectralInversionOverride(This,LocalSpectralInversionOverrideVal)	\
+    ( (This)->lpVtbl -> put_LocalSpectralInversionOverride(This,LocalSpectralInversionOverrideVal) ) 
+
+#define IDVBSLocator2_get_SignalRollOff(This,RollOffVal)	\
+    ( (This)->lpVtbl -> get_SignalRollOff(This,RollOffVal) ) 
+
+#define IDVBSLocator2_put_SignalRollOff(This,RollOffVal)	\
+    ( (This)->lpVtbl -> put_SignalRollOff(This,RollOffVal) ) 
+
+#define IDVBSLocator2_get_SignalPilot(This,PilotVal)	\
+    ( (This)->lpVtbl -> get_SignalPilot(This,PilotVal) ) 
+
+#define IDVBSLocator2_put_SignalPilot(This,PilotVal)	\
+    ( (This)->lpVtbl -> put_SignalPilot(This,PilotVal) ) 
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBSLocator2_INTERFACE_DEFINED__ */
+
+
+#ifndef __IDVBCLocator_INTERFACE_DEFINED__
+#define __IDVBCLocator_INTERFACE_DEFINED__
+
+/* interface IDVBCLocator */
+/* [unique][helpstring][proxy][oleautomation][dual][uuid][nonextensible][hidden][object] */
+
+
+EXTERN_C const IID IID_IDVBCLocator;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+
+MIDL_INTERFACE("6E42F36E-1DD2-43c4-9F78-69D25AE39034")
+IDVBCLocator : public IDigitalLocator
+{
+public:
+};
+
+
+#else 	/* C style interface */
+
+typedef struct IDVBCLocatorVtbl
+{
+	BEGIN_INTERFACE
+
+		HRESULT(STDMETHODCALLTYPE *QueryInterface)(
+			__RPC__in IDVBCLocator * This,
+			/* [in] */ __RPC__in REFIID riid,
+			/* [annotation][iid_is][out] */
+			_COM_Outptr_  void **ppvObject);
+
+	ULONG(STDMETHODCALLTYPE *AddRef)(
+		__RPC__in IDVBCLocator * This);
+
+	ULONG(STDMETHODCALLTYPE *Release)(
+		__RPC__in IDVBCLocator * This);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfoCount)(
+		__RPC__in IDVBCLocator * This,
+		/* [out] */ __RPC__out UINT *pctinfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetTypeInfo)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ UINT iTInfo,
+		/* [in] */ LCID lcid,
+		/* [out] */ __RPC__deref_out_opt ITypeInfo **ppTInfo);
+
+	HRESULT(STDMETHODCALLTYPE *GetIDsOfNames)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ __RPC__in REFIID riid,
+		/* [size_is][in] */ __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames,
+		/* [range][in] */ __RPC__in_range(0, 16384) UINT cNames,
+		/* [in] */ LCID lcid,
+		/* [size_is][out] */ __RPC__out_ecount_full(cNames) DISPID *rgDispId);
+
+	/* [local] */ HRESULT(STDMETHODCALLTYPE *Invoke)(
+		IDVBCLocator * This,
+		/* [annotation][in] */
+		_In_  DISPID dispIdMember,
+		/* [annotation][in] */
+		_In_  REFIID riid,
+		/* [annotation][in] */
+		_In_  LCID lcid,
+		/* [annotation][in] */
+		_In_  WORD wFlags,
+		/* [annotation][out][in] */
+		_In_  DISPPARAMS *pDispParams,
+		/* [annotation][out] */
+		_Out_opt_  VARIANT *pVarResult,
+		/* [annotation][out] */
+		_Out_opt_  EXCEPINFO *pExcepInfo,
+		/* [annotation][out] */
+		_Out_opt_  UINT *puArgErr);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_CarrierFrequency)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out long *Frequency);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_CarrierFrequency)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ long Frequency);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFEC)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFEC)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_InnerFECRate)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_InnerFECRate)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFEC)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out FECMethod *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFEC)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ FECMethod FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_OuterFECRate)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out BinaryConvolutionCodeRate *FEC);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_OuterFECRate)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ BinaryConvolutionCodeRate FEC);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_Modulation)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out ModulationType *Modulation);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_Modulation)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ ModulationType Modulation);
+
+	/* [helpstring][id][propget] */ HRESULT(STDMETHODCALLTYPE *get_SymbolRate)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__out long *Rate);
+
+	/* [helpstring][id][propput] */ HRESULT(STDMETHODCALLTYPE *put_SymbolRate)(
+		__RPC__in IDVBCLocator * This,
+		/* [in] */ long Rate);
+
+	/* [helpstring][id] */ HRESULT(STDMETHODCALLTYPE *Clone)(
+		__RPC__in IDVBCLocator * This,
+		/* [retval][out] */ __RPC__deref_out_opt ILocator **NewLocator);
+
+	END_INTERFACE
+} IDVBCLocatorVtbl;
+
+interface IDVBCLocator
+{
+	CONST_VTBL struct IDVBCLocatorVtbl *lpVtbl;
+};
+
+
+
+#ifdef COBJMACROS
+
+
+#define IDVBCLocator_QueryInterface(This,riid,ppvObject)	\
+    ( (This)->lpVtbl -> QueryInterface(This,riid,ppvObject) ) 
+
+#define IDVBCLocator_AddRef(This)	\
+    ( (This)->lpVtbl -> AddRef(This) ) 
+
+#define IDVBCLocator_Release(This)	\
+    ( (This)->lpVtbl -> Release(This) ) 
+
+
+#define IDVBCLocator_GetTypeInfoCount(This,pctinfo)	\
+    ( (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo) ) 
+
+#define IDVBCLocator_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    ( (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo) ) 
+
+#define IDVBCLocator_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    ( (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId) ) 
+
+#define IDVBCLocator_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    ( (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr) ) 
+
+
+#define IDVBCLocator_get_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> get_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBCLocator_put_CarrierFrequency(This,Frequency)	\
+    ( (This)->lpVtbl -> put_CarrierFrequency(This,Frequency) ) 
+
+#define IDVBCLocator_get_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFEC(This,FEC) ) 
+
+#define IDVBCLocator_put_InnerFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFEC(This,FEC) ) 
+
+#define IDVBCLocator_get_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_InnerFECRate(This,FEC) ) 
+
+#define IDVBCLocator_put_InnerFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_InnerFECRate(This,FEC) ) 
+
+#define IDVBCLocator_get_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFEC(This,FEC) ) 
+
+#define IDVBCLocator_put_OuterFEC(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFEC(This,FEC) ) 
+
+#define IDVBCLocator_get_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> get_OuterFECRate(This,FEC) ) 
+
+#define IDVBCLocator_put_OuterFECRate(This,FEC)	\
+    ( (This)->lpVtbl -> put_OuterFECRate(This,FEC) ) 
+
+#define IDVBCLocator_get_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> get_Modulation(This,Modulation) ) 
+
+#define IDVBCLocator_put_Modulation(This,Modulation)	\
+    ( (This)->lpVtbl -> put_Modulation(This,Modulation) ) 
+
+#define IDVBCLocator_get_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> get_SymbolRate(This,Rate) ) 
+
+#define IDVBCLocator_put_SymbolRate(This,Rate)	\
+    ( (This)->lpVtbl -> put_SymbolRate(This,Rate) ) 
+
+#define IDVBCLocator_Clone(This,NewLocator)	\
+    ( (This)->lpVtbl -> Clone(This,NewLocator) ) 
+
+
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+
+#endif 	/* __IDVBCLocator_INTERFACE_DEFINED__ */
+
